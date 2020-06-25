@@ -1,4 +1,4 @@
-# Niffler Configuration Files
+# Metadata Extraction Configuration Files
 
 The extraction-profiles consists of several featureset.txt files. Each featureset has multiple attributes. Each featureset corresponds to a collection in the database.
 
