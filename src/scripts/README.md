@@ -1,6 +1,6 @@
 # Niffler Scripts
 
-The scripts, developed in Javascript, includes mechanisms to query the metadata storage.
+The scripts, developed in Javascript, includes mechanisms to query the metadata storage to prepare DICOM subsets for the execution of the ML algorithm containers.
 
 * ivcf-query.js: Filters query for the IVC filter detection container
 
