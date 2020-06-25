@@ -11,9 +11,9 @@ In the src folder:
 
 * cold-extraction: On-demand queries to retrieve retrospective DICOM data.
 
-* meta-extraction: Extracting metadata from a continuous real-time DICOM imaging stream.
+* meta-extraction: Extracts metadata from a continuous real-time DICOM imaging stream.
 
-* png-extraction: Convert a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
+* png-extraction: Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
 
 
 ## Developing Niffler
