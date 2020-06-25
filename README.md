@@ -3,6 +3,18 @@
 Niffler is a real-time PACS receiver and metadata extractor framework. It consists of a metadata extractor at its core. MetadataExtractor.py in src/meta-extraction implements the core extraction functionality.
 
 
+## Using Niffler
+
+Make sure to configure the PACS to send data to Niffler's host, port, and AE_Title. Niffler won't receive data unless the PACS allows the requests from Niffler (host/port/AE_Title).
+
+In the src folder:
+
+* cold-extraction: On-demand queries to retrieve retrospective DICOM data.
+
+* meta-extraction: Extracting metadata from a continuous real-time DICOM imaging stream.
+
+* png-extraction: Convert a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
+
 
 ## Developing Niffler
 
