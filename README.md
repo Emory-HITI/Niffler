@@ -1,4 +1,4 @@
-# Emory Niffler Project
+# Niffler: A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images
 
 Niffler is a real-time PACS receiver and metadata extractor framework. It consists of a metadata extractor at its core. MetadataExtractor.py in src/meta-extraction implements the core extraction functionality.
 
