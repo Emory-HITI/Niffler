@@ -1,3 +1,6 @@
+# The On-Demand Retrospective DICOM Extractor
+Cold Data Retriever is another script that pulls and extracts data on-demand. It is initiated per user query, rather than running continuously.
+
 ## Running StoreSCP
 We first run a StoreScp process.
 
