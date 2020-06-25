@@ -3,7 +3,7 @@
 Niffler is a real-time PACS receiver and metadata extractor framework. It consists of a metadata extractor at its core. MetadataExtractor.py in src/meta-extraction implements the core extraction functionality.
 
 
-# The Metadata Extractor
+# The Real-time DICOM Extractor
 
 ### Customize the values:
 Create a features files based on the files in conf/extraction-profiles and place it in a folder.
@@ -101,7 +101,7 @@ Is the disk full, and consequently Niffler is unable to receive new images? Stop
 
 
 
-# Cold Data Retriever
+# The On-Demand Retrospective DICOM Extractor
 Cold Data Retriever is another script that pulls and extracts data once.
 
 $ nohup python3.6 ColdDataRetriever.py >> cold.out &
