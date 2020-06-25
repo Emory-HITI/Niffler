@@ -1,0 +1,5 @@
+image==1.5.27
+numpy==1.16.4
+pandas==0.25.0
+pydicom==1.4.2
+pypng==0.0.20
