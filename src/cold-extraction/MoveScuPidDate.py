@@ -4,15 +4,20 @@ import csv
 import time
 import shutil
 import subprocess
+import datetime
+
 
 LOGGER = logging.getLogger('pynetdicom')
 LOGGER.setLevel(logging.INFO)
 DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
 
 
-csvfile = "DBS_modified.csv"
+csvfile = "Mineral_metabolism_screening_MGs.csv"
 patient_index = 1
-date_index = 2
+date_index = 3
+dateType = "StudyDate"
+date_format = '%m/%d/%y'
+
 
 # Array of accession numbers
 patients = []
@@ -26,8 +31,10 @@ with open(csvfile, newline='') as f:
     next(f)
     for row in reader:
         patients.append(row[patient_index])
-        dates.append(row[date_index])
-
+        temp_date = row[date_index]
+        dt_stamp = datetime.datetime.strptime(temp_date, date_format)
+        date_str = dt_stamp.strftime('%Y%m%d')
+        dates.append(date_str)
 
 
 # Create our Identifier (query) dataset
@@ -35,9 +42,9 @@ for pid in range(0, len(patients)):
     Date = dates[pid]
     PatientID = patients[pid]
 
-    subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m PatientID={1} -m AcquisitionDate={2}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file imonintermediate.csv --out-dir .".format(DCM4CHE_BIN,PatientID, Date), shell=True)
+    subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m PatientID={1} -m {2}={3}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN,PatientID, dateType, Date), shell=True)
     
-    with open('imonintermediate1.csv', newline='') as g:
+    with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
         reader2 = csv.reader(g)
         next(g)
     
