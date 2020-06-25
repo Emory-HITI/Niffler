@@ -15,10 +15,14 @@ In the src folder:
 
 * png-extraction: Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
 
+* scripts: The scripts to enable ML Algorithm containers.
+
+* main: The Application Layer, developed in Java
+
 
 ## Developing Niffler
 
-Niffler core is built with Python3. The scanner utilization tool in the Application layer is built in Java and the individual scripts are developed in Javascript.
+Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python3. The scanner utilization tool in the Application layer is built in Java and the scripts are developed in Javascript.
 
 To develop the Niffler core, first, install the dependencies.
 
