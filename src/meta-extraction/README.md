@@ -1,21 +1,11 @@
 # The Real-time DICOM Extractor
 
-### Customize the values:
-Create a features files based on the files in conf/extraction-profiles and place it in a folder.
+The Real-time DICOM Extractor runs continuously to receive DICOM files, extract and store their metadata in real-time, and then delete the data nightly.
 
-Update the below value to reflect the location of the featureset.txt.
+## Configuring Niffler for the first time.
 
-PathToFeaturesFile = "/opt/localdrive/featureset/"
+Niffler real-time extraction must be configured as a service for it to run continuously, and resume even when the server restarts.
 
-### Install Dependencies
-
-$ pip install requests pymongo schedule pydicom pynetdicom
-
-For the development branch of pynetdicom
-
-$ pip install git+git://github.com/pydicom/pynetdicom.git
-
-Also install DCM4CHE from https://github.com/dcm4che/dcm4che/releases
 
 ### Offer execution permission to the mdextractor.sh script.
 
@@ -83,6 +73,17 @@ $ sudo systemctl reboot
 $ sudo journalctl -u mdextractor.service
 
 
+## Maintaining Niffler for on-going continuous execution.
+
+More extraction profiles can be created to extract more and more metadata attributes.
+
+### Customize the values:
+
+Create a features files based on the files in conf/extraction-profiles and place it in a folder.
+
+Update the below value to reflect the location of the featureset.txt.
+
+PathToFeaturesFile = "/opt/localdrive/featureset/"
 
 ### Troubleshooting
 
