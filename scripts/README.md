@@ -1,8 +1,13 @@
-Place dush in /opt/localdrive or wherever your code is placing the Orthanc binary data.
+# Niffler Scripts
 
-Then run 
-$ sudo su
+The scripts, developed in Javascript, includes mechanisms to query the metadata storage.
 
-#./dush &
+* ivcf-query.js: Filters query for the IVC filter detection container
 
-#tail -f du_sh.out
+* scanner-time-shift:	Calibrates the time/clock of the scanners
+
+* scanner_util.js: Produces an intermediate csv file for the computation of the scanner utilization with the src/main, developed in Java.
+
+* unique_scanners.js: Finds unique scanners based on data received in a given date.
+ 
+* studytime.js: Finds earliest and latest acquisition time for a given study.
