@@ -10,6 +10,12 @@ root = '/opt/localdrive/'     #the root directory for yor project
 
 dicomHome = root + 'dicom-files/' #the folder containing your dicom files
 
+pip3 install image numpy pandas pydicom pillow pypng
+
+Make sure to have empty extracted-images, failed-dicom/1, failed-dicom/2, failed-dicom/3 folders 
+
+ready in the root folder.
+
 ## The output files
 
 ### PNG files
