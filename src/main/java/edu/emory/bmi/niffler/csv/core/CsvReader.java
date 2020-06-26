@@ -6,6 +6,7 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import edu.emory.bmi.niffler.csv.scanner_util.FilterCsvBean;
 import edu.emory.bmi.niffler.csv.scanner_util.IntermediaryCsvBean;
+import edu.emory.bmi.niffler.csv.scanner_util.ScannerSingleton;
 import edu.emory.bmi.niffler.util.NifflerConstants;
 import edu.emory.bmi.niffler.csv.scanner_util.ScannerUtil;
 import org.apache.logging.log4j.LogManager;
@@ -49,20 +50,25 @@ public class CsvReader {
             }
 
             for (File file: listOfFiles) {
-                String fileStr = file.toString();
-                Path path = Paths.get(fileStr);
-                List<AbstractCsvBean> out = convertToBean(path, IntermediaryCsvBean.class);
-                ScannerUtil.getFinalCsvString(out, file.getName(), scannersSubsetMap);
+                try {
+                    String fileStr = file.toString();
+                    ScannerSingleton.next(fileStr);
+                    Path path = Paths.get(fileStr);
+                    List<AbstractCsvBean> out = convertToBean(path, IntermediaryCsvBean.class);
+                    ScannerUtil.getFinalCsvString(out, file.getName(), scannersSubsetMap);
+                } catch (NullPointerException e) {
+                    logger.error("Incorrect CSV format: " + e);
+                } catch (RuntimeException e) {
+                    logger.error("Unsupported file format: " + e);
+                }
             }
-
-            } catch (URISyntaxException e) {
-                logger.error("URI Syntax Exception Occurred: " + e);
-            } catch (CsvValidationException e) {
-                logger.error("CSV Validation Exception Occurred: " + e);
-            } catch (Exception e) {
-                logger.error("Exception Occurred: " + e);
-            }
-
+        } catch (URISyntaxException e) {
+            logger.error("URI Syntax Exception Occurred: " + e);
+        } catch (CsvValidationException e) {
+            logger.error("CSV Validation Exception Occurred: " + e);
+        } catch (Exception e) {
+            logger.error("Exception Occurred: " + e);
+        }
     }
 
     /**

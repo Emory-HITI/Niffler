@@ -12,6 +12,12 @@ import static edu.emory.bmi.niffler.csv.scanner_util.ScannerUtil.getDiffInMins;
 public class Patient {
     private static Logger logger = LogManager.getLogger(Patient.class.getName());
 
+    private String startTime;
+    private String endTime;
+    private String patientID;
+    private double duration;
+    private int noOfStudiesInTheExam = 1;
+
     public Patient(String patientID, String startTime, String endTime) {
         this.patientID = patientID;
         this.startTime = startTime;
@@ -23,7 +29,9 @@ public class Patient {
         this.startTime = startTime;
         this.endTime = endTime;
         this.duration = duration;
-        this.merged = merged;
+        if (merged) {
+            noOfStudiesInTheExam += 1;
+        }
     }
 
     public String getStartTime() {
@@ -35,14 +43,17 @@ public class Patient {
     }
 
     public void setMerged() {
-        merged = true;
+        noOfStudiesInTheExam += 1;
     }
 
-    private String startTime;
-    private String endTime;
-    private String patientID;
-    private double duration;
-    private boolean merged;
+
+    public int getNoOfStudiesInTheExam() {
+        return noOfStudiesInTheExam;
+    }
+
+    public void setNoOfStudiesInTheExam(int noOfStudiesInTheExam) {
+        this.noOfStudiesInTheExam = noOfStudiesInTheExam;
+    }
 
     public double getDurationInMins() {
         double durationInMins = getDiffInMins(startTime, endTime);
@@ -102,6 +113,7 @@ public class Patient {
 
     public String logThePatient() {
         getDurationInMins();
-        return ", , " + patientID + ", " + startTime + ", " + endTime + ", " + duration + ", " + merged + "\n";
+        return ", , " + patientID + ", " + startTime + ", " + endTime + ", " + duration + ", " +
+                noOfStudiesInTheExam + "\n";
     }
 }

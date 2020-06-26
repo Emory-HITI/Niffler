@@ -9,8 +9,8 @@ import org.junit.Test;
 import java.io.IOException;
 
 
-public class TestFolderReader {
-	private static Logger logger = LogManager.getLogger(TestFolderReader.class.getName());
+public class TestScannerUtilization {
+	private static Logger logger = LogManager.getLogger(TestScannerUtilization.class.getName());
 
 	@Test
 	public void testReadFeatureFolder() {
