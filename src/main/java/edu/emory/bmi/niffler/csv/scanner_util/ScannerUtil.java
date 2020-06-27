@@ -20,9 +20,9 @@ public class ScannerUtil {
     public static void getFinalCsvString(
             List<AbstractCsvBean> beans, String filename, Map<String, String> scannersSubsetMap) {
         for (AbstractCsvBean bean: beans) {
-            bean.produceFinal();
+            bean.produceFinal(filename);
         }
-        ScannerSingleton ss = ScannerSingleton.getInstance();
+        ScannerSingleton ss = ScannerSingleton.getInstance(filename);
         ss.produceFinalCSV(filename, scannersSubsetMap);
     }
 

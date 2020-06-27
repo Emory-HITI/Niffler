@@ -5,6 +5,7 @@ import com.opencsv.bean.CsvBindByPosition;
 import edu.emory.bmi.niffler.csv.core.AbstractCsvBean;
 
 public class FilterCsvBean extends AbstractCsvBean {
+
     @CsvBindByPosition(position = 0)
     private String scanner;
 
@@ -12,7 +13,10 @@ public class FilterCsvBean extends AbstractCsvBean {
     private String institute;
 
     public void produceFinal() {
+    }
 
+    @Override
+    public void produceFinal(String fileName) {
     }
 
     @Override
