@@ -67,7 +67,9 @@ public class Scanner {
                     String end2 = patientObj2.getEndTime();
                     boolean status2 = patientObj.updateIfTheSameExam(start2, end2);
                     if (status2) {
-                        patientObj.setMerged();
+                        int studiesFrom2 = patientObj2.getNoOfStudiesInTheExam();
+                        int studiesFrom1 = patientObj.getNoOfStudiesInTheExam();
+                        patientObj.setNoOfStudiesInTheExam(studiesFrom1 + studiesFrom2);
                         patientHashMap.put(patientID, patientObj);
                         patientHashMap.remove(tempID);
                         String nextID = tempID + "_";
