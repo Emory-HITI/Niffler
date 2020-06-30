@@ -58,11 +58,10 @@ for pid in range(0, length):
     elif (extraction_type == 'accession'):
         Accession = accessions[pid]
 
-        subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m AccessionNumber={1}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN,Accession), shell=True)
+        subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m AccessionNumber={1} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN,Accession), shell=True)
 
     with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
         reader2 = csv.reader(g)
-        next(g)
     
         # Array of studies
         patients2 = []
