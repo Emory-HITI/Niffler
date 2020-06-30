@@ -33,7 +33,6 @@ dates = []
 
 # record the start time
 t_start = time.time()
-logging.info('I came here')
 with open(csvfile, newline='') as f:
     reader = csv.reader(f)
     next(f)
