@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ScannerSingleton {
-    private static ScannerSingleton singleton = null;
+    private static Map<String, ScannerSingleton> singleton = new HashMap<>();
     private static Logger logger = LogManager.getLogger(ScannerSingleton.class.getName());
 
     private Map<String, Scanner> scannerHashMap;
@@ -21,17 +21,12 @@ public class ScannerSingleton {
         scannerHashMap = new HashMap<>();
     }
 
-    public static ScannerSingleton getInstance() {
-        if (singleton == null)
-            singleton = new ScannerSingleton();
-        return singleton;
-    }
-
-    public static void next(String filename) {
-        logger.info("Reading the file, " + filename);
-        if (singleton != null) {
-            singleton = null;
+    public static ScannerSingleton getInstance(String ssName) {
+        if (singleton.get(ssName) == null) {
+            ScannerSingleton ss = new ScannerSingleton();
+            singleton.put(ssName, ss);
         }
+        return singleton.get(ssName);
     }
 
     public void addToScannerHashmap(String scannerID, String patientID, String iStart, String iEnd, double duration) {

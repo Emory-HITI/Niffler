@@ -1,0 +1,5 @@
+**/.DS_Store
+**/subset_scanners.csv
+target/
+.idea/
+**/*.iml
