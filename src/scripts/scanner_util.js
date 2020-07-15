@@ -1,6 +1,6 @@
 
 // Run at 0200 Today to compute the scanner utilizations with studies that belong to yesterday.
-// mongo --nodb --quiet --eval "var param1=20200601" scanner_util.js > 20200601.csv
+// mongo --quiet --eval "var param1=20200601" scanner_util.js > 20200601.csv
 
 print("DeviceSerialNumber, StudyInstanceUID, PatientID, DurationInMinutes, Number of Series in the Study, Exam Start Time, Exam End Time, StudyDescription");
 
