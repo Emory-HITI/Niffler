@@ -1,7 +1,7 @@
 
 // Run at 0200 Today to compute the scanner utilizations with studies that belong to yesterday.
-// mongo --quiet scanner_util.js > scanner_util.csv 
- 
+// mongo --nodb --quiet --eval "var param1=20200601" scanner_util.js > 20200601.csv
+
 print("DeviceSerialNumber, StudyInstanceUID, PatientID, DurationInMinutes, Number of Series in the Study, Exam Start Time, Exam End Time, StudyDescription");
 
 conn = new Mongo();
@@ -14,7 +14,7 @@ db = db.getSiblingDB("ScannersInfo");
 
 var yesterday = getYesterday();
 
-var mongoarray = db.feature_set.aggregate([{ $match : {"Modality":"MR",  "AcquisitionTime":  { "$exists" : true }, "StudyDate":{$in:[yesterday]}, "ImageType":/ORIGINAL/i, "AcquisitionTime" :  { "$exists" : true },"AcquisitionDate" :  { "$exists" : true } }},
+var mongoarray = db.feature_set.aggregate([{ $match : {"Modality":"MR",  "AcquisitionTime":  { "$exists" : true }, "StudyDate":{$in:[param1]}, "ImageType":/ORIGINAL/i, "AcquisitionTime" :  { "$exists" : true },"AcquisitionDate" :  { "$exists" : true } }},
   { "$group":{
         "_id": { StudyInstanceUID: "$StudyInstanceUID", PatientID: "$PatientID", DeviceSerialNumber: "$DeviceSerialNumber", StudyDescription: "$StudyDescription"},
 "earliestTime": {"$min": { $add: [ {$toInt:{$substr:["$AcquisitionTime", 0, 6]}}, { $cond: { if: { $eq: [ "$AcquisitionDate", "$StudyDate" ] }, then: 240000, else: 480000 } }] }},
