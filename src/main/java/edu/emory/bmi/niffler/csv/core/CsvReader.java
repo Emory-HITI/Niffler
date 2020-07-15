@@ -52,6 +52,7 @@ public class CsvReader {
             for (File file: listOfFiles) {
                 try {
                     String fileStr = file.toString();
+                    ScannerSingleton.next(fileStr);
                     Path path = Paths.get(fileStr);
                     List<AbstractCsvBean> out = convertToBean(path, IntermediaryCsvBean.class);
                     ScannerUtil.getFinalCsvString(out, file.getName(), scannersSubsetMap);
