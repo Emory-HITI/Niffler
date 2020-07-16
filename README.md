@@ -43,6 +43,6 @@ Please refer to each module's individual README for additional instructions.
 ## Citing Niffler
 If you use Niffler in your research, please cite the below paper:
 
-* Pradeeban Kathiravelu, Puneet Sharma, Ashish Sharma, Imon Banerjee, Hari Trivedi, Saptarshi Purkayastha, Priyanshu Sinha, Alexandre Cadrin-Chenevert, Nabile Safdar, Judy Wawira Gichoya. **A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images** arXiv preprint arXiv:2004.07965 (2020).
+* Pradeeban Kathiravelu, Puneet Sharma, Ashish Sharma, Imon Banerjee, Hari Trivedi, Saptarshi Purkayastha, Priyanshu Sinha, Alexandre Cadrin-Chenevert, Nabile Safdar, Judy Wawira Gichoya. **A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images** arXiv preprint [arXiv:2004.07965](http://arxiv.org/abs/2004.07965) (2020).
 
 
