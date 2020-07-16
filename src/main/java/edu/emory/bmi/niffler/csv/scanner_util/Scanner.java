@@ -1,5 +1,6 @@
 package edu.emory.bmi.niffler.csv.scanner_util;
 
+import edu.emory.bmi.niffler.util.NifflerConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,9 +59,11 @@ public class Scanner {
             boolean status = patientObj.updateIfTheSameExam(iStart, iEnd);
             if (status) {
                 patientObj.setMerged();
+                String temp = patientObj.getStudyDescription();
+                patientObj.setStudyDescription(temp + NifflerConstants.STUDY_DESC_SEPARATOR + studyDescription);
                 patientHashMap.put(patientID, patientObj);
 
-                String tempID = patientID + "_";
+                String tempID = patientID + NifflerConstants.PATIENT_DIFFERENTIATOR;
                 if (patientHashMap.get(tempID)!= null) {
                     Patient patientObj2 = patientHashMap.get(tempID);
                     String start2 = patientObj2.getStartTime();
@@ -69,21 +72,24 @@ public class Scanner {
                     if (status2) {
                         int studiesFrom2 = patientObj2.getNoOfStudiesInTheExam();
                         int studiesFrom1 = patientObj.getNoOfStudiesInTheExam();
+                        String descFrom2 = patientObj2.getStudyDescription();
+                        String descFrom1 = patientObj.getStudyDescription();
                         patientObj.setNoOfStudiesInTheExam(studiesFrom1 + studiesFrom2);
+                        patientObj.setStudyDescription(descFrom1 + NifflerConstants.STUDY_DESC_SEPARATOR + descFrom2);
                         patientHashMap.put(patientID, patientObj);
                         patientHashMap.remove(tempID);
-                        String nextID = tempID + "_";
+                        String nextID = tempID + NifflerConstants.PATIENT_DIFFERENTIATOR;
                         while (patientHashMap.containsKey(nextID)) {
                             Patient tempPatient = patientHashMap.get(nextID);
                             patientHashMap.put(tempID, tempPatient);
                             patientHashMap.remove(nextID);
                             tempID = nextID;
-                            nextID = tempID + "_";
+                            nextID = tempID + NifflerConstants.PATIENT_DIFFERENTIATOR;
                         }
                     }
                 }
             } else {
-                addPatient(patientID + "_", iStart, iEnd, duration, studyDescription);
+                addPatient(patientID + NifflerConstants.PATIENT_DIFFERENTIATOR, iStart, iEnd, duration, studyDescription);
             }
         } else {
             Patient patientObj = new Patient(patientID, iStart, iEnd, duration, merged, studyDescription);
