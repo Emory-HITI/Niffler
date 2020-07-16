@@ -85,6 +85,7 @@ public class CsvReader {
         Reader reader = Files.newBufferedReader(path);
 
         CsvToBean cb = new CsvToBeanBuilder(reader)
+                .withSkipLines(1)
                 .withType(clazz)
                 .withMappingStrategy(ms)
                 .build();

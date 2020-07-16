@@ -16,15 +16,11 @@ public class Patient {
     private String endTime;
     private String patientID;
     private double duration;
+    private String studyDescription;
+
     private int noOfStudiesInTheExam = 1;
 
-    public Patient(String patientID, String startTime, String endTime) {
-        this.patientID = patientID;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    public Patient(String patientID, String startTime, String endTime, double duration, boolean merged) {
+    public Patient(String patientID, String startTime, String endTime, double duration, boolean merged, String studyDescription) {
         this.patientID = patientID;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -32,6 +28,7 @@ public class Patient {
         if (merged) {
             noOfStudiesInTheExam += 1;
         }
+        this.studyDescription = studyDescription;
     }
 
     public String getStartTime() {
@@ -53,6 +50,14 @@ public class Patient {
 
     public void setNoOfStudiesInTheExam(int noOfStudiesInTheExam) {
         this.noOfStudiesInTheExam = noOfStudiesInTheExam;
+    }
+
+    public void setStudyDescription(String studyDescription) {
+        this.studyDescription = studyDescription;
+    }
+
+    public String getStudyDescription() {
+        return studyDescription;
     }
 
     public double getDurationInMins() {
@@ -114,6 +119,6 @@ public class Patient {
     public String logThePatient() {
         getDurationInMins();
         return ", , " + patientID + ", " + startTime + ", " + endTime + ", " + duration + ", " +
-                noOfStudiesInTheExam + "\n";
+                noOfStudiesInTheExam + ", " + studyDescription + "\n";
     }
 }

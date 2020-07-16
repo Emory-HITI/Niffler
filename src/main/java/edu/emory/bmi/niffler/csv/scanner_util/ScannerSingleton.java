@@ -29,13 +29,13 @@ public class ScannerSingleton {
         return singleton.get(ssName);
     }
 
-    public void addToScannerHashmap(String scannerID, String patientID, String iStart, String iEnd, double duration) {
+    public void addToScannerHashmap(String scannerID, String patientID, String iStart, String iEnd, double duration, String studyDescription) {
         if (scannerHashMap.containsKey(scannerID)) {
             Scanner scannerObj = scannerHashMap.get(scannerID);
-            scannerObj.addToPatientHashmap(patientID, iStart, iEnd, duration);
+            scannerObj.addToPatientHashmap(patientID, iStart, iEnd, duration, studyDescription);
             scannerHashMap.replace(scannerID, scannerObj);
         } else {
-            Scanner scannerObj = new Scanner(scannerID, patientID, iStart, iEnd, duration);
+            Scanner scannerObj = new Scanner(scannerID, patientID, iStart, iEnd, duration, studyDescription);
             scannerHashMap.put(scannerID, scannerObj);
         }
     }
@@ -54,7 +54,7 @@ public class ScannerSingleton {
             }
         }
         String str = "ScannerID, Scanner Utilization % \n , , PatientID, StartTime, EndTime, Duration (Minutes), " +
-                "Number of Studies In the Exam \n" + out;
+                "Number of Studies In the Exam, Study Description \n" + out;
         writeToFile(str);
     }
 

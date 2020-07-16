@@ -27,6 +27,9 @@ public class IntermediaryCsvBean extends AbstractCsvBean {
     @CsvBindByPosition(position = 6)
     private String iEnd;
 
+    @CsvBindByPosition(position = 7)
+    private String studyDescription;
+
     @Override
     public String getScanner() {
         return scanner;
@@ -40,6 +43,6 @@ public class IntermediaryCsvBean extends AbstractCsvBean {
     @Override
     public void produceFinal(String fileName) {
         ScannerSingleton ss = ScannerSingleton.getInstance(fileName);
-        ss.addToScannerHashmap(this.scanner, this.patientID, this.iStart, this.iEnd, this.iDuration);
+        ss.addToScannerHashmap(this.scanner, this.patientID, this.iStart, this.iEnd, this.iDuration, this.studyDescription);
     }
 }

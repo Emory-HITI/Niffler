@@ -11,6 +11,9 @@ public class NifflerConstants {
 	public static final String FINAL_DIRECTORY = "src/main/resources/final";
 	public static final String TXT_FILE_PATTERN = "*.txt";
 
+	public static final String STUDY_DESC_SEPARATOR = "::";
+	public static final String PATIENT_DIFFERENTIATOR = "_";
+
 
 	/**
 	 * Constants for Mongo connector
