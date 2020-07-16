@@ -27,6 +27,9 @@ public class IntermediaryCsvBean extends AbstractCsvBean {
     @CsvBindByPosition(position = 6)
     private String iEnd;
 
+    @CsvBindByPosition(position = 7)
+    private String studyDescription;
+
     @Override
     public String getScanner() {
         return scanner;

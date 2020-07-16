@@ -1,1 +1,2 @@
-142635, 1.2.345.65454, 123456, 5.433333333, 8, 101744, 102310
+DeviceSerialNumber, StudyInstanceUID, PatientID, DurationInMinutes, Number of Series in the Study, Exam Start Time, Exam End Time, StudyDescription
+142635, 1.2.345.65454, 123456, 5.433333333, 8, 101744, 102310, StudyDesc

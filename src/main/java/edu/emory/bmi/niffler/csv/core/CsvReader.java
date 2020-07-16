@@ -52,7 +52,6 @@ public class CsvReader {
             for (File file: listOfFiles) {
                 try {
                     String fileStr = file.toString();
-                    ScannerSingleton.next(fileStr);
                     Path path = Paths.get(fileStr);
                     List<AbstractCsvBean> out = convertToBean(path, IntermediaryCsvBean.class);
                     ScannerUtil.getFinalCsvString(out, file.getName(), scannersSubsetMap);
@@ -86,6 +85,7 @@ public class CsvReader {
         Reader reader = Files.newBufferedReader(path);
 
         CsvToBean cb = new CsvToBeanBuilder(reader)
+                .withSkipLines(1)
                 .withType(clazz)
                 .withMappingStrategy(ms)
                 .build();
