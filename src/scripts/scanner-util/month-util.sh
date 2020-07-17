@@ -5,6 +5,6 @@ for (( i=1; i <= 30; i++ ))
 do
     base=$base+1
     filename="$base.csv"
-    mongo --quiet --eval "var param1='$base'" scanner_util.js > $filename
+    mongo --quiet --eval "var param1='$base'" scanner-util.js > $filename
 done
 
