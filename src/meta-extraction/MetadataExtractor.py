@@ -35,7 +35,7 @@ logging.basicConfig(level=logging.INFO)
 
 FEATURES_FOLDER = "/opt/localdrive/featureset/"
 PICKLE_FOLDER = "/opt/localdrive/pickles/"
-STORAGE_FOLDER = "/opt/localdrive/dcm4che-dicom-root/"
+STORAGE_FOLDER = "/opt/new-localdrive/dcm4che-dicom-root/"
 DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
 
 
@@ -271,7 +271,7 @@ def run_dcm4che():
         IS_DCM4CHE_NOT_RUNNING = False   
         logging.info('Starting DCM4CHE..')
         os.chdir(DCM4CHE_BIN)
-        subprocess.call("./storescp --accept-unknown --directory /opt/localdrive/dcm4che-dicom-root  --filepath {00100020}/{0020000D}/{0020000E}/{00080018}.dcm -b BMIPACS:4242 > nohup.out", shell=True)
+        subprocess.call("./storescp --accept-unknown --directory /opt/new-localdrive/dcm4che-dicom-root  --filepath {00100020}/{0020000D}/{0020000E}/{00080018}.dcm -b BMIPACS:4242 > nohup.out", shell=True)
         logging.info('Stopped DCM4CHE successfully..')
 
 def run_threaded(job_func):
