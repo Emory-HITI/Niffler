@@ -56,7 +56,7 @@ except:
     logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_series_but_yet_to_delete")
 
 try:
-    with open(PICKLE_FOLDER +'processed_and_deleted_series', 'rb') as f:
+    with open(PICKLE_FOLDER +'processed_and_deleted_series.pickle', 'rb') as f:
         processed_and_deleted_series = pickle.load(f)
 except:
     logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_and_deleted_series")
@@ -252,7 +252,7 @@ def update_pickle():
     # Pickle using the highest protocol available.
     with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'wb') as f:
         pickle.dump(processed_series_but_yet_to_delete, f, pickle.HIGHEST_PROTOCOL)
-    with open(PICKLE_FOLDER + 'processed_and_deleted_series', 'wb') as f:
+    with open(PICKLE_FOLDER + 'processed_and_deleted_series.pickle', 'wb') as f:
         pickle.dump(processed_and_deleted_series, f, pickle.HIGHEST_PROTOCOL)
 
     logging.debug('dumping complete')
