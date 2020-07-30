@@ -13,9 +13,11 @@ import java.util.Map;
 public class ScannerSingleton {
     private static Map<String, ScannerSingleton> singleton = new HashMap<>();
     private static Logger logger = LogManager.getLogger(ScannerSingleton.class.getName());
+    private static String outputFile = NifflerConstants.FINAL_DIRECTORY + "/" + NifflerConstants.FINAL_FILE;
+    private static boolean isFirstIter = true;
+    private static boolean isFirstEntry = true;
 
     private Map<String, Scanner> scannerHashMap;
-    private String outputFile;
 
     private ScannerSingleton() {
         scannerHashMap = new HashMap<>();
@@ -40,27 +42,41 @@ public class ScannerSingleton {
         }
     }
 
-    public void produceFinalCSV(String filename, Map<String, String> scannersSubsetMap) {
-        outputFile = NifflerConstants.FINAL_DIRECTORY + "/final_" + filename ;
-        traverseScannerHashMap(scannersSubsetMap);
+    public void produceFinalCSV(int index, String date, Map<String, String> scannersSubsetMap) {
+        traverseScannerHashMap(index, date, scannersSubsetMap);
     }
 
 
-    public void traverseScannerHashMap(Map<String, String> scannersSubsetMap) {
+    public void traverseScannerHashMap(int index, String date, Map<String, String> scannersSubsetMap) {
         StringBuilder out = new StringBuilder();
+        String str = "";
         for (Scanner scanner: scannerHashMap.values()) {
             if (scannersSubsetMap.containsKey(scanner.getScannerID())) {
-                out.append(scanner.traversePatientHashMap());
+                out.append(scanner.traversePatientHashMap(index, date));
             }
         }
-        String str = "ScannerID, Scanner Utilization % \n , , PatientID, StartTime, EndTime, Duration (Minutes), " +
-                "Number of Studies In the Exam, Study Description \n" + out;
+
+        String title = "Date #, Date YYYYMMDD, ScannerID, Scanner Utilization % \n , , PatientID, StartTime, EndTime, Duration (Minutes), " +
+                "Number of Studies In the Exam, Study Description \n";
+        if (isFirstEntry) {
+            str = title + out;
+            isFirstEntry = false;
+        } else {
+            str = out.toString();
+        }
         writeToFile(str);
     }
 
     public void writeToFile(String str) {
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+            BufferedWriter writer;
+            if (isFirstIter) {
+                 writer = new BufferedWriter(new FileWriter(outputFile));
+                isFirstIter = false;
+            } else {
+                //Set to true is to append
+                writer = new BufferedWriter(new FileWriter(outputFile, true));
+            }
             writer.write(str);
             writer.close();
             logger.info("Written the output to the final csv file.");

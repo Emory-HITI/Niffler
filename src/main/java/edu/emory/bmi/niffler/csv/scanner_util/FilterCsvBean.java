@@ -12,11 +12,9 @@ public class FilterCsvBean extends AbstractCsvBean {
     @CsvBindByPosition(position = 1)
     private String institute;
 
-    public void produceFinal() {
-    }
 
     @Override
-    public void produceFinal(String fileName) {
+    public void produceFinal(int index, String date) {
     }
 
     @Override
