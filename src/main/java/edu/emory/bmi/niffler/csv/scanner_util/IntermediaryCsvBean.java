@@ -41,8 +41,8 @@ public class IntermediaryCsvBean extends AbstractCsvBean {
     }
 
     @Override
-    public void produceFinal(String fileName) {
-        ScannerSingleton ss = ScannerSingleton.getInstance(fileName);
+    public void produceFinal(int index, String date) {
+        ScannerSingleton ss = ScannerSingleton.getInstance(date);
         ss.addToScannerHashmap(this.scanner, this.patientID, this.iStart, this.iEnd, this.iDuration, this.studyDescription);
     }
 }

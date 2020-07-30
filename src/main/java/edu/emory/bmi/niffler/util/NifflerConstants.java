@@ -9,6 +9,7 @@ public class NifflerConstants {
 	public static final String INTERMEDIARY_DIRECTORY = "src/main/resources/intermediary";
 	public static final String SUBSET_SCANNERS = "src/main/resources/subset_scanners.csv";
 	public static final String FINAL_DIRECTORY = "src/main/resources/final";
+	public static final String FINAL_FILE = "scanner-util.csv";
 	public static final String TXT_FILE_PATTERN = "*.txt";
 
 	public static final String STUDY_DESC_SEPARATOR = "::";

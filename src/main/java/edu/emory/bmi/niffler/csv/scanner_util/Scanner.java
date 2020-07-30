@@ -105,9 +105,9 @@ public class Scanner {
         addToPatientHashmap(patientID, iStart, iEnd, duration, studyDescription);
     }
 
-    public String traversePatientHashMap() {
+    public String traversePatientHashMap(int index, String date) {
         StringBuilder out = new StringBuilder();
-        out.append(scannerID + ", " + getUtilizedPercentage() + "\n");
+        out.append(index + ", " + date + ", " + scannerID + ", " + getUtilizedPercentage() + "\n");
         for (Patient patient: patientHashMap.values()) {
             out.append(patient.logThePatient());
         }

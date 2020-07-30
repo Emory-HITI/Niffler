@@ -17,13 +17,15 @@ public class ScannerUtil {
         scannerList.add(scanner);
     }
 
-    public static void getFinalCsvString(
+    public static void getFinalCsvString(int index,
             List<AbstractCsvBean> beans, String filename, Map<String, String> scannersSubsetMap) {
+        String date = "0";
         for (AbstractCsvBean bean: beans) {
-            bean.produceFinal(filename);
+            date = filename.split("\\.")[0];
+            bean.produceFinal(index, date);
         }
-        ScannerSingleton ss = ScannerSingleton.getInstance(filename);
-        ss.produceFinalCSV(filename, scannersSubsetMap);
+        ScannerSingleton ss = ScannerSingleton.getInstance(date);
+        ss.produceFinalCSV(index, date, scannersSubsetMap);
     }
 
     public static double getDiffInMins(String start, String end) {
