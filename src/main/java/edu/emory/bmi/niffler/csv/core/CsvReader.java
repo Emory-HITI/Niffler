@@ -19,9 +19,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Read CSV files
@@ -37,6 +35,7 @@ public class CsvReader {
         File folder = new File(NifflerConstants.INTERMEDIARY_DIRECTORY);
         File subset = new File(NifflerConstants.SUBSET_SCANNERS);
         int index = 1;
+        List<String> fileNames = new ArrayList<>();
 
         File[] listOfFiles = folder.listFiles();
         try {
@@ -51,11 +50,18 @@ public class CsvReader {
             }
 
             for (File file: listOfFiles) {
-                try {
                     String fileStr = file.toString();
+                    fileNames.add(fileStr);
+            }
+
+            Collections.sort(fileNames);
+
+
+            for (String fileStr: fileNames) {
+                try {
                     Path path = Paths.get(fileStr);
                     List<AbstractCsvBean> out = convertToBean(path, IntermediaryCsvBean.class);
-                    ScannerUtil.getFinalCsvString(index, out, file.getName(), scannersSubsetMap);
+                    ScannerUtil.getFinalCsvString(index, out, fileStr, scannersSubsetMap);
                     index++;
                 } catch (NullPointerException e) {
                     logger.error("Incorrect CSV format: " + e);
