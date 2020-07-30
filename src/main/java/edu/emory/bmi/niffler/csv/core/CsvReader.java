@@ -36,7 +36,7 @@ public class CsvReader {
     public static void readIntermediaryCSVFolder() throws IOException {
         File folder = new File(NifflerConstants.INTERMEDIARY_DIRECTORY);
         File subset = new File(NifflerConstants.SUBSET_SCANNERS);
-        int index = 0;
+        int index = 1;
 
         File[] listOfFiles = folder.listFiles();
         try {
@@ -52,11 +52,11 @@ public class CsvReader {
 
             for (File file: listOfFiles) {
                 try {
-                    index++;
                     String fileStr = file.toString();
                     Path path = Paths.get(fileStr);
                     List<AbstractCsvBean> out = convertToBean(path, IntermediaryCsvBean.class);
                     ScannerUtil.getFinalCsvString(index, out, file.getName(), scannersSubsetMap);
+                    index++;
                 } catch (NullPointerException e) {
                     logger.error("Incorrect CSV format: " + e);
                 } catch (RuntimeException e) {

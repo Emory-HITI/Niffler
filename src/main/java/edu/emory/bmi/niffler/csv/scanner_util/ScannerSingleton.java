@@ -14,7 +14,7 @@ public class ScannerSingleton {
     private static Map<String, ScannerSingleton> singleton = new HashMap<>();
     private static Logger logger = LogManager.getLogger(ScannerSingleton.class.getName());
     private static String outputFile = NifflerConstants.FINAL_DIRECTORY + "/" + NifflerConstants.FINAL_FILE;
-
+    private static boolean isFirstIter = true;
     private static boolean isFirstEntry = true;
 
     private Map<String, Scanner> scannerHashMap;
@@ -69,8 +69,14 @@ public class ScannerSingleton {
 
     public void writeToFile(String str) {
         try {
-            //Set to true is to append
-            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, true));
+            BufferedWriter writer;
+            if (isFirstIter) {
+                 writer = new BufferedWriter(new FileWriter(outputFile));
+                isFirstIter = false;
+            } else {
+                //Set to true is to append
+                writer = new BufferedWriter(new FileWriter(outputFile, true));
+            }
             writer.write(str);
             writer.close();
             logger.info("Written the output to the final csv file.");
