@@ -19,7 +19,7 @@ set yrange [0:110.5]
 
 
 
-set xlabel "Date"
+set xlabel "Day"
 set ylabel "Utilization (%)"
 
 
