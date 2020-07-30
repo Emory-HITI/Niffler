@@ -14,7 +14,6 @@ set xlabel font "Verdana,16"
 set ylabel font "Verdana,16" 
 set key font "Verdana,16" 
 
-set xrange [-0.5:31.5]
 set yrange [0:110.5]
 
 
