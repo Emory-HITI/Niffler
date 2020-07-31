@@ -64,9 +64,9 @@ public class CsvReader {
                     ScannerUtil.getFinalCsvString(index, out, fileStr, scannersSubsetMap);
                     index++;
                 } catch (NullPointerException e) {
-                    logger.error("Incorrect CSV format: " + e);
+                    logger.error(fileStr + ": Incorrect CSV format: " + e);
                 } catch (RuntimeException e) {
-                    logger.error("Unsupported file format: " + e);
+                    logger.error(fileStr + ": Unsupported file format: " + e);
                 }
             }
         } catch (URISyntaxException e) {
