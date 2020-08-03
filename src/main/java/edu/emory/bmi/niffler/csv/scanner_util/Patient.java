@@ -118,7 +118,7 @@ public class Patient {
 
     public String logThePatient() {
         getDurationInMins();
-        return ", , " + patientID + ", " + startTime + ", " + endTime + ", " + duration + ", " +
+        return ", , , , , ," + patientID + ", " + startTime + ", " + endTime + ", " + duration + ", " +
                 noOfStudiesInTheExam + ", " + studyDescription + "\n";
     }
 }

@@ -15,7 +15,8 @@ import static edu.emory.bmi.niffler.csv.scanner_util.ScannerUtil.getDiffInMins;
  */
 public class Scanner {
 
-    private Map<String, Patient> patientHashMap = new HashMap<>();
+    private Map<String, Patient> examsHashMap = new HashMap<>();
+    private Map<String, Double> patientHashMap = new HashMap<>();
     private String scannerID;
     private String begin;
     private String end;
@@ -33,7 +34,7 @@ public class Scanner {
     public String getUtilizedPercentage() {
         double usedDuration = 0.0;
         double utilizationPercentage = 0.0;
-        Collection<Patient> patients = patientHashMap.values();
+        Collection<Patient> patients = examsHashMap.values();
         for (Patient p : patients) {
             usedDuration += p.getDurationInMins();
         }
@@ -49,23 +50,28 @@ public class Scanner {
             end = iEnd;
         }
         totalDuration = getDiffInMins(begin, end);
+        double cumulativeDuration = duration;
+        if (patientHashMap.get(patientID)!=null) {
+            cumulativeDuration += patientHashMap.get(patientID);
+        }
+        patientHashMap.put(patientID, cumulativeDuration);
         addPatient(patientID, iStart, iEnd, duration, studyDescription);
     }
 
     public void addPatient(String patientID, String iStart, String iEnd, double duration, String studyDescription) {
         boolean merged = false;
-        if (patientHashMap.containsKey(patientID)) {
-            Patient patientObj = patientHashMap.get(patientID);
+        if (examsHashMap.containsKey(patientID)) {
+            Patient patientObj = examsHashMap.get(patientID);
             boolean status = patientObj.updateIfTheSameExam(iStart, iEnd);
             if (status) {
                 patientObj.setMerged();
                 String temp = patientObj.getStudyDescription();
                 patientObj.setStudyDescription(temp + NifflerConstants.STUDY_DESC_SEPARATOR + studyDescription);
-                patientHashMap.put(patientID, patientObj);
+                examsHashMap.put(patientID, patientObj);
 
                 String tempID = patientID + NifflerConstants.PATIENT_DIFFERENTIATOR;
-                if (patientHashMap.get(tempID)!= null) {
-                    Patient patientObj2 = patientHashMap.get(tempID);
+                if (examsHashMap.get(tempID)!= null) {
+                    Patient patientObj2 = examsHashMap.get(tempID);
                     String start2 = patientObj2.getStartTime();
                     String end2 = patientObj2.getEndTime();
                     boolean status2 = patientObj.updateIfTheSameExam(start2, end2);
@@ -76,13 +82,13 @@ public class Scanner {
                         String descFrom1 = patientObj.getStudyDescription();
                         patientObj.setNoOfStudiesInTheExam(studiesFrom1 + studiesFrom2);
                         patientObj.setStudyDescription(descFrom1 + NifflerConstants.STUDY_DESC_SEPARATOR + descFrom2);
-                        patientHashMap.put(patientID, patientObj);
-                        patientHashMap.remove(tempID);
+                        examsHashMap.put(patientID, patientObj);
+                        examsHashMap.remove(tempID);
                         String nextID = tempID + NifflerConstants.PATIENT_DIFFERENTIATOR;
-                        while (patientHashMap.containsKey(nextID)) {
-                            Patient tempPatient = patientHashMap.get(nextID);
-                            patientHashMap.put(tempID, tempPatient);
-                            patientHashMap.remove(nextID);
+                        while (examsHashMap.containsKey(nextID)) {
+                            Patient tempPatient = examsHashMap.get(nextID);
+                            examsHashMap.put(tempID, tempPatient);
+                            examsHashMap.remove(nextID);
                             tempID = nextID;
                             nextID = tempID + NifflerConstants.PATIENT_DIFFERENTIATOR;
                         }
@@ -93,7 +99,7 @@ public class Scanner {
             }
         } else {
             Patient patientObj = new Patient(patientID, iStart, iEnd, duration, merged, studyDescription);
-            patientHashMap.put(patientID, patientObj); // New Entry for the patient
+            examsHashMap.put(patientID, patientObj); // New Entry for the patient
         }
     }
 
@@ -107,8 +113,9 @@ public class Scanner {
 
     public String traversePatientHashMap(int index, String date) {
         StringBuilder out = new StringBuilder();
-        out.append(index + ", " + date + ", " + scannerID + ", " + getUtilizedPercentage() + "\n");
-        for (Patient patient: patientHashMap.values()) {
+        out.append(index + ", " + date + ", " + scannerID + ", " + getUtilizedPercentage() + ", " +
+                patientHashMap.size() + ", " + examsHashMap.size() + "\n");
+        for (Patient patient: examsHashMap.values()) {
             out.append(patient.logThePatient());
         }
         return out.toString();
