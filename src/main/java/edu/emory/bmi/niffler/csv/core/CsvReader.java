@@ -6,7 +6,6 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import edu.emory.bmi.niffler.csv.scanner_util.FilterCsvBean;
 import edu.emory.bmi.niffler.csv.scanner_util.IntermediaryCsvBean;
-import edu.emory.bmi.niffler.csv.scanner_util.ScannerSingleton;
 import edu.emory.bmi.niffler.util.NifflerConstants;
 import edu.emory.bmi.niffler.csv.scanner_util.ScannerUtil;
 import org.apache.logging.log4j.LogManager;
