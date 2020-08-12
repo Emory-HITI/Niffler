@@ -21,6 +21,7 @@ public class Scanner {
     private String begin;
     private String end;
     private double totalDuration;
+    private String modality;
     private static Logger logger = LogManager.getLogger(Patient.class.getName());
 
     public String getScannerID() {
@@ -50,6 +51,7 @@ public class Scanner {
             end = iEnd;
         }
         totalDuration = getDiffInMins(begin, end);
+
         double cumulativeDuration = duration;
         if (patientHashMap.get(patientID)!=null) {
             cumulativeDuration += patientHashMap.get(patientID);
@@ -103,8 +105,10 @@ public class Scanner {
         }
     }
 
-    public Scanner(String scannerID, String patientID, String iStart, String iEnd, double duration, String studyDescription) {
+    public Scanner(String scannerID, String patientID, String iStart, String iEnd, double duration,
+                   String studyDescription, String modality) {
         this.scannerID = scannerID;
+        this.modality = modality;
         begin = iStart;
         end = iEnd;
         totalDuration = getDiffInMins(begin, end);
@@ -113,8 +117,14 @@ public class Scanner {
 
     public String traversePatientHashMap(int index, String date) {
         StringBuilder out = new StringBuilder();
+
+        int noOfStudies = 0;
+        for (Patient patient: examsHashMap.values()) {
+            noOfStudies += patient.getNoOfStudiesInTheExam();
+        }
+
         out.append(index + ", " + date + ", " + scannerID + ", " + getUtilizedPercentage() + ", " +
-                patientHashMap.size() + ", " + examsHashMap.size() + "\n");
+                patientHashMap.size() + ", " + examsHashMap.size() + ", " + noOfStudies + "," + modality + "\n");
         for (Patient patient: examsHashMap.values()) {
             out.append(patient.logThePatient());
         }

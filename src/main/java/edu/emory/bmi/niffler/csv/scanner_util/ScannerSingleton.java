@@ -31,13 +31,14 @@ public class ScannerSingleton {
         return singleton.get(ssName);
     }
 
-    public void addToScannerHashmap(String scannerID, String patientID, String iStart, String iEnd, double duration, String studyDescription) {
+    public void addToScannerHashmap(String scannerID, String patientID, String iStart, String iEnd, double duration,
+                                    String studyDescription, String modality) {
         if (scannerHashMap.containsKey(scannerID)) {
             Scanner scannerObj = scannerHashMap.get(scannerID);
             scannerObj.addToPatientHashmap(patientID, iStart, iEnd, duration, studyDescription);
             scannerHashMap.replace(scannerID, scannerObj);
         } else {
-            Scanner scannerObj = new Scanner(scannerID, patientID, iStart, iEnd, duration, studyDescription);
+            Scanner scannerObj = new Scanner(scannerID, patientID, iStart, iEnd, duration, studyDescription, modality);
             scannerHashMap.put(scannerID, scannerObj);
         }
     }
@@ -57,7 +58,7 @@ public class ScannerSingleton {
         }
 
         String title = "Date #, Date YYYYMMDD, ScannerID, Scanner Utilization %, Patients per scanner, " +
-                "Exams per scanner \n , , , , , , PatientID, StartTime, EndTime, Duration (Minutes), " +
+                "Exams per scanner, Studies per scanner, Modality \n , , , , , , , , PatientID, StartTime, EndTime, Duration (Minutes), " +
                 "Number of Studies In the Exam, Study Description \n";
         if (isFirstEntry) {
             str = title + out;
