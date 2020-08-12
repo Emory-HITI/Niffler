@@ -14,7 +14,7 @@ db = db.getSiblingDB("ScannersInfo");
 
 var yesterday = getYesterday();
 
-var mongoarray = db.feature_set.aggregate([{ $match : {"Modality":"MR",  "AcquisitionTime":  { "$exists" : true }, "StudyDate":{$in:[param1]}, "ImageType":/ORIGINAL/i, "AcquisitionTime" :  { "$exists" : true },"AcquisitionDate" :  { "$exists" : true } }},
+var mongoarray = db.feature_set.aggregate([{ $match : {"AcquisitionTime":  { "$exists" : true },"Modality" :{$in:[ "XR", "DX", "CR", "DR", "DX CR", "MR", "CT"]} , "StudyDate":{$in:[param1]}, "ImageType":/ORIGINAL/i, "AcquisitionTime" :  { "$exists" : true },"AcquisitionDate" :  { "$exists" : true } }},
   { "$group":{
         "_id": { StudyInstanceUID: "$StudyInstanceUID", PatientID: "$PatientID", DeviceSerialNumber: "$DeviceSerialNumber", StudyDescription: "$StudyDescription", Modality: "$Modality"},
 "earliestTime": {"$min": { $add: [ {$toInt:{$substr:["$AcquisitionTime", 0, 6]}}, { $cond: { if: { $eq: [ "$AcquisitionDate", "$StudyDate" ] }, then: 240000, else: 480000 } }] }},
