@@ -42,5 +42,17 @@ set ylabel "No. of Encounters"
 set output 'e'.index.'.png'
 plot "scanner-util.csv" using 1:(  stringcolumn(3) eq index  ? $6 : 1/0): xticlabel((stringcolumn(3) eq index)?$6 : 1/0) with boxes notitle
 
+set xlabel "Day"
+set ylabel "No. of Studies"
+
+set output 'st'.index.'.png'
+plot "scanner-util.csv" using 1:(  stringcolumn(3) eq index  ? $7 : 1/0): xticlabel((stringcolumn(3) eq index)?$7 : 1/0) with boxes notitle
+
+set xlabel "Day"
+set ylabel "No. of Series"
+
+set output 'se'.index.'.png'
+plot "scanner-util.csv" using 1:(  stringcolumn(3) eq index  ? $9 : 1/0): xticlabel((stringcolumn(3) eq index)?$9 : 1/0) with boxes notitle
+
 }
 
