@@ -16,7 +16,7 @@ import static edu.emory.bmi.niffler.csv.scanner_util.ScannerUtil.getDiffInMins;
 public class Scanner {
 
     private Map<String, Patient> examsHashMap = new HashMap<>();
-    private Map<String, Double> patientHashMap = new HashMap<>();
+    private Map<String, Integer> patientHashMap = new HashMap<>();
     private String scannerID;
     private String begin;
     private String end;
@@ -43,7 +43,8 @@ public class Scanner {
         return utilizationPercentage + " %";
     }
 
-    public void addToPatientHashmap(String patientID, String iStart, String iEnd, double duration, String studyDescription) {
+    public void addToPatientHashmap(String patientID, String iStart, String iEnd, double duration,
+                                    String studyDescription, int noOfSeriesInTheStudy) {
         if (getDiffInMins(begin, iStart) < 0) {
             begin = iStart;
         }
@@ -52,15 +53,16 @@ public class Scanner {
         }
         totalDuration = getDiffInMins(begin, end);
 
-        double cumulativeDuration = duration;
+        int noOfSeriesInThePatient = noOfSeriesInTheStudy;
         if (patientHashMap.get(patientID)!=null) {
-            cumulativeDuration += patientHashMap.get(patientID);
+            noOfSeriesInThePatient += patientHashMap.get(patientID);
         }
-        patientHashMap.put(patientID, cumulativeDuration);
+        patientHashMap.put(patientID, noOfSeriesInThePatient);
         addPatient(patientID, iStart, iEnd, duration, studyDescription);
     }
 
-    public void addPatient(String patientID, String iStart, String iEnd, double duration, String studyDescription) {
+    public void addPatient(String patientID, String iStart, String iEnd, double duration,
+                           String studyDescription) {
         boolean merged = false;
         if (examsHashMap.containsKey(patientID)) {
             Patient patientObj = examsHashMap.get(patientID);
@@ -106,25 +108,34 @@ public class Scanner {
     }
 
     public Scanner(String scannerID, String patientID, String iStart, String iEnd, double duration,
-                   String studyDescription, String modality) {
+                   String studyDescription, String modality, int noOfSeriesInTheStudy) {
         this.scannerID = scannerID;
         this.modality = modality;
         begin = iStart;
         end = iEnd;
         totalDuration = getDiffInMins(begin, end);
-        addToPatientHashmap(patientID, iStart, iEnd, duration, studyDescription);
+        addToPatientHashmap(patientID, iStart, iEnd, duration, studyDescription, noOfSeriesInTheStudy);
     }
 
     public String traversePatientHashMap(int index, String date) {
         StringBuilder out = new StringBuilder();
 
         int noOfStudies = 0;
+        int noOfSeries = 0;
+
         for (Patient patient: examsHashMap.values()) {
             noOfStudies += patient.getNoOfStudiesInTheExam();
         }
 
+        for (int iSeries: patientHashMap.values()) {
+            noOfSeries += iSeries;
+        }
+
+
+
         out.append(index + ", " + date + ", " + scannerID + ", " + getUtilizedPercentage() + ", " +
-                patientHashMap.size() + ", " + examsHashMap.size() + ", " + noOfStudies + "," + modality + "\n");
+                patientHashMap.size() + ", " + examsHashMap.size() + ", " + noOfStudies + "," + modality + ", " +
+                noOfSeries + "\n");
         for (Patient patient: examsHashMap.values()) {
             out.append(patient.logThePatient());
         }
