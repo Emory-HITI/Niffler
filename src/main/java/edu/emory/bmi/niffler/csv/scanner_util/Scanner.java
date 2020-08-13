@@ -58,11 +58,11 @@ public class Scanner {
             noOfSeriesInThePatient += patientHashMap.get(patientID);
         }
         patientHashMap.put(patientID, noOfSeriesInThePatient);
-        addPatient(patientID, iStart, iEnd, duration, studyDescription);
+        addPatient(patientID, iStart, iEnd, duration, studyDescription, noOfSeriesInTheStudy);
     }
 
     public void addPatient(String patientID, String iStart, String iEnd, double duration,
-                           String studyDescription) {
+                           String studyDescription, int noOfSeriesInTheStudy) {
         boolean merged = false;
         if (examsHashMap.containsKey(patientID)) {
             Patient patientObj = examsHashMap.get(patientID);
@@ -70,6 +70,8 @@ public class Scanner {
             if (status) {
                 patientObj.setMerged();
                 String temp = patientObj.getStudyDescription();
+                int noOfSeries = patientObj.getNoOfSeriesInTheExam();
+                patientObj.setNoOfSeriesInTheExam(noOfSeriesInTheStudy + noOfSeries);
                 patientObj.setStudyDescription(temp + NifflerConstants.STUDY_DESC_SEPARATOR + studyDescription);
                 examsHashMap.put(patientID, patientObj);
 
@@ -82,9 +84,12 @@ public class Scanner {
                     if (status2) {
                         int studiesFrom2 = patientObj2.getNoOfStudiesInTheExam();
                         int studiesFrom1 = patientObj.getNoOfStudiesInTheExam();
+                        int seriesFrom2 = patientObj2.getNoOfSeriesInTheExam();
+                        int seriesFrom1 = patientObj.getNoOfSeriesInTheExam();
                         String descFrom2 = patientObj2.getStudyDescription();
                         String descFrom1 = patientObj.getStudyDescription();
                         patientObj.setNoOfStudiesInTheExam(studiesFrom1 + studiesFrom2);
+                        patientObj.setNoOfSeriesInTheExam(seriesFrom1 + seriesFrom2);
                         patientObj.setStudyDescription(descFrom1 + NifflerConstants.STUDY_DESC_SEPARATOR + descFrom2);
                         examsHashMap.put(patientID, patientObj);
                         examsHashMap.remove(tempID);
@@ -99,10 +104,12 @@ public class Scanner {
                     }
                 }
             } else {
-                addPatient(patientID + NifflerConstants.PATIENT_DIFFERENTIATOR, iStart, iEnd, duration, studyDescription);
+                addPatient(patientID + NifflerConstants.PATIENT_DIFFERENTIATOR, iStart, iEnd, duration,
+                        studyDescription, noOfSeriesInTheStudy);
             }
         } else {
-            Patient patientObj = new Patient(patientID, iStart, iEnd, duration, merged, studyDescription);
+            Patient patientObj = new Patient(patientID, iStart, iEnd, duration, merged, studyDescription,
+                    noOfSeriesInTheStudy);
             examsHashMap.put(patientID, patientObj); // New Entry for the patient
         }
     }

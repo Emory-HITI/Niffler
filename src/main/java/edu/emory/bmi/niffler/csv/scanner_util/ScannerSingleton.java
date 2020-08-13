@@ -61,7 +61,7 @@ public class ScannerSingleton {
         String title = "Date #, Date YYYYMMDD, ScannerID, Scanner Utilization %, Patients per scanner, " +
                 "Exams by the scanner, Studies by the scanner, Modality, Series by the Scanner \n , , , , , , , , , " +
                 "PatientID, StartTime, EndTime, Duration (Minutes), " +
-                "Number of Studies In the Exam, Study Description \n";
+                "Number of Studies In the Exam, Number of Series In the Exam, Study Description \n";
         if (isFirstEntry) {
             str = title + out;
             isFirstEntry = false;
