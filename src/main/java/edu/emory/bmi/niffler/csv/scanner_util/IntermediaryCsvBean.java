@@ -19,7 +19,7 @@ public class IntermediaryCsvBean extends AbstractCsvBean {
     private double iDuration;
 
     @CsvBindByPosition(position = 4)
-    private String seriesInStudy;
+    private int seriesInStudy;
 
     @CsvBindByPosition(position = 5)
     private String iStart;
@@ -30,6 +30,9 @@ public class IntermediaryCsvBean extends AbstractCsvBean {
     @CsvBindByPosition(position = 7)
     private String studyDescription;
 
+    @CsvBindByPosition(position = 8)
+    private String modality;
+
     @Override
     public String getScanner() {
         return scanner;
@@ -37,12 +40,13 @@ public class IntermediaryCsvBean extends AbstractCsvBean {
 
     @Override
     public String getDetails() {
-        return seriesInStudy;
+        return studyDescription;
     }
 
     @Override
     public void produceFinal(int index, String date) {
         ScannerSingleton ss = ScannerSingleton.getInstance(date);
-        ss.addToScannerHashmap(this.scanner, this.patientID, this.iStart, this.iEnd, this.iDuration, this.studyDescription);
+        ss.addToScannerHashmap(this.scanner, this.patientID, this.iStart, this.iEnd, this.iDuration,
+                this.studyDescription, this.modality, this.seriesInStudy);
     }
 }

@@ -20,8 +20,12 @@ public class ScannerUtil {
     public static void getFinalCsvString(int index,
             List<AbstractCsvBean> beans, String filename, Map<String, String> scannersSubsetMap) {
         String date = "0";
+        String wholeStr = "0";
+        String parts[];
         for (AbstractCsvBean bean: beans) {
-            date = filename.split("\\.")[0];
+            wholeStr = filename.split("\\.")[0];
+            parts = wholeStr.split("/");
+            date = parts[parts.length-1];
             bean.produceFinal(index, date);
         }
         ScannerSingleton ss = ScannerSingleton.getInstance(date);
