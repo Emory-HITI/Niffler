@@ -70,7 +70,7 @@ $ sudo systemctl reboot
 
 ### View the service logs:
 
-$ sudo journalctl -u mdextractor.service
+$ sudo journalctl -u mdextractor.service -n 100
 
 
 ## Maintaining Niffler for on-going continuous execution.
