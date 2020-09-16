@@ -39,7 +39,10 @@ os.chdir(DCM4CHE_BIN)
 for pid in range(0, len(patients)):
     Accession = accessions[pid]
     PatientID = patients[pid]
-    # Set the values accordingly.
+    # Set the values accordingly. Needs to be set only once. Not for subsequent executions as this value does not change.
+    # BMIPACS2:4243 here refers to the destination AETitle and port. 
+    # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
+    # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
     subprocess.call("./movescu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -M PatientRoot -m PatientID={0} -m AccessionNumber={1} --dest BMIPACS2".format(PatientID, Accession), shell=True)
       
  
