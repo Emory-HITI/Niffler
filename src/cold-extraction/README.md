@@ -1,4 +1,39 @@
 # The On-Demand Retrospective DICOM Extractor
+This extractor retrieves DICOM images on-demand, based on a CSV file provided by the user.
+
+Please include a header for the csv, such as "EMPI,Accession", as otherwise the first line will be ignored.
+
+The format examples:
+[1]
+EMPI,Accession
+
+AAAAA,BBBBBYYBBBBB
+
+AAAAA,BBBBBYYBBBBB
+
+AAAAA,BBBBBYYBBBBB
+
+[2]
+EMPI, Study Date
+
+AAAAA, 20180723
+
+AAAAA, 20180724
+
+AAAAA, 20180725
+
+Make sure the accession's year is in the YY format.
+
+
+[3]
+Accession
+
+BBBBBYYBBBBB
+
+BBBBBYYBBBBB
+
+BBBBBYYBBBBB
+
 Cold Data Retriever is another script that pulls and extracts data on-demand. It is initiated per user query, rather than running continuously.
 
 ## Running StoreSCP
@@ -15,6 +50,8 @@ For example,
 $ nohup /opt/localdrive/dcm4che-5.19.0/bin/storescp --accept-unknown --directory /labs/banerjeelab/DBS_EMPI --filepath {00100020}/{0020000D}/{0020000E}/{00080018}.dcm -b BMIPACS2:4243 > storescp.out &
 
 ## Running the Retrospective (Cold) Data Retriever
+
+Make sure to follow the comments in the ColdDataRetriever.py to adopt the values accordingly.
 
 Then run the ColdDataRetriever.py, which consists of a MoveScu process that often following a FindScu. 
 
