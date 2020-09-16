@@ -11,9 +11,8 @@ logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
 DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
 
-
+# Enter the correct csv file name. Assumed to be in the current folder as this file. Otherwise, provide full path or relative path.
 csvfile = "extractionCOVID2-YY.csv"
-
 
 # Correct types: accession, empi_date
 extraction_type = "accession"
