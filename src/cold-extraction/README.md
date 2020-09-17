@@ -4,7 +4,7 @@ This extractor retrieves DICOM images on-demand, based on a CSV file provided by
 
 # CSV file with correct format.
 
-First, place the csv file adhering to the correct formats in a folder.
+First, place the csv file adhering to the correct formats in a folder (by default, a folder named "csv" in the current folder).
 
 
 * Please make a CSV (not xlsx).

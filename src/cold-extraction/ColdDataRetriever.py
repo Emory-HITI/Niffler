@@ -11,16 +11,16 @@ logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
 DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
 
-# Enter the correct csv file name. Assumed to be in the current folder as this file. Otherwise, provide full path or relative path.
-csvfile = "extractionCOVID2-YY.csv"
+# Enter the correct csv file name with a relative path to the current folder or a full path. By default, assumed to be in a "csv" folder in the current folder.
+csvfile = "csv/empi_accession.csv"
 
-# Correct types: accession, empi_date, empi_accession.
-extraction_type = "accession"
+# Correct types: empi_accession, accession, empi_date.
+extraction_type = "empi_accession"
 
 # For extraction_type = "accession".
 # i.e., for extractions with Accessions only (no EMPI provided).
 # accession_index, the column location of Accession in the CSV. Entry count starts with 0.
-accession_index = 0
+accession_index = 1
 accessions = []
 
 
@@ -73,7 +73,7 @@ if (extraction_type == 'empi_accession'):
         # BMIPACS2:4243 here refers to the destination AETitle and port. 
         # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
         # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
-        subprocess.call("./movescu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -M PatientRoot -m PatientID={0} -m AccessionNumber={1} --dest BMIPACS2".format(PatientID, Accession), shell=True)
+        subprocess.call("{0}/movescu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -M PatientRoot -m PatientID={0} -m AccessionNumber={1} --dest BMIPACS2".format(DCM4CHE_BIN, PatientID, Accession), shell=True)
 
 # For the cases that does not have the typical EMPI and Accession values together.
 elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
@@ -87,14 +87,14 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
             # BMIPACS2:4243 here refers to the destination AETitle and port. 
             # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
             # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
-            subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m PatientID={1} -m {2}={3}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN,PatientID, dateType, Date), shell=True)
+            subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m PatientID={1} -m {2}={3}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, PatientID, dateType, Date), shell=True)
         elif (extraction_type == 'accession'):
             Accession = accessions[pid]
             # Set the values accordingly. Needs to be set only once. Not for subsequent executions as this value does not change.
             # BMIPACS2:4243 here refers to the destination AETitle and port. 
             # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
             # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
-            subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m AccessionNumber={1} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN,Accession), shell=True)
+            subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m AccessionNumber={1} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, Accession), shell=True)
 
         #Processing the Intermediate CSV file with EMPI and StudyIDs
         with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
