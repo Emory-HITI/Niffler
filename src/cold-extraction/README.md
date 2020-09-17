@@ -6,7 +6,17 @@ This extractor retrieves DICOM images on-demand, based on a CSV file provided by
 
 First, place the csv file adhering to the correct formats in a folder.
 
+
+Please make a CSV (not xlsx).
+
+
+Each C-MOVE extraction should be represented by a separate line.
+
+Please make sure to use EMPI and not MRN or Institution-specific patient identifiers.
+
 Please include a header for the csv, such as "EMPI,Accession", as otherwise the first line will be ignored.
+
+Usual fields that Niffler supports by default: AccessionNumber, AccessionNumber and EMPI, EMPI and a date (indicate whether StudyDate or AcquisitionDate). 
 
 The format examples:
 [1]
