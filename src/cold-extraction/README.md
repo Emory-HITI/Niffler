@@ -74,7 +74,7 @@ $ nohup /opt/dcm4che-5.19.0/bin/storescp --accept-unknown --directory /opt/data/
 
 
 
-# Running the Retrospective (Cold) Data Retriever
+# Running the Niffler Retrospective Data Retriever
 
 Make sure to follow the comments in the ColdDataRetriever.py to adopt the values accordingly.
 
