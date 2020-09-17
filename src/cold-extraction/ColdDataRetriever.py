@@ -9,8 +9,8 @@ import datetime
 
 logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
-DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
 
+############# The below entries must be set for each on-demand extractions appropriately############################################################################
 # Enter the correct csv file name with a relative path to the current folder or a full path. By default, assumed to be in a "csv" folder in the current folder.
 csvfile = "csv/empi_accession.csv"
 
@@ -37,8 +37,23 @@ patients = []
 # Make sure to replace the date_format to fit the format provided in the csv file. Given below is the default format provided in several PACS.
 date_index = 1
 dateType = "StudyDate"
-date_format = '%m%d%y' #or %m/%d/%y, %m-%d-%y, %Y%m%d, etc
+date_format = '%Y%m%d' #or %m/%d/%y, %m-%d-%y, %%m%d%y, etc
 dates = []
+####################################################################################################################################################################
+
+
+
+############# The below entries are to be set *only once* for the Niffler deployment by the administrator. Once set, further extractions do not require a change######
+# Set the correct location of the DCM4_CHE folder
+DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
+# Set the correct AET@HOST:PORT of the source.
+SRC_AET = "AE_ARCH2@163.246.177.5:104"
+# Set the correct AET:PORT of the querying AET (i.e., this script). Typically same as the values you set for the storescp.
+QUERY_AET = "BMIPACS2:4243"
+# Set the correct AET of the detination AET. Must match the AET of the storescp.
+DEST_AET = "BMIPACS2"
+####################################################################################################################################################################
+
 
 
 # record the start time
@@ -69,11 +84,7 @@ if (extraction_type == 'empi_accession'):
     for pid in range(0, len(patients)):
         Accession = accessions[pid]
         PatientID = patients[pid]
-        # Set the values accordingly. Needs to be set only once. Not for subsequent executions as this value does not change.
-        # BMIPACS2:4243 here refers to the destination AETitle and port. 
-        # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
-        # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
-        subprocess.call("{0}/movescu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -M PatientRoot -m PatientID={1} -m AccessionNumber={2} --dest BMIPACS2".format(DCM4CHE_BIN, PatientID, Accession), shell=True)
+        subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
 
 # For the cases that does not have the typical EMPI and Accession values together.
 elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
@@ -83,18 +94,10 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
         if (extraction_type == 'empi_date'):
             Date = dates[pid]
             PatientID = patients[pid]
-            # Set the values accordingly. Needs to be set only once. Not for subsequent executions as this value does not change.
-            # BMIPACS2:4243 here refers to the destination AETitle and port. 
-            # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
-            # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
-            subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m PatientID={1} -m {2}={3}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, PatientID, dateType, Date), shell=True)
+            subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, dateType, Date), shell=True)
         elif (extraction_type == 'accession'):
             Accession = accessions[pid]
-            # Set the values accordingly. Needs to be set only once. Not for subsequent executions as this value does not change.
-            # BMIPACS2:4243 here refers to the destination AETitle and port. 
-            # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
-            # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
-            subprocess.call("{0}/findscu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -m AccessionNumber={1} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, Accession), shell=True)
+            subprocess.call("{0}/findscu -c {1} -b {2} -m AccessionNumber={3} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Accession), shell=True)
 
         #Processing the Intermediate CSV file with EMPI and StudyIDs
         with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
@@ -110,11 +113,7 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
         for pid2 in range(0, len(patients2)):
             Study = studies2[pid2]
             Patient = patients2[pid2]
-            # Set the values accordingly. Needs to be set only once. Not for subsequent executions as this value does not change.
-            # BMIPACS2:4243 here refers to the destination AETitle and port. 
-            # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
-            # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
-            subprocess.call("{0}/movescu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -M PatientRoot -m PatientID={1} -m StudyInstanceUID={2} --dest BMIPACS2".format(DCM4CHE_BIN,Patient, Study), shell=True)
+            subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
  
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
