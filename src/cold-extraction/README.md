@@ -1,8 +1,26 @@
-# The On-Demand Retrospective DICOM Extractor
+# The Niffler On-Demand Retrospective DICOM Extractor
 This extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. Below we discuss the steps to run Niffler on-demand DICOM extraction queries.
 
 
-# CSV file with correct format.
+# Configuring Niffler On-Demand Extractor
+
+Unless you are the administrator who is configuring Niffler for the first time, skip and proceed to the section "Using Niffler".
+
+system.json entries are to be set *only once* for the Niffler deployment by the administrator. Once set, further extractions do not require a change.
+
+* *DCM4CHEBin*: Set the correct location of the DCM4_CHE folder.
+
+* *SrcAet*: Set the correct AET@HOST:PORT of the source.
+
+* *QueryAet*: Set the correct AET:PORT of the querying AET (i.e., this script). Typically same as the values you set for the storescp.
+
+* *DestAet*: Set the correct AET of the detination AET. Must match the AET of the storescp.
+
+
+
+# Using Niffler
+
+## CSV file with correct format.
 
 First, place the csv file adhering to the correct formats in a folder (by default, a folder named "csv" in the current folder).
 
@@ -52,7 +70,7 @@ BBBBBYYBBBBB
 BBBBBYYBBBBB
 
 
-# Running StoreSCP
+## Running StoreSCP
 
 We first run a StoreScp process.
 
@@ -86,7 +104,7 @@ $ nohup /opt/dcm4che-5.19.0/bin/storescp --accept-unknown --directory /opt/data/
 
 
 
-# Running the Niffler Retrospective Data Retriever
+## Running the Niffler Retrospective Data Retriever
 
 Make sure to follow the comments in the ColdDataRetriever.py to adopt the values accordingly.
 
@@ -97,7 +115,7 @@ $ cd /opt/Niffler/src/cold-extraction
 $ nohup python3.6 ColdDataRetriever.py > cold.out &
 
 
-# Check the Progress
+## Check the Progress
 
 After some time (may take a few hours to a few days, depending on the length of the CSV file), check whether the extraction is complete.
 
@@ -106,7 +124,7 @@ $ ps -xa | grep python
 If the ColdDataRetriever.py that you started is still running, wait for them to complete and check again later.
 
 
-# Completion
+## Completion
 
 Once they are complete, make sure to kill your storescp process. This will make sure that the next person does not mistakenly send their data to your storescp process.
 

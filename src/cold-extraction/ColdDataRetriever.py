@@ -5,22 +5,25 @@ import time
 import shutil
 import subprocess
 import datetime
-
+import json
 
 logging.basicConfig(filename='niffler.log',level=logging.INFO)
+
+with open('system.json', 'r') as f:
+    config = json.load(f)
 
 
 ############# The below entries must be set for each on-demand extractions appropriately############################################################################
 # Enter the correct csv file name with a relative path to the current folder or a full path. By default, assumed to be in a "csv" folder in the current folder.
-csvfile = "csv/empi_accession.csv"
+csvfile = "csv/accession.csv"
 
 # Correct types: empi_accession, accession, empi_date.
-extraction_type = "empi_accession"
+extraction_type = "accession"
 
 # For extraction_type = "accession".
 # i.e., for extractions with Accessions only (no EMPI provided).
 # accession_index, the column location of Accession in the CSV. Entry count starts with 0.
-accession_index = 1
+accession_index = 0
 accessions = []
 
 
@@ -42,18 +45,11 @@ dates = []
 ####################################################################################################################################################################
 
 
-
-############# The below entries are to be set *only once* for the Niffler deployment by the administrator. Once set, further extractions do not require a change######
-# Set the correct location of the DCM4_CHE folder
-DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
-# Set the correct AET@HOST:PORT of the source.
-SRC_AET = "AE_ARCH2@163.246.177.5:104"
-# Set the correct AET:PORT of the querying AET (i.e., this script). Typically same as the values you set for the storescp.
-QUERY_AET = "BMIPACS2:4243"
-# Set the correct AET of the detination AET. Must match the AET of the storescp.
-DEST_AET = "BMIPACS2"
-####################################################################################################################################################################
-
+# Get constants from system.json
+DCM4CHE_BIN = config['DCM4CHEBin']
+SRC_AET = config['SrcAet']
+QUERY_AET = config['QueryAet']
+DEST_AET = config['DestAet']
 
 
 # record the start time
