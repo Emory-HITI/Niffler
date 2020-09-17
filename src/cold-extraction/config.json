@@ -1,0 +1,9 @@
+{
+	"CsvFile": "csv/empi_date.csv",
+	"ExtractionType": "empi_date",
+	"AccessionIndex": 1,
+	"PatientIndex": 0,
+	"DateIndex": 1,
+	"DateType": "StudyDate",
+	"DateFormat": "%Y%m%d"
+}

@@ -5,56 +5,35 @@ import time
 import shutil
 import subprocess
 import datetime
-
+import json
 
 logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
+with open('system.json', 'r') as f:
+    niffler = json.load(f)
 
-############# The below entries must be set for each on-demand extractions appropriately############################################################################
-# Enter the correct csv file name with a relative path to the current folder or a full path. By default, assumed to be in a "csv" folder in the current folder.
-csvfile = "csv/empi_accession.csv"
+with open('config.json', 'r') as f:
+    config = json.load(f)
 
-# Correct types: empi_accession, accession, empi_date.
-extraction_type = "empi_accession"
 
-# For extraction_type = "accession".
-# i.e., for extractions with Accessions only (no EMPI provided).
-# accession_index, the column location of Accession in the CSV. Entry count starts with 0.
-accession_index = 1
+# Get variables for the each on-demand extraction from config.json
+csvfile = config['CsvFile']
+extraction_type = config['ExtractionType']
+accession_index = config['AccessionIndex']
+patient_index = config['PatientIndex']
+date_index = config['DateIndex']
+dateType = config['DateType']
+date_format = config['DateFormat']
+
+# Get constants from system.json
+DCM4CHE_BIN = niffler['DCM4CHEBin']
+SRC_AET = niffler['SrcAet']
+QUERY_AET = niffler['QueryAet']
+DEST_AET = niffler['DestAet']
+
 accessions = []
-
-
-# For extraction_type = "empi_accession" or "empi_date".
-# i.e., for extractions with (EMPI and an accession) or (EMPI and a date).
-# patient_index, the column location of EMPI in the CSV. Entry count starts with 0.
-patient_index = 0
 patients = []
-
-
-# For extraction_type = "empi_date".
-# i.e., for extractions with EMPI and a date.
-# dateType can range from AcquisitionDate, StudyDate, etc. Replace Accordingly.
-# Make sure to replace the date_format to fit the format provided in the csv file. Given below is the default format provided in several PACS.
-date_index = 1
-dateType = "StudyDate"
-date_format = '%Y%m%d' #or %m/%d/%y, %m-%d-%y, %%m%d%y, etc
 dates = []
-####################################################################################################################################################################
-
-
-
-############# The below entries are to be set *only once* for the Niffler deployment by the administrator. Once set, further extractions do not require a change######
-# Set the correct location of the DCM4_CHE folder
-DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
-# Set the correct AET@HOST:PORT of the source.
-SRC_AET = "AE_ARCH2@163.246.177.5:104"
-# Set the correct AET:PORT of the querying AET (i.e., this script). Typically same as the values you set for the storescp.
-QUERY_AET = "BMIPACS2:4243"
-# Set the correct AET of the detination AET. Must match the AET of the storescp.
-DEST_AET = "BMIPACS2"
-####################################################################################################################################################################
-
-
 
 # record the start time
 t_start = time.time()
