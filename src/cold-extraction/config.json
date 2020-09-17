@@ -1,6 +1,6 @@
 {
-	"CsvFile": "csv/empi_date.csv",
-	"ExtractionType": "empi_date",
+	"CsvFile": "csv/empi_accession.csv",
+	"ExtractionType": "empi_accession",
 	"AccessionIndex": 1,
 	"PatientIndex": 0,
 	"DateIndex": 1,
