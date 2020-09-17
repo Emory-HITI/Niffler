@@ -14,7 +14,7 @@ system.json entries are to be set *only once* for the Niffler deployment by the 
 
 * *QueryAet*: Set the correct AET:PORT of the querying AET (i.e., this script). Typically same as the values you set for the storescp.
 
-* *DestAet*: Set the correct AET of the detination AET. Must match the AET of the storescp.
+* *DestAet*:   Set the correct AET of the detination AET. Must match the AET of the storescp.
 
 
 
@@ -25,7 +25,7 @@ system.json entries are to be set *only once* for the Niffler deployment by the 
 First, place the csv file adhering to the correct formats in a folder (by default, a folder named "csv" in the current folder).
 
 
-* Please make a CSV (not xlsx).
+* Please retrieve the CSV (not xlsx) file consisting of the images that must be acquired via Niffler.
 
 * Each C-MOVE extraction should be represented by a separate line.
 
@@ -51,11 +51,11 @@ AAAAA,BBBBBYYBBBBB
 
 EMPI, Study Date
 
-AAAAA, 20180723
+AAAAA,20180723
 
-AAAAA, 20180724
+AAAAA,20180724
 
-AAAAA, 20180725
+AAAAA,20180725
 
 Make sure the accession's year is in the YY format.
 
@@ -102,11 +102,26 @@ For example,
 $ nohup /opt/dcm4che-5.19.0/bin/storescp --accept-unknown --directory /opt/data/A-NEW-FOLDER --filepath {00100020}/{0020000D}/{0020000E}/{00080018}.dcm -b QBNIFFLER:4243 > storescp.out &
 
 
+## Configuring Extraction Profile with config.json.
+
+config.json entries are to be set *for each* Niffler on-demand DICOM extractions.
+
+* *CsvFile*: Enter the correct csv file name with a relative path to the current folder or a full path. The default value given assumes the CSV file to be in a "csv" folder in the current folder.
+
+* *ExtractionType*: Currently supported options, empi_accession (extractions based on EMPI and AccessionNumber), accession (extractions based solely on AccessionNumber), empi_date (extractions based on EMPI and a date such as StudyDate or AcquisitionDate).
+
+* *AccessionIndex*: Set the CSV column index of AccessionNumber for extractions with Accessions (with or without EMPI provided). Entry count starts with 0. For extractions other than types of accession and empi_accession, leave this entry unmodified.
+
+* *PatientIndex*: Set the CSV column index of EMPI for extractions with (EMPI and an accession) or (EMPI and a date). For extractions without EMPI, leave this entry unmodified.
+
+* *DateIndex*: Set the CSV column index of Date (StudyDate, AcquisitionDate, ..) for extractions with EMPI and a date. For extractions without a Date, leave this entry unmodified.
+
+* *DateType*: DateType can range from AcquisitionDate, StudyDate, etc. Replace Accordingly. For extractions without a Date, leave this entry unmodified.
+
+* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. For extractions without a Date, leave this entry unmodified.
 
 
 ## Running the Niffler Retrospective Data Retriever
-
-Make sure to follow the comments in the ColdDataRetriever.py to adopt the values accordingly.
 
 Then run the ColdDataRetriever.py, which consists of a MoveScu process that often following a FindScu. 
 
