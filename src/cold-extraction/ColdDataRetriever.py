@@ -37,7 +37,7 @@ patients = []
 # Make sure to replace the date_format to fit the format provided in the csv file. Given below is the default format provided in several PACS.
 date_index = 1
 dateType = "StudyDate"
-date_format = '%m%d%y' #or %m/%d/%y, %m-%d-%y, etc
+date_format = '%m%d%y' #or %m/%d/%y, %m-%d-%y, %Y%m%d, etc
 dates = []
 
 
@@ -73,7 +73,7 @@ if (extraction_type == 'empi_accession'):
         # BMIPACS2:4243 here refers to the destination AETitle and port. 
         # Replace it with the appropriate AE_Title and port. That must be same AE_Title and port as the one you gave for the storescp process.
         # AE_ARCH2@163.246.177.5:104 is the source AE_Title, followed by the source ip and port. Replace them accordingly.
-        subprocess.call("{0}/movescu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -M PatientRoot -m PatientID={0} -m AccessionNumber={1} --dest BMIPACS2".format(DCM4CHE_BIN, PatientID, Accession), shell=True)
+        subprocess.call("{0}/movescu -c AE_ARCH2@163.246.177.5:104 -b BMIPACS2:4243 -M PatientRoot -m PatientID={1} -m AccessionNumber={2} --dest BMIPACS2".format(DCM4CHE_BIN, PatientID, Accession), shell=True)
 
 # For the cases that does not have the typical EMPI and Accession values together.
 elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
