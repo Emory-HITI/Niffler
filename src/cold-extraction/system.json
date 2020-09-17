@@ -1,6 +1,6 @@
 {
-	"DCM4CHEBin": "/opt/localdrive/dcm4che-5.19.0/bin",
-	"SrcAet": "AE_ARCH2@163.246.177.5:104",
-	"QueryAet": "BMIPACS2:4243",
-	"DestAet": "BMIPACS2"
+	"DCM4CHEBin": "/opt/dcm4che-5.19.0/bin",
+	"SrcAet": "SRC_AET@SRCHOST:104",
+	"QueryAet": "QBNIFFLER:4243",
+	"DestAet": "QBNIFFLER"
 }
