@@ -50,10 +50,8 @@ def check_kill_process(pstring):
         logging.info('killing previous storescp process')
         os.kill(int(pid), signal.SIGKILL)
 
-# Kill the previous storescp process.
-check_kill_process('storescp')
 
-subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
+subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
@@ -114,3 +112,6 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
  
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+
+# Kill the running storescp process.
+check_kill_process('storescp')
