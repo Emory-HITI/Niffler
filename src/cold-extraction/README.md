@@ -136,7 +136,7 @@ After some time (may take a few hours to a few days, depending on the length of 
 
 $ ps -xa | grep python
 
-If the ColdDataRetriever.py that you started is still running, wait for them to complete and check again later.
+If the ColdDataRetriever.py that you started is still running, wait for it to complete and check again later.
 
 
 ## Completion
