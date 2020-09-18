@@ -49,11 +49,11 @@ def check_kill_process(pstring):
         pid = fields[0]
         logging.info('killing previous storescp process')
         os.kill(int(pid), signal.SIGKILL)
-        
+
 # Kill the previous storescp process.
 check_kill_process('storescp')
 
-pid = subprocess.call("{0} --accept-unknown --directory {1} --filepath {2} -b {3}".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
+subprocess.call("{0} --accept-unknown --directory {1} --filepath {2} -b {3}".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
