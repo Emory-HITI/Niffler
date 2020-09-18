@@ -43,6 +43,13 @@ dates = []
 # record the start time
 t_start = time.time()
 
+def check_kill_process(pstring):
+    for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
+        fields = line.split()
+        pid = fields[0]
+        logging.info('killing previous storescp process')
+        os.kill(int(pid), signal.SIGKILL)
+        
 # Kill the previous storescp process.
 check_kill_process('storescp')
 
@@ -107,12 +114,3 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
  
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
-
-
-
-def check_kill_process(pstring):
-    for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
-        fields = line.split()
-        pid = fields[0]
-        logging.info('killing previous storescp process')
-        os.kill(int(pid), signal.SIGKILL)
