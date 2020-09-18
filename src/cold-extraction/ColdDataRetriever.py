@@ -53,7 +53,7 @@ def check_kill_process(pstring):
 # Kill the previous storescp process.
 check_kill_process('storescp')
 
-subprocess.call("{0} --accept-unknown --directory {1} --filepath {2} -b {3}".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
+subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3}".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
