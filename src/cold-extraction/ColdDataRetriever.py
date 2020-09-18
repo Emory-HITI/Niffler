@@ -43,6 +43,9 @@ dates = []
 # record the start time
 t_start = time.time()
 
+# Kill the previous storescp process.
+check_kill_process('storescp')
+
 pid = subprocess.call("{0} --accept-unknown --directory {1} --filepath {2} -b {3}".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
 with open(csv_file, newline='') as f:
@@ -105,4 +108,11 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
 
-os.kill(pid, signal.SIGKILL)
+
+
+def check_kill_process(pstring):
+    for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
+        fields = line.split()
+        pid = fields[0]
+        logging.info('killing previous storescp process')
+        os.kill(int(pid), signal.SIGKILL)
