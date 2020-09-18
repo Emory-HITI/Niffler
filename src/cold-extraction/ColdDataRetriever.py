@@ -1,5 +1,6 @@
 import logging
 import os
+import signal
 import csv
 import time
 import shutil
@@ -16,13 +17,17 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 
+#Get variables for StoreScp from config.json.
+storage_folder = config['StorageFolder']
+file_path = config['FilePath']
+
 # Get variables for the each on-demand extraction from config.json
-csvfile = config['CsvFile']
+csv_file = config['CsvFile']
 extraction_type = config['ExtractionType']
 accession_index = config['AccessionIndex']
 patient_index = config['PatientIndex']
 date_index = config['DateIndex']
-dateType = config['DateType']
+date_type = config['DateType']
 date_format = config['DateFormat']
 
 # Get constants from system.json
@@ -37,7 +42,10 @@ dates = []
 
 # record the start time
 t_start = time.time()
-with open(csvfile, newline='') as f:
+
+pid = subprocess.call("{0} --accept-unknown --directory {1} --filepath {2} -b {3}".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
+
+with open(csv_file, newline='') as f:
     reader = csv.reader(f)
     next(f)
     for row in reader:
@@ -73,7 +81,7 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
         if (extraction_type == 'empi_date'):
             Date = dates[pid]
             PatientID = patients[pid]
-            subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, dateType, Date), shell=True)
+            subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, date_type, Date), shell=True)
         elif (extraction_type == 'accession'):
             Accession = accessions[pid]
             subprocess.call("{0}/findscu -c {1} -b {2} -m AccessionNumber={3} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Accession), shell=True)
@@ -96,3 +104,5 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
  
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+
+os.kill(pid, signal.SIGKILL)

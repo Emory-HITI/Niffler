@@ -1,4 +1,5 @@
 {
+	"StorageFolder": "/opt/data/new-study",
 	"CsvFile": "csv/empi_accession.csv",
 	"ExtractionType": "empi_accession",
 	"AccessionIndex": 1,
