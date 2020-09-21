@@ -73,6 +73,8 @@ def sanity_check(pniffler, pstorescp):
         logging.info('Killing the idling storescp processes')       
         check_kill_process('storescp')
 
+    logging.info("StoreScp process for the current Niffler extraction will be started next")
+
 
 sanity_check('ColdDataRetriever', 'storescp')
 
