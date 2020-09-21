@@ -41,7 +41,7 @@ patients = []
 dates = []
 
 processes = 0
-niffler_process_str = 'ColdDataRetriever'
+niffler_process_str = 'storescp'
 
 # record the start time
 t_start = time.time()
