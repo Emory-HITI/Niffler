@@ -61,7 +61,7 @@ def count_process(pstring):
 count_process(niffler_process_str)
 
 if processes > 1:
-    logging.error('Previous extraction still running. Please wait until that completes and re-run your query. Quit').
+    logging.error('Previous extraction still running. Please wait until that completes and re-run your query. Quit')
     sys.exit(0)
 
 subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
