@@ -75,8 +75,6 @@ sanity_check('ColdDataRetriever', 'storescp')
 
 logging.info('Number of running storescp processes', processes)
 
-if processes > 1:
-
 
 subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
