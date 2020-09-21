@@ -95,27 +95,32 @@ config.json entries are to be set *for each* Niffler on-demand DICOM extractions
 
 ## Running the Niffler Retrospective Data Retriever
 
-First make sure there is no other Niffler ColdDataRetriever.py python process is running.
-
-$ ps -xa | grep python3
-
- 163287 pts/0    S      0:00 python3 ColdDataRetriever.py
-
-If a ColdDataRetriever.py that was previously started is still running, wait for it to complete and check again later. Do *NOT* start another ColdDataRetriever.py when the previous one is still running. That will mix the files from both extractions to a single folder (as currently only single DICOM connection can exist in our set up).
-
-Once there is no other process, then you can run your own extraction process. 
-
 $ cd /opt/Niffler/src/cold-extraction
 
-$ nohup python3 ColdDataRetriever.py > cold.out &
+$ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+
+Check that the extraction is going smooth, by,
+
+$ tail -f UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out
+
+You will see lots of logs.
+
+Now, if you see no log lines, most likely case is, a failure due to an on-going previous extraction. Check the Niffler logs.
+
+$ tail -f niffler.log
+
+INFO:root:Number of running niffler processes: 2 and storescp processes: 1
+
+ERROR:root:[EXTRACTION FAILURE] 2020-09-21 17:42:24.760598: Previous extraction still running. As such, your extraction attempt was not suuccessful this time. Please wait until that completes and re-run your query.
+
+Try again later. Once there is no other process, then you can run your own extraction process. 
+
 
 
 ## Check the Progress
 
 After some time (may take a few hours to a few days, depending on the length of the CSV file), check whether the extraction is complete.
 
-$ ps -xa | grep python3
+$ tail -f niffler.log
 
-If the ColdDataRetriever.py that you started is still running, check again a few hours or days later depending on how large your CSV file was!
-
-Once completed, all the relevant DICOM files will be in the *StorageFolder* folder.
+INFO:root:[EXTRACTION COMPLETE] 2020-09-21 17:42:38.465501: Niffler Extraction to /opt/data/new-study Completes. Terminating the completed storescp process.

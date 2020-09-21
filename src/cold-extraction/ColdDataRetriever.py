@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import datetime
 import json
+import sys
 
 logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
@@ -40,15 +41,45 @@ accessions = []
 patients = []
 dates = []
 
+storescp_processes = 0
+niffler_processes = 0
+
+nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
+qbniffler_str = 'ColdDataRetriever'
+
 # record the start time
 t_start = time.time()
 
-def check_kill_process(pstring):
-    for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
+def check_kill_process():
+    for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
         fields = line.split()
         pid = fields[0]
-        logging.info('killing previous storescp process')
+        logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Terminating the completed storescp process.".format(datetime.datetime.now(), storage_folder))
         os.kill(int(pid), signal.SIGKILL)
+
+
+def sanity_check():
+    global niffler_processes
+    global storescp_processes
+    for line in os.popen("ps ax | grep " + qbniffler_str + " | grep -v grep"):
+        niffler_processes += 1
+    for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
+        storescp_processes += 1
+
+    logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes, storescp_processes))
+
+    if niffler_processes > 1:
+        logging.error("[EXTRACTION FAILURE] {0}: Previous extraction still running. As such, your extraction attempt was not suuccessful this time. Please wait until that completes and re-run your query.".format(datetime.datetime.now()))
+        sys.exit(0)
+
+    if storescp_processes >= niffler_processes:
+        logging.info('Killing the idling storescp processes')       
+        check_kill_process('storescp')
+
+    logging.info("{0}: StoreScp process for the current Niffler extraction will be started next".format(datetime.datetime.now()))
+
+
+sanity_check()
 
 
 subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
@@ -113,5 +144,5 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
 
-# Kill the running storescp process.
-check_kill_process('storescp')
+# Kill the running storescp process of QbNiffler.
+check_kill_process()
