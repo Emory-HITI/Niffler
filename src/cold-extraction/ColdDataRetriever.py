@@ -40,6 +40,9 @@ accessions = []
 patients = []
 dates = []
 
+processes = 0
+niffler_process_str = 'ColdDataRetriever'
+
 # record the start time
 t_start = time.time()
 
@@ -50,6 +53,16 @@ def check_kill_process(pstring):
         logging.info('killing previous storescp process')
         os.kill(int(pid), signal.SIGKILL)
 
+
+def count_process(pstring):
+    for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
+        processes = processes + 1
+
+count_process(niffler_process_str)
+
+if processes > 1:
+    logging.error('Previous extraction still running. Please wait until that completes and re-run your query. Quit').
+    sys.exit(0)
 
 subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
