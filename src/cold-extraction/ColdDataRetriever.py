@@ -55,6 +55,7 @@ def check_kill_process(pstring):
 
 
 def count_process(pstring):
+    global processes
     for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
         processes = processes + 1
 
