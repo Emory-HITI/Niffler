@@ -40,8 +40,8 @@ accessions = []
 patients = []
 dates = []
 
-processes = 0
-niffler_process_str = 'storescp'
+storescp_processes = 0
+niffler_processes = 0
 
 # record the start time
 t_start = time.time()
@@ -54,18 +54,29 @@ def check_kill_process(pstring):
         os.kill(int(pid), signal.SIGKILL)
 
 
-def count_process(pstring):
-    global processes
-    for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
-        processes = processes + 1
+def sanity_check(pniffler, pstorescp):
+    global niffler_processes
+    global storescp_processes
+    for line in os.popen("ps ax | grep " + pniffler + " | grep -v grep"):
+        niffler_processes += 1
+    for line in os.popen("ps ax | grep " + pstorescp + " | grep -v grep"):
+        storescp_processes += 1
 
-count_process(niffler_process_str)
+    if niffler_processes > 1:
+        logging.error('Previous extraction still running. Please wait until that completes and re-run your query. Quit')
+        sys.exit(0)
+
+    if storescp_processes >= niffler_processes:
+        logging.info('Killing the idling storescp processes')       
+        check_kill_process('storescp')
+
+
+sanity_check('ColdDataRetriever', 'storescp')
 
 logging.info('Number of running storescp processes', processes)
 
 if processes > 1:
-    logging.error('Previous extraction still running. Please wait until that completes and re-run your query. Quit')
-    sys.exit(0)
+
 
 subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
