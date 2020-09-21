@@ -62,6 +62,8 @@ def sanity_check(pniffler, pstorescp):
     for line in os.popen("ps ax | grep " + pstorescp + " | grep -v grep"):
         storescp_processes += 1
 
+    logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes, storescp_processes))
+
     if niffler_processes > 1:
         logging.error('Previous extraction still running. Please wait until that completes and re-run your query. Quit')
         sys.exit(0)
@@ -72,8 +74,6 @@ def sanity_check(pniffler, pstorescp):
 
 
 sanity_check('ColdDataRetriever', 'storescp')
-
-logging.info('Number of running storescp processes', processes)
 
 
 subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
