@@ -51,7 +51,7 @@ def check_kill_process(pstring):
     for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
         fields = line.split()
         pid = fields[0]
-        logging.info(datetime.datetime.now(), ': Niffler Extraction Completes. Killing completed storescp process')
+        logging.info("{0}: Niffler Extraction Completes. Killing completed storescp process".format(datetime.datetime.now()))
         os.kill(int(pid), signal.SIGKILL)
 
 
@@ -73,7 +73,7 @@ def sanity_check(pniffler, pstorescp):
         logging.info('Killing the idling storescp processes')       
         check_kill_process('storescp')
 
-    logging.info(datetime.datetime.now(), ': StoreScp process for the current Niffler extraction will be started next')
+    logging.info("{0}: StoreScp process for the current Niffler extraction will be started next".format(datetime.datetime.now()))
 
 
 sanity_check('ColdDataRetriever', 'storescp')
