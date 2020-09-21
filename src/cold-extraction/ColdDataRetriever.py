@@ -51,7 +51,7 @@ def check_kill_process(pstring):
     for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
         fields = line.split()
         pid = fields[0]
-        logging.info("{0}: Niffler Extraction Completes. Killing completed storescp process".format(datetime.datetime.now()))
+        logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Killing completed storescp process".format(datetime.datetime.now(), storage_folder))
         os.kill(int(pid), signal.SIGKILL)
 
 
@@ -66,7 +66,7 @@ def sanity_check(pniffler, pstorescp):
     logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes, storescp_processes))
 
     if niffler_processes > 1:
-        logging.error('[EXTRACTION FAILURE] Previous extraction still running. Please wait until that completes and re-run your query. As such, your extraction attempt was not suuccessful this time.')
+        logging.error("[EXTRACTION FAILURE] {0}: Previous extraction still running. As such, your extraction attempt was not suuccessful this time. Please wait until that completes and re-run your query.".format(datetime.datetime.now()))
         sys.exit(0)
 
     if storescp_processes >= niffler_processes:
