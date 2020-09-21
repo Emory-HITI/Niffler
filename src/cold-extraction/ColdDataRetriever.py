@@ -66,7 +66,7 @@ def sanity_check(pniffler, pstorescp):
     logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes, storescp_processes))
 
     if niffler_processes > 1:
-        logging.error('Previous extraction still running. Please wait until that completes and re-run your query. Quit')
+        logging.error('[EXTRACTION FAILURE] Previous extraction still running. Please wait until that completes and re-run your query. As such, your extraction attempt was not suuccessful this time.')
         sys.exit(0)
 
     if storescp_processes >= niffler_processes:
