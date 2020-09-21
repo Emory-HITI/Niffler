@@ -61,6 +61,8 @@ def count_process(pstring):
 
 count_process(niffler_process_str)
 
+logging.info('Number of running storescp processes', processes)
+
 if processes > 1:
     logging.error('Previous extraction still running. Please wait until that completes and re-run your query. Quit')
     sys.exit(0)
