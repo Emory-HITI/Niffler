@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import datetime
 import json
+import sys
 
 logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
