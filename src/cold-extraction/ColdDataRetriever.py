@@ -51,7 +51,7 @@ def check_kill_process(pstring):
     for line in os.popen("ps ax | grep " + pstring + " | grep -v grep"):
         fields = line.split()
         pid = fields[0]
-        logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Killing completed storescp process".format(datetime.datetime.now(), storage_folder))
+        logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Terminating the completed storescp process.".format(datetime.datetime.now(), storage_folder))
         os.kill(int(pid), signal.SIGKILL)
 
 
