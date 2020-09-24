@@ -34,6 +34,13 @@ $ pip install git+git://github.com/pydicom/pynetdicom.git
 
 Also install DCM4CHE from https://github.com/dcm4che/dcm4che/releases
 
+Then checkout Niffler source code.
+
+$ git clone https://github.com/Emory-HITI/Niffler.git
+
+$ cd Niffler
+
+The master branch is stable whereas the dev branch has the bleeding edge.
 
 The Java components of Niffler Application Layer are managed via Apache Maven 3.
 

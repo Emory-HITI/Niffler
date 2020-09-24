@@ -95,6 +95,10 @@ config.json entries are to be set *for each* Niffler on-demand DICOM extractions
 
 ## Running the Niffler Retrospective Data Retriever
 
+First go to the src/cold-extraction directory in the Niffler source code in your server.
+
+For example, assuming Niffler is checked out in the /opt folder,
+
 $ cd /opt/Niffler/src/cold-extraction
 
 $ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
