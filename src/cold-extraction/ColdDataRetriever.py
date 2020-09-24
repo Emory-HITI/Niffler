@@ -74,7 +74,7 @@ def sanity_check():
 
     if storescp_processes >= niffler_processes:
         logging.info('Killing the idling storescp processes')       
-        check_kill_process('storescp')
+        check_kill_process()
 
     logging.info("{0}: StoreScp process for the current Niffler extraction will be started next".format(datetime.datetime.now()))
 
