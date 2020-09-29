@@ -1,10 +1,21 @@
 # The Niffler On-Demand Retrospective DICOM Extractor
-This extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. Below we discuss the steps to run Niffler on-demand DICOM extraction queries.
+This extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. Below we discuss the steps to run Niffler on-demand DICOM extraction queries. 
+
+First go to the src/cold-extraction directory in the Niffler source code in your server.
+
+For example, assuming Niffler is checked out in the /opt folder,
+
+$ cd /opt/Niffler/src/cold-extraction
+
+Then proceed to the below steps.
+
 
 
 # Configuring Niffler On-Demand Extractor
 
 Unless you are the administrator who is configuring Niffler for the first time, skip this section and proceed to the section "Using Niffler".
+
+Find the system.json file in the folder and modify accordingly.
 
 system.json entries are to be set *only once* for the Niffler deployment by the administrator. Once set, further extractions do not require a change.
 
@@ -72,6 +83,8 @@ BBBBBYYBBBBB
 
 ## Configuring Extraction Profile with config.json.
 
+Find the config.json file in the folder and modify accordingly.
+
 config.json entries are to be set *for each* Niffler on-demand DICOM extractions.
 
 * *StorageFolder*: Create a folder where you like your DICOM files to be. Usually, this is an empty folder (since each extraction is unique). Make sure the python program has write access to that folder.
@@ -95,11 +108,6 @@ config.json entries are to be set *for each* Niffler on-demand DICOM extractions
 
 ## Running the Niffler Retrospective Data Retriever
 
-First go to the src/cold-extraction directory in the Niffler source code in your server.
-
-For example, assuming Niffler is checked out in the /opt folder,
-
-$ cd /opt/Niffler/src/cold-extraction
 
 $ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 
