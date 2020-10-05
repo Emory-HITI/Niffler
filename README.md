@@ -34,6 +34,10 @@ $ pip install git+git://github.com/pydicom/pynetdicom.git
 
 Also install DCM4CHE from https://github.com/dcm4che/dcm4che/releases
 
+For example,
+
+$ wget https://sourceforge.net/projects/dcm4che/files/dcm4che3/5.22.5/dcm4che-5.22.5-bin.zip/download -O dcm4che-5.22.5-bin.zip
+
 Then checkout Niffler source code.
 
 $ git clone https://github.com/Emory-HITI/Niffler.git
