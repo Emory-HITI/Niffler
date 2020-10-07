@@ -136,3 +136,28 @@ After some time (may take a few hours to a few days, depending on the length of 
 $ tail -f niffler.log
 
 INFO:root:[EXTRACTION COMPLETE] 2020-09-21 17:42:38.465501: Niffler Extraction to /opt/data/new-study Completes. Terminating the completed storescp process.
+
+
+
+## Troubleshooting
+
+If the process fails even when no one else's Niffler process is running, check your log file (UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out)
+
+If you find an error such as: "IndexError: list index out of range", that indicates your csv file and/or config.json are not correctly set.
+
+Fix them and restart your Python process, by first finding and killing your python process and then starting Niffler as before.
+
+$ ps -xa | grep python
+
+1866 ?    Ss   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
+
+  1936 ?    Ssl  0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+
+  2926 pts/0  T   0:00 python3 ColdDataRetriever.py
+
+  3384 pts/0  S+   0:00 grep --color=auto python
+
+$ kill -9 2926
+
+
+Make sure not to kill others' Niffler processes. So double-check and confirm that the running process is indeed the one that was started by you, and yet failed.
