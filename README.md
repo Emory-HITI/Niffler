@@ -42,6 +42,10 @@ $ sudo apt install unzip
 
 $ unzip dcm4che-5.22.5-bin.zip
 
+Make sure Java is also available, as DCM4CHE requires Java to run.
+
+Also, the scanner utilization processing of Niffler is developed in Java.
+
 Then checkout Niffler source code.
 
 $ git clone https://github.com/Emory-HITI/Niffler.git
