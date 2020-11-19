@@ -223,7 +223,7 @@ def run_threaded(job_func):
 
 # The thread scheduling
 schedule.every(1).minutes.do(run_threaded, run_retrieval)    
-schedule.every(2).minutes.do(run_threaded, update_pickle)
+schedule.every(10).minutes.do(run_threaded, update_pickle)
 
 # Keep running in a loop.
 while True:
