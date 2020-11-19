@@ -115,7 +115,7 @@ if (extraction_type == 'empi_accession'):
         PatientID = patients[pid]
         if (NIGHTLY_ONLY == 'True'):
             current_hour = datetime.datetime.now().hour
-            while (current_hour > END_HOUR and current_hour < START_HOUR):
+            while (current_hour >= int(END_HOUR) and current_hour < int(START_HOUR)):
                 # SLEEP FOR 30 minutes
                 time.sleep(30)
                 logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
