@@ -50,6 +50,21 @@ niffler_processes = 0
 nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
 qbniffler_str = 'ColdDataRetriever'
 
+# Variables to track progress between iterations.
+extracted_ones = list()
+
+# By default, assume that this is a fresh extraction.
+resume = False
+
+# All extracted files from the csv file are saved in a respective .pickle file.
+try:
+    with open(csv_file +'.pickle', 'rb') as f:
+        extracted_ones = pickle.load(f)
+        # Since we have successfully located a pickle file, it indicates that this is a resume.
+        resume = True
+except:
+    logging.info("Unable to load a valid pickle file. Initialized with empty value to track the extracted ones in {0}.pickle.".format(csv_file))
+
 # record the start time
 t_start = time.time()
 
@@ -113,19 +128,28 @@ if (extraction_type == 'empi_accession'):
     for pid in range(0, len(patients)):
         Accession = accessions[pid]
         PatientID = patients[pid]
+        temp_id = PatientID + '_' + Accession
         if (NIGHTLY_ONLY == 'True'):
             current_hour = datetime.datetime.now().hour
             while (current_hour >= int(END_HOUR) and current_hour < int(START_HOUR)):
                 # SLEEP FOR 30 minutes
                 time.sleep(30)
                 logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-        subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
+        if ((not resume) or (resume and (temp_id.decode("utf-8") not in extracted_ones))):
+            subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
+            extracted_ones.append(temp_id.decode("utf-8"))
 
 # For the cases that does not have the typical EMPI and Accession values together.
 elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
- 
     # Create our Identifier (query) dataset
     for pid in range(0, length):
+        if (NIGHTLY_ONLY == 'True'):
+            current_hour = datetime.datetime.now().hour
+            while (current_hour >= int(END_HOUR) and current_hour < int(START_HOUR)):
+                # SLEEP FOR 30 minutes
+                time.sleep(30)
+                logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
+
         if (extraction_type == 'empi_date'):
             Date = dates[pid]
             PatientID = patients[pid]
@@ -148,10 +172,30 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
         for pid2 in range(0, len(patients2)):
             Study = studies2[pid2]
             Patient = patients2[pid2]
-            subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
+            temp_id = Patient + '_' + Study
+            if ((not resume) or (resume and (temp_id.decode("utf-8") not in extracted_ones))):
+                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
+                extracted_ones.append(temp_id.decode("utf-8"))
+
  
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+
+
+# Write the pickle file periodically to track the progress and persist it to the filesystem
+def update_pickle():
+    global extracted_ones
+    # Pickle using the highest protocol available.
+    with open(csv_file +'.pickle', 'wb') as f:
+        pickle.dump(extracted_ones, f, pickle.HIGHEST_PROTOCOL)
+    logging.debug('dumping complete')
+
+schedule.every(10).minutes.do(run_threaded, update_pickle)
+
+# Keep running in a loop.
+while True:
+    schedule.run_pending()
+    time.sleep(1)
 
 # Kill the running storescp process of QbNiffler.
 check_kill_process()
