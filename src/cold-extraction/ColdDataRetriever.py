@@ -10,6 +10,8 @@ import json
 import sys
 import schedule
 import pickle
+import threading
+
 
 logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
@@ -41,6 +43,8 @@ DEST_AET = niffler['DestAet']
 NIGHTLY_ONLY = niffler['NightlyOnly']
 START_HOUR = niffler['StartHour']
 END_HOUR = niffler['EndHour']
+IS_EXTRACTION_NOT_RUNNING = True
+
 
 accessions = []
 patients = []
@@ -104,22 +108,9 @@ sanity_check()
 
 subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
-# Write the pickle file periodically to track the progress and persist it to the filesystem
-def update_pickle():
-    global extracted_ones
-    # Pickle using the highest protocol available.
-    with open(csv_file +'.pickle', 'wb') as f:
-        pickle.dump(extracted_ones, f, pickle.HIGHEST_PROTOCOL)
-    logging.debug('dumping complete')
 
-schedule.every(10).minutes.do(run_threaded, update_pickle)
 
-# Keep running in a loop.
-while True:
-    schedule.run_pending()
-    time.sleep(1)
 
-    
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
     next(f)
@@ -140,60 +131,72 @@ with open(csv_file, newline='') as f:
             length = len(accessions)
 
 
-# For the cases that have the typical EMPI and Accession values together.
-if (extraction_type == 'empi_accession'):
-    # Create our Identifier (query) dataset
-    for pid in range(0, len(patients)):
-        Accession = accessions[pid]
-        PatientID = patients[pid]
-        temp_id = PatientID + '_' + Accession
-        if (NIGHTLY_ONLY == 'True'):
-            current_hour = datetime.datetime.now().hour
-            while (current_hour >= int(END_HOUR) and current_hour < int(START_HOUR)):
-                # SLEEP FOR 30 minutes
-                time.sleep(30)
-                logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-        if ((not resume) or (resume and (temp_id.decode("utf-8") not in extracted_ones))):
-            subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
-            extracted_ones.append(temp_id)
+# Run the retrieval only once, when the extraction script starts, and keep it running in a separate thread.
+def run_retrieval():
+    global IS_EXTRACTION_NOT_RUNNING
+    if IS_EXTRACTION_NOT_RUNNING:
+        IS_EXTRACTION_NOT_RUNNING = False   
+        logging.info('Starting the extractions...')
+        retrieve()
 
-# For the cases that does not have the typical EMPI and Accession values together.
-elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
-    # Create our Identifier (query) dataset
-    for pid in range(0, length):
-        if (NIGHTLY_ONLY == 'True'):
-            current_hour = datetime.datetime.now().hour
-            while (current_hour >= int(END_HOUR) and current_hour < int(START_HOUR)):
-                # SLEEP FOR 30 minutes
-                time.sleep(30)
-                logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
 
-        if (extraction_type == 'empi_date'):
-            Date = dates[pid]
-            PatientID = patients[pid]
-            subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, date_type, Date), shell=True)
-        elif (extraction_type == 'accession'):
-            Accession = accessions[pid]
-            subprocess.call("{0}/findscu -c {1} -b {2} -m AccessionNumber={3} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Accession), shell=True)
-
-        #Processing the Intermediate CSV file with EMPI and StudyIDs
-        with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
-            reader2 = csv.reader(g)
-            # Array of studies
-            patients2 = []
-            studies2 = []
-            for row2 in reader2:
-                patients2.append(row2[1])
-                studies2.append(row2[0])
- 
+# The core DICOM on-demand retrieve process.
+def retrieve():
+    # For the cases that have the typical EMPI and Accession values together.
+    if (extraction_type == 'empi_accession'):
         # Create our Identifier (query) dataset
-        for pid2 in range(0, len(patients2)):
-            Study = studies2[pid2]
-            Patient = patients2[pid2]
-            temp_id = Patient + '_' + Study
-            if ((not resume) or (resume and (temp_id not in extracted_ones))):
-                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
+        for pid in range(0, len(patients)):
+            Accession = accessions[pid]
+            PatientID = patients[pid]
+            temp_id = PatientID + '_' + Accession
+            if (NIGHTLY_ONLY == 'True'):
+                current_hour = datetime.datetime.now().hour
+                while (current_hour >= int(END_HOUR) and current_hour < int(START_HOUR)):
+                    # SLEEP FOR 30 minutes
+                    time.sleep(30)
+                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
+            if ((not resume) or (resume and (temp_id.decode("utf-8") not in extracted_ones))):
+                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
                 extracted_ones.append(temp_id)
+
+    # For the cases that does not have the typical EMPI and Accession values together.
+    elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
+        # Create our Identifier (query) dataset
+        for pid in range(0, length):
+            if (NIGHTLY_ONLY == 'True'):
+                current_hour = datetime.datetime.now().hour
+                while (current_hour >= int(END_HOUR) and current_hour < int(START_HOUR)):
+                    # SLEEP FOR 30 minutes
+                    time.sleep(30)
+                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
+
+            if (extraction_type == 'empi_date'):
+                Date = dates[pid]
+                PatientID = patients[pid]
+                subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, date_type, Date), shell=True)
+            elif (extraction_type == 'accession'):
+                Accession = accessions[pid]
+                subprocess.call("{0}/findscu -c {1} -b {2} -m AccessionNumber={3} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Accession), shell=True)
+
+            #Processing the Intermediate CSV file with EMPI and StudyIDs
+            with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
+                reader2 = csv.reader(g)
+                # Array of studies
+                patients2 = []
+                studies2 = []
+                for row2 in reader2:
+                    patients2.append(row2[1])
+                    studies2.append(row2[0])
+ 
+            # Create our Identifier (query) dataset
+            for pid2 in range(0, len(patients2)):
+                Study = studies2[pid2]
+                Patient = patients2[pid2]
+                temp_id = Patient + '_' + Study
+                if ((not resume) or (resume and (temp_id not in extracted_ones))):
+                    subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
+                    extracted_ones.append(temp_id)
+
 
  
 # Record the total run-time
@@ -202,3 +205,27 @@ logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
 
 # Kill the running storescp process of QbNiffler.
 check_kill_process()
+
+
+# Write the pickle file periodically to track the progress and persist it to the filesystem
+def update_pickle():
+    global extracted_ones
+    # Pickle using the highest protocol available.
+    with open(csv_file +'.pickle', 'wb') as f:
+        pickle.dump(extracted_ones, f, pickle.HIGHEST_PROTOCOL)
+    logging.debug('dumping complete')
+
+
+def run_threaded(job_func):
+    job_thread = threading.Thread(target=job_func)
+    job_thread.start()
+    
+
+# The thread scheduling
+schedule.every(1).minutes.do(run_threaded, run_retrieval)    
+schedule.every(2).minutes.do(run_threaded, update_pickle)
+
+# Keep running in a loop.
+while True:
+    schedule.run_pending()
+    time.sleep(1)
