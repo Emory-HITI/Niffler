@@ -36,6 +36,9 @@ DCM4CHE_BIN = niffler['DCM4CHEBin']
 SRC_AET = niffler['SrcAet']
 QUERY_AET = niffler['QueryAet']
 DEST_AET = niffler['DestAet']
+NIGHTLY_ONLY = niffler['NightlyOnly']
+START_HOUR = niffler['StartHour']
+END_HOUR = niffler['EndHour']
 
 accessions = []
 patients = []
@@ -110,6 +113,11 @@ if (extraction_type == 'empi_accession'):
     for pid in range(0, len(patients)):
         Accession = accessions[pid]
         PatientID = patients[pid]
+        if (NIGHTLY_ONLY == 'True'):
+            current_hour = datetime.datetime.now().hour
+            while (current_hour > END_HOUR and current_hour < START_HOUR):
+                # SLEEP FOR 30 minutes
+                time.sleep(30)
         subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
 
 # For the cases that does not have the typical EMPI and Accession values together.
