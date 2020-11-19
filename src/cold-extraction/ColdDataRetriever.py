@@ -150,7 +150,9 @@ def retrieve():
             PatientID = patients[pid]
             temp_id = PatientID + '_' + Accession
             if (NIGHTLY_ONLY == 'True'):
-                logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
+                if (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
+                    # log once while sleeping
+                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
                 while (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
                     #sleep for 5 minutes
                     time.sleep(300)
@@ -163,7 +165,9 @@ def retrieve():
         # Create our Identifier (query) dataset
         for pid in range(0, length):
             if (NIGHTLY_ONLY == 'True'):
-                logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
+                if (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
+                    # log once while sleeping
+                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
                 while (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
                     #sleep for 5 minutes
                     time.sleep(300)
