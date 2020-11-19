@@ -27,6 +27,11 @@ system.json entries are to be set *only once* for the Niffler deployment by the 
 
 * *DestAet*:   Set the correct AET of the detination AET. Must match the AET of the storescp.
 
+* *NightlyOnly*: This is set to "True" by default. Setting it to anything else will make Niffler on-demand extraction run at any time.
+	
+* *StartHour*: When a night-only mode is enabled, when should the extraction start. A rough 24 hour time (hours only), calculated by the hour. Not an exact time.
+
+* *EndHour*: When should the extraction end, when the night-mode is enabled. By default, the start hour is 21 and end hour is 9.
 
 
 # Using Niffler

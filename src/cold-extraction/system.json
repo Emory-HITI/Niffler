@@ -2,5 +2,8 @@
 	"DCM4CHEBin": "/opt/dcm4che-5.22.5/bin",
 	"SrcAet": "SRC_AET@SRCHOST:104",
 	"QueryAet": "QBNIFFLER:4243",
-	"DestAet": "QBNIFFLER"
+	"DestAet": "QBNIFFLER",
+	"NightlyOnly": "True",
+	"StartHour": "21",
+	"EndHour": "9"
 }
