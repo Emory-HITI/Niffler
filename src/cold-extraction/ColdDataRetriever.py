@@ -104,6 +104,22 @@ sanity_check()
 
 subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
+# Write the pickle file periodically to track the progress and persist it to the filesystem
+def update_pickle():
+    global extracted_ones
+    # Pickle using the highest protocol available.
+    with open(csv_file +'.pickle', 'wb') as f:
+        pickle.dump(extracted_ones, f, pickle.HIGHEST_PROTOCOL)
+    logging.debug('dumping complete')
+
+schedule.every(10).minutes.do(run_threaded, update_pickle)
+
+# Keep running in a loop.
+while True:
+    schedule.run_pending()
+    time.sleep(1)
+
+    
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
     next(f)
@@ -183,21 +199,6 @@ elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
 
-
-# Write the pickle file periodically to track the progress and persist it to the filesystem
-def update_pickle():
-    global extracted_ones
-    # Pickle using the highest protocol available.
-    with open(csv_file +'.pickle', 'wb') as f:
-        pickle.dump(extracted_ones, f, pickle.HIGHEST_PROTOCOL)
-    logging.debug('dumping complete')
-
-schedule.every(10).minutes.do(run_threaded, update_pickle)
-
-# Keep running in a loop.
-while True:
-    schedule.run_pending()
-    time.sleep(1)
 
 # Kill the running storescp process of QbNiffler.
 check_kill_process()
