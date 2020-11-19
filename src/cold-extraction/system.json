@@ -4,6 +4,6 @@
 	"QueryAet": "QBNIFFLER:4243",
 	"DestAet": "QBNIFFLER",
 	"NightlyOnly": "True",
-	"StartHour": "21",
-	"EndHour": "9"
+	"StartHour": "19",
+	"EndHour": "7"
 }

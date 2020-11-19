@@ -31,7 +31,7 @@ system.json entries are to be set *only once* for the Niffler deployment by the 
 	
 * *StartHour*: When a night-only mode is enabled, when should the extraction start. A rough 24 hour time (hours only), calculated by the hour. Not an exact time.
 
-* *EndHour*: When should the extraction end, when the night-mode is enabled. By default, the start hour is 21 and end hour is 9.
+* *EndHour*: When should the extraction end, when the night-mode is enabled. By default, the start hour is 19 and end hour is 7.
 
 
 # Using Niffler
