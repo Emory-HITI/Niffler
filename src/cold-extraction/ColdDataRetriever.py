@@ -118,6 +118,7 @@ if (extraction_type == 'empi_accession'):
             while (current_hour > END_HOUR and current_hour < START_HOUR):
                 # SLEEP FOR 30 minutes
                 time.sleep(30)
+                logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
         subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
 
 # For the cases that does not have the typical EMPI and Accession values together.
