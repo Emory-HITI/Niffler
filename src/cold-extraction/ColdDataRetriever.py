@@ -11,7 +11,6 @@ import sys
 import schedule
 import pickle
 
-
 logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
 with open('system.json', 'r') as f:
