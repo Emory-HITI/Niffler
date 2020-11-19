@@ -150,9 +150,10 @@ def retrieve():
             PatientID = patients[pid]
             temp_id = PatientID + '_' + Accession
             if (NIGHTLY_ONLY == 'True'):
+                logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
                 while (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
-                    time.sleep(1)
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
+                    #sleep for 5 minutes
+                    time.sleep(300)
             if ((not resume) or (resume and (temp_id not in extracted_ones))):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
                 extracted_ones.append(temp_id)
@@ -162,10 +163,10 @@ def retrieve():
         # Create our Identifier (query) dataset
         for pid in range(0, length):
             if (NIGHTLY_ONLY == 'True'):
+                logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
                 while (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
-                    time.sleep(1)
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-
+                    #sleep for 5 minutes
+                    time.sleep(300)
             if (extraction_type == 'empi_date'):
                 Date = dates[pid]
                 PatientID = patients[pid]
