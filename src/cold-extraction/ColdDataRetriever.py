@@ -10,6 +10,8 @@ import json
 import sys
 import schedule
 import pickle
+import threading
+
 
 logging.basicConfig(filename='niffler.log',level=logging.INFO)
 
@@ -119,7 +121,7 @@ while True:
     schedule.run_pending()
     time.sleep(1)
 
-    
+
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
     next(f)
