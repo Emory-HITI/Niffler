@@ -155,7 +155,7 @@ def retrieve():
                     # SLEEP FOR 30 minutes
                     time.sleep(30)
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-            if ((not resume) or (resume and (temp_id.decode("utf-8") not in extracted_ones))):
+            if ((not resume) or (resume and (temp_id not in extracted_ones))):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
                 extracted_ones.append(temp_id)
 
