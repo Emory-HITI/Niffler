@@ -18,7 +18,7 @@ set cblabel font "Verdana,16"
 set key font "Verdana,16" 
 set cbrange [1:22]
 set cbtics add (1, 22)
-set cblabel "No. of Encounters" offset 3,0,0
+set cblabel "No. of Encounters" offset 2,0,0
 set grid
 
 do for [index in "26356 35386 31130 69618 25992 41546 41563 145596 141301 45988 145384 141638 000000000000GEMS 000000404251EOMR 000000678474JCMR 00000678474JCMR2 42458 00ALLIANCESIG479 25285 25240 142105 000000404256AMR1 145624 141780 141676"] {
