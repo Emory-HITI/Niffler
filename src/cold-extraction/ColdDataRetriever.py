@@ -69,7 +69,7 @@ try:
         # Since we have successfully located a pickle file, it indicates that this is a resume.
         resume = True
 except:
-    logging.info("Unable to load a valid pickle file. Initialized with empty value to track the extracted ones in {0}.pickle.".format(csv_file))
+    logging.info("No existing pickle file found. Therefore, initialized with empty value to track the progress to {0}.pickle.".format(csv_file))
 
 # record the start time
 t_start = time.time()
@@ -82,7 +82,8 @@ def check_kill_process():
         os.kill(int(pid), signal.SIGKILL)
 
 
-def sanity_check():
+# Initialize the storescp and Niffler AET.
+def initialize():
     global niffler_processes
     global storescp_processes
     for line in os.popen("ps ax | grep " + qbniffler_str + " | grep -v grep"):
@@ -100,14 +101,9 @@ def sanity_check():
         logging.info('Killing the idling storescp processes')       
         check_kill_process()
 
-    logging.info("{0}: StoreScp process for the current Niffler extraction will be started next".format(datetime.datetime.now()))
+    logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(datetime.datetime.now()))
 
-
-sanity_check()
-
-
-subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
-
+    subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
 
 
@@ -137,6 +133,7 @@ def run_retrieval():
     if IS_EXTRACTION_NOT_RUNNING:
         IS_EXTRACTION_NOT_RUNNING = False   
         logging.info('Starting the extractions...')
+        initialize()
         retrieve()
 
 
@@ -199,13 +196,15 @@ def retrieve():
                     extracted_ones.append(temp_id)
 
 
- 
-# Record the total run-time
-logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+    # Kill the running storescp process of QbNiffler.
+    check_kill_process() 
 
+    # Record the total run-time
+    logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
 
-# Kill the running storescp process of QbNiffler.
-check_kill_process()
+    #Extraction has successfully completed.
+    sys.exit(0)                
+
 
 
 # Write the pickle file periodically to track the progress and persist it to the filesystem
@@ -214,7 +213,7 @@ def update_pickle():
     # Pickle using the highest protocol available.
     with open(csv_file +'.pickle', 'wb') as f:
         pickle.dump(extracted_ones, f, pickle.HIGHEST_PROTOCOL)
-    logging.debug('dumping complete')
+    logging.debug('Progress is recorded to the pickle file')
 
 
 def run_threaded(job_func):
