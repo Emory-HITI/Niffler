@@ -74,12 +74,21 @@ except:
 # record the start time
 t_start = time.time()
 
+# Check and kill the StoreScp processes.
 def check_kill_process():
     for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
         fields = line.split()
         pid = fields[0]
         logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Terminating the completed storescp process.".format(datetime.datetime.now(), storage_folder))
-        os.kill(int(pid), signal.SIGKILL)
+        try:
+            os.kill(int(pid), signal.SIGKILL)
+        except PermissionError:
+            logging.info("The previous user's StoreScp process has become a zombie. It is roaming around freely. Please kill it first")
+            logging.info("From your terminal run the below commands.")
+            logging.info("First find the pid of the storescp:- sudo ps -xa | grep storescp")
+            logging.info("Then kill that above process with:- sudo kill -9 PID-FROM-THE-PREVIOUS-STEP")
+            logging.info("Once killed, restart Niffler as before. Your current Niffler process is terminating now...")
+            sys.exit(1)                
 
 
 # Initialize the storescp and Niffler AET.
