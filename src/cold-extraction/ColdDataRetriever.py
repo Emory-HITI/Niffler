@@ -83,11 +83,12 @@ def check_kill_process():
         try:
             os.kill(int(pid), signal.SIGKILL)
         except PermissionError:
-            logging.info("The previous user's StoreScp process has become a zombie. It is roaming around freely. Please kill it first")
-            logging.info("From your terminal run the below commands.")
-            logging.info("First find the pid of the storescp:- sudo ps -xa | grep storescp")
-            logging.info("Then kill that above process with:- sudo kill -9 PID-FROM-THE-PREVIOUS-STEP")
-            logging.info("Once killed, restart Niffler as before. Your current Niffler process is terminating now...")
+            logging.warning("The previous user's StoreScp process has become an orphan. It is roaming around freely, like a zombie. Please kill it first")
+            logging.warning("From your terminal run the below commands.")
+            logging.warning("First find the pid of the storescp:- sudo ps -xa | grep storescp")
+            logging.warning("Then kill that above process with:- sudo kill -9 PID-FROM-THE-PREVIOUS-STEP")
+            logging.warning("Once killed, restart Niffler as before.")
+            logging.error("Your current Niffler process terminates now. You or someone with sudo privilege must kill the idling storescp process first...")
             sys.exit(1)                
 
 
