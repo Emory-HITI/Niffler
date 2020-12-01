@@ -56,6 +56,8 @@ The master branch is stable whereas the dev branch has the bleeding edge.
 
 The Java components of Niffler Application Layer are managed via Apache Maven 3.
 
+$ mvn clean install
+
 Please refer to each module's individual README for additional instructions.
 
 
