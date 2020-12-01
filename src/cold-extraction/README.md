@@ -96,6 +96,8 @@ Find the config.json file in the folder and modify accordingly.
 
 config.json entries are to be set *for each* Niffler on-demand DICOM extractions.
 
+* *NifflerSystem*: By default, system.json. Provide a custom json file with Niffler system information, if you have any.
+
 * *StorageFolder*: Create a folder where you like your DICOM files to be. Usually, this is an empty folder (since each extraction is unique). Make sure the python program has write access to that folder.
 
 * *FilePath*: By default, "{00100020}/{0020000D}/{0020000E}/{00080018}.dcm". This indicates a hierarchical storage of patients/studies/series/instances.dcm. Leave this value as it is unless you want to change the hierarchy.
