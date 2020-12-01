@@ -130,7 +130,9 @@ You will see lots of logs.
 
 Now, if you see no log lines, most likely case is, a failure due to an on-going previous extraction. Check the Niffler logs.
 
-$ tail -f niffler.log
+$ tail -f niffler1.log
+
+Above log might be niffler2.log. The log file is niffler, appended by a number indicated in system.json as NifflerID, where the default value is 1.
 
 INFO:root:Number of running niffler processes: 2 and storescp processes: 1
 
@@ -168,7 +170,7 @@ $ ps -xa | grep python
 
   3384 pts/0  S+   0:00 grep --color=auto python
 
-$ kill -9 2926
+$ kill 2926
 
 You might need to run the above command with sudo to find others' Niffler processes.
 
@@ -181,4 +183,4 @@ $ sudo ps -xa | grep storescp
 
 241720 pts/4  Sl   0:02 java -cp /opt/dcm4che-5.22.5/etc/storescp/:/opt/dcm4che-5.22.5/etc/certs/:/opt/dcm4che-5.22.5/lib/dcm4che-tool-storescp-5.22.5.jar:/opt/dcm4che-5.22.5/lib/dcm4che-core-5.22.5.jar:/opt/dcm4che-5.22.5/lib/dcm4che-net-5.22.5.jar:/opt/dcm4che-5.22.5/lib/dcm4che-tool-common-5.22.5.jar:/opt/dcm4che-5.22.5/lib/slf4j-api-1.7.30.jar:/opt/dcm4che-5.22.5/lib/slf4j-log4j12-1.7.30.jar:/opt/dcm4che-5.22.5/lib/log4j-1.2.17.jar:/opt/dcm4che-5.22.5/lib/commons-cli-1.4.jar org.dcm4che3.tool.storescp.StoreSCP --accept-unknown --directory /home/Data/Mammo/Kheiron/cohort_1/ --filepath {00100020}/{0020000D}/{0020000E}/{00080018}.dcm -b QBNIFFLER:4243 242185 pts/5  S+   0:00 grep --color=auto storescp
 
-$ sudo kill -9 241720
+$ sudo kill 241720
