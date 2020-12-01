@@ -1,4 +1,5 @@
 {
+	"NifflerSystem": "system.json",
 	"StorageFolder": "/opt/data/new-study",
 	"FilePath": "{00100020}/{0020000D}/{0020000E}/{00080018}.dcm",
 	"CsvFile": "csv/empi_accession.csv",

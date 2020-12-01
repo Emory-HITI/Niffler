@@ -13,12 +13,8 @@ import pickle
 import threading
 
 
-with open('system.json', 'r') as f:
-    niffler = json.load(f)
-
 with open('config.json', 'r') as f:
     config = json.load(f)
-
 
 #Get variables for StoreScp from config.json.
 storage_folder = config['StorageFolder']
@@ -32,6 +28,12 @@ patient_index = config['PatientIndex']
 date_index = config['DateIndex']
 date_type = config['DateType']
 date_format = config['DateFormat']
+
+# Reads the system_json file.
+system_json = config['NifflerSystem']
+
+with open(system_json, 'r') as f:
+    niffler = json.load(f)
 
 # Get constants from system.json
 DCM4CHE_BIN = niffler['DCM4CHEBin']
