@@ -22,14 +22,18 @@ Converts a set of DICOM images into png images, extract metadata in a privacy-pr
 
 The scripts to enable ML Algorithm containers.
 
-## main, the Application Layer. 
+## main, the application layer
 
 A sample development of scanner utilization computation algorithms in Java.
 
 
 # Configuring Niffler
 
+## Configure PACS
+
 Make sure to configure the PACS to send data to Niffler's host, port, and AE_Title. Niffler won't receive data unless the PACS allows the requests from Niffler (host/port/AE_Title).
+
+## Install Dependencies
 
 To use Niffler, first, install the dependencies.
 
@@ -47,6 +51,8 @@ $ unzip dcm4che-5.22.5-bin.zip
 
 Make sure Java is available, as DCM4CHE and Niffler Application Layer require Java to run.
 
+## Deploy Niffler
+
 Then checkout Niffler source code.
 
 $ git clone https://github.com/Emory-HITI/Niffler.git
@@ -59,11 +65,12 @@ The Java components of Niffler Application Layer are managed via Apache Maven 3.
 
 $ mvn clean install
 
-Please refer to each module's individual README for additional instructions.
+Please refer to each module's individual README for additional instructions on deploying and using Niffler for each of its components.
 
 
 
 # Citing Niffler
+
 If you use Niffler in your research, please cite the below paper:
 
 * Pradeeban Kathiravelu, Puneet Sharma, Ashish Sharma, Imon Banerjee, Hari Trivedi, Saptarshi Purkayastha, Priyanshu Sinha, Alexandre Cadrin-Chenevert, Nabile Safdar, Judy Wawira Gichoya. **A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images.** arXiv preprint [arXiv:2004.07965](http://arxiv.org/abs/2004.07965) (2020).
