@@ -1,37 +1,5 @@
-## Welcome to GitHub Pages
+## Niffler: A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images
 
-You can use the [editor on GitHub](https://github.com/Emory-HITI/Niffler/edit/dev/docs/index.md) to maintain and preview the content for your website in Markdown files.
+Niffler is a research project for DICOM networking. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Emory-HITI/Niffler/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+It provides an efficient and quick approach to receiving DICOM images in real-time and on-demand from multiple PACS. It extracts DICOM metadata and stores them in a Mongo database. Additional workflows can be run on the images and metadata. One specific example, identifying scanner utilization has been implemented as part of the Niffler Application Layer.
