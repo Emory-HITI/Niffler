@@ -130,7 +130,9 @@ You will see lots of logs.
 
 Now, if you see no log lines, most likely case is, a failure due to an on-going previous extraction. Check the Niffler logs.
 
-$ tail -f niffler.log
+$ tail -f niffler1.log
+
+Above log might be niffler2.log. The log file is niffler, appended by a number indicated in system.json as NifflerID, where the default value is 1.
 
 INFO:root:Number of running niffler processes: 2 and storescp processes: 1
 

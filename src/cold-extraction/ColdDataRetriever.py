@@ -58,7 +58,7 @@ niffler_processes = 0
 nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
 qbniffler_str = 'ColdDataRetriever'
 
-niffler_log = 'niffler' + NIFFLER_ID + '.log'
+niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
 logging.basicConfig(filename=niffler_log,level=logging.INFO)
 logging.getLogger('schedule').setLevel(logging.WARNING)
