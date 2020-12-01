@@ -33,6 +33,10 @@ system.json entries are to be set *only once* for the Niffler deployment by the 
 
 * *EndHour*: When should the extraction end, when the night-mode is enabled. By default, the start hour is 19 and end hour is 7.
 
+* *NifflerID*: The ID of the current execution. Default is 1. You must increment the second execution to 2, so that the logs are properly stored in niffler1.log and niffler2.log.
+
+* *MaxNifflerProcesses*: How many Niffler processes can run in parallel. Make sure each execution has its own SrcAet properly configured. Each SrcAet can run only once.
+
 
 # Using Niffler
 

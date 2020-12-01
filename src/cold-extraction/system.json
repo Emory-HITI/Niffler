@@ -4,6 +4,8 @@
 	"QueryAet": "QBNIFFLER:4243",
 	"DestAet": "QBNIFFLER",
 	"NightlyOnly": "True",
-	"StartHour": "19",
-	"EndHour": "7"
+	"StartHour": 19,
+	"EndHour": 7,
+	"NifflerID": 1,
+	"MaxNifflerProcesses": 1
 }

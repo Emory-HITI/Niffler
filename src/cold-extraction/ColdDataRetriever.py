@@ -13,8 +13,6 @@ import pickle
 import threading
 
 
-logging.basicConfig(filename='niffler.log',level=logging.INFO)
-
 with open('system.json', 'r') as f:
     niffler = json.load(f)
 
@@ -44,6 +42,8 @@ NIGHTLY_ONLY = niffler['NightlyOnly']
 START_HOUR = niffler['StartHour']
 END_HOUR = niffler['EndHour']
 IS_EXTRACTION_NOT_RUNNING = True
+NIFFLER_ID = niffler['NifflerID']
+MAX_PROCESSES = niffler['MaxNifflerProcesses']
 
 
 accessions = []
@@ -55,6 +55,11 @@ niffler_processes = 0
 
 nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
 qbniffler_str = 'ColdDataRetriever'
+
+niffler_log = 'niffler' + NIFFLER_ID + '.log'
+
+logging.basicConfig(filename=niffler_log,level=logging.INFO)
+logging.getLogger('schedule').setLevel(logging.WARNING)
 
 # Variables to track progress between iterations.
 extracted_ones = list()
@@ -103,8 +108,8 @@ def initialize():
 
     logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes, storescp_processes))
 
-    if niffler_processes > 1:
-        logging.error("[EXTRACTION FAILURE] {0}: Previous extraction still running. As such, your extraction attempt was not suuccessful this time. Please wait until that completes and re-run your query.".format(datetime.datetime.now()))
+    if niffler_processes > MAX_PROCESSES:
+        logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction attempt was not suuccessful this time. Please wait until those complete and re-run your query.".format(datetime.datetime.now(), MAX_PROCESSES))
         sys.exit(0)
 
     if storescp_processes >= niffler_processes:
@@ -157,10 +162,10 @@ def retrieve():
             PatientID = patients[pid]
             temp_id = PatientID + '_' + Accession
             if (NIGHTLY_ONLY == 'True'):
-                if (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
+                if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
                     # log once while sleeping
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-                while (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
+                while (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
                     #sleep for 5 minutes
                     time.sleep(300)
             if ((not resume) or (resume and (temp_id not in extracted_ones))):
@@ -172,10 +177,10 @@ def retrieve():
         # Create our Identifier (query) dataset
         for pid in range(0, length):
             if (NIGHTLY_ONLY == 'True'):
-                if (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
+                if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
                     # log once while sleeping
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-                while (datetime.datetime.now().hour >= int(END_HOUR) and datetime.datetime.now().hour < int(START_HOUR)):
+                while (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
                     #sleep for 5 minutes
                     time.sleep(300)
             if (extraction_type == 'empi_date'):
