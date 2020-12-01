@@ -26,7 +26,7 @@ Niffler core (cold-extraction, meta-extraction, and png-extraction) is built wit
 
 To develop the Niffler core, first, install the dependencies.
 
-$ pip install requests pymongo schedule pydicom pynetdicom
+$ pip install -r requirements.txt
 
 For the development branch of pynetdicom
 
