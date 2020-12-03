@@ -2,9 +2,9 @@
 
 Niffler is an efficient DICOM receiver and metadata extractor framework. It facilitates efficient transfer of DICOM images on-demand and real-time from PACS to the research environments, to run processing workflows and machine learning pipelines.
 
-Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python3. The scanner utilization tool in the Application layer is built in Java and the scripts are developed in Javascript.
+# Niffler Modules
 
-# Niffler Components
+Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python3.
 
 ## cold-extraction
 
@@ -18,13 +18,10 @@ Extracts metadata from a continuous real-time DICOM imaging stream.
 
 Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
 
-## scripts
+## app-layer
 
-The scripts to enable ML Algorithm containers.
+In the app-layer, the scanner utilization tool is developed in Java, whereas the scripts such as scanner clock calibration are developed in Javascript.
 
-## main, the application layer
-
-A sample development of scanner utilization computation algorithms in Java.
 
 
 # Configuring Niffler
