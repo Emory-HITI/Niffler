@@ -7,7 +7,9 @@ Niffler is a real-time PACS receiver and metadata extractor framework. It consis
 
 Make sure to configure the PACS to send data to Niffler's host, port, and AE_Title. Niffler won't receive data unless the PACS allows the requests from Niffler (host/port/AE_Title).
 
-In the src folder:
+Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python3.
+
+Niffler consists of the below modules:
 
 * cold-extraction: On-demand queries to retrieve retrospective DICOM data.
 
@@ -15,14 +17,10 @@ In the src folder:
 
 * png-extraction: Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
 
-* scripts: The scripts to enable ML Algorithm containers.
-
-* main: The Application Layer, developed in Java
+* app-layer: The scanner utilization tool is developed in Java, whereas the scripts such as scanner clock calibration are developed in Javascript.
 
 
 ## Developing Niffler
-
-Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python3. The scanner utilization tool in the Application layer is built in Java and the scripts are developed in Javascript.
 
 To develop the Niffler core, first, install the dependencies.
 
