@@ -229,7 +229,7 @@ def update_pickle():
     global extracted_ones
     # Pickle using the highest protocol available.
     with open(csv_file +'.pickle', 'wb') as f:
-        pickle.dump(extracted_ones, f, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(extracted_ones, f)
     logging.debug('Progress is recorded to the pickle file')
 
 
