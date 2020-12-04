@@ -47,6 +47,7 @@ IS_EXTRACTION_NOT_RUNNING = True
 NIFFLER_ID = niffler['NifflerID']
 MAX_PROCESSES = niffler['MaxNifflerProcesses']
 
+SEPARATOR = ','
 
 accessions = []
 patients = []
@@ -162,7 +163,7 @@ def retrieve():
         for pid in range(0, len(patients)):
             Accession = accessions[pid]
             PatientID = patients[pid]
-            temp_id = PatientID + '_' + Accession
+            temp_id = PatientID + SEPARATOR + Accession
             if (NIGHTLY_ONLY == 'True'):
                 if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
                     # log once while sleeping
@@ -207,7 +208,7 @@ def retrieve():
             for pid2 in range(0, len(patients2)):
                 Study = studies2[pid2]
                 Patient = patients2[pid2]
-                temp_id = Patient + ', ' + Study
+                temp_id = Patient + SEPARATOR + Study
                 if ((not resume) or (resume and (temp_id not in extracted_ones))):
                     subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
                     extracted_ones.append(temp_id)
