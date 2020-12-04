@@ -4,7 +4,7 @@ Niffler is an efficient DICOM receiver and metadata extractor framework. It faci
 
 # Niffler Modules
 
-Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python3.
+Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python3. Niffler application layer (app-layer) is built with Java and Javascript.
 
 ## cold-extraction
 
