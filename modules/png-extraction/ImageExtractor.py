@@ -104,8 +104,8 @@ def extract_images(i):
     
         imName=os.path.split(filedata.iloc[i].loc['file'])[1][:-4] #get file name ex: IM-0107-0022
         #check for existence of patient folder, create if needed
-        if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at this time. 
-            os.mkdir(png_destination+folderName)              # TODO: ADD TRY STATEMENT TO FAIL GRACEFULY
+        if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time. 
+            os.mkdir(png_destination+folderName)              
     
         shape = ds.pixel_array.shape
 
@@ -248,12 +248,9 @@ export_csv = data.to_csv (csvDestination, index = None, header=True)
 fields=df.keys()
 count = 0; #potential painpoint 
 
-#current assumption is that processes will have acces to global variables 
-#meaning that i can get away with ismple just call imap on the range of indices to idne 
+
 #%% print images
 
-#todo: in consumer loop add sgment that checks if an error has occured and updates error count 
-#split extracting pngs to different  cores. Receive error codes as output 
 #writting of log handled by main process
 if print_images:
     print("Start processing Images")
