@@ -18,6 +18,7 @@ from shutil import copyfile
 import logging
 from multiprocessing import Pool
 import json
+import errno
 
 #pydicom imports needed to handle data errrors 
 from pydicom import config
@@ -25,14 +26,15 @@ from pydicom import datadict
 from pydicom import values
 import time 
 
+with open('config.json', 'r') as f:
+    niffler = json.load(f)
 
 #Get variables for StoreScp from config.json.
-print_images = config['PrintImages'] #do you want to print the images from these dicom files?
-print_only_common_headers = config['CommonHeadersOnly'] #do you want the resulting dataframe csv to contain only the common headers? See section 'find common fields'
-dicom_home = config['DICOMHome'] #the folder containing your dicom files
-output_directory = config['OutputDirectory']
-depth = config['Depth']
-
+print_images = niffler['PrintImages'] 
+print_only_common_headers = niffler['CommonHeadersOnly'] 
+dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
+output_directory = niffler['OutputDirectory']
+depth = niffler['Depth']
 
 png_destination = os.path.join(output_directory ,'/extracted-images/') #where you want the extracted images to print 
 csvDestination = output_directory + '/metadata.csv' #where you want the dataframe csv to print
@@ -212,7 +214,7 @@ file_path = get_path(depth)
 filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
 logging.info('Number of dicom files: ' + str(len(filelist)))
 
-ff = filelist[0] #load first file as a templat to look at all 
+ff = filelist[0] #load first file as a template to look at all 
 plan = dicom.dcmread(ff, force=True) 
 logging.debug('Loaded the first file successfully')
 
