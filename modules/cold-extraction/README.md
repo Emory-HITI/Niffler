@@ -1,4 +1,5 @@
 # The Niffler On-Demand Retrospective DICOM Extractor
+
 This extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. Below we discuss the steps to run Niffler on-demand DICOM extraction queries. 
 
 First go to the src/cold-extraction directory in the Niffler source code in your server.
