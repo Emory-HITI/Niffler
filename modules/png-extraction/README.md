@@ -17,9 +17,9 @@ config.json entries are to be set *for each* Niffler PNG extractions.
 * *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm indicates a depth of 3.
 
 
-### Print the Images or Limit the Extraction to Include only the Common DICOM Attributes.
+### Print the Images or Limit the Extraction to Include only the Common DICOM Attributes
 
-The below two fields can be left unmodified for most executions.
+The below two fields can be left unmodified for most executions. The default values are included below for these boolean properties.
 
 * *PrintImages*: Do you want to print the images from these dicom files? Default is _true_.
 
