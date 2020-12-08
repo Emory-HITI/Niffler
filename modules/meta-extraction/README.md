@@ -3,7 +3,14 @@
 The Real-time DICOM Extractor runs continuously to receive DICOM files, extract and store their metadata in real-time into a Metadata Store, and then delete the data nightly.
 
 
-## Metadata Extraction Configuration Files
+# Configuring Niffler Real-time DICOM Extractor
+
+Niffler real-time extraction must be configured as a service for it to run continuously, and resume even when the server restarts.
+
+
+## Configure DICOM attributes to extract
+
+Skip this step if you are satisfied with the default attributes provided in the conf folder to extract.
 
 The conf folder consists of several featureset.txt files. Each featureset has multiple attributes. Each featureset corresponds to a collection in the Metadata Store MongoDB database.
 
@@ -12,11 +19,7 @@ If you desire more DICOM attributes to an existing collection, add the attribute
 If you prefer the additional attributes in a separate collection in the Mongo Metadata Store, create a new txt file with the preferred attributes in the conf folder.
 
 
-## Configuring Niffler for the first time.
-
-Niffler real-time extraction must be configured as a service for it to run continuously, and resume even when the server restarts.
-
-
+## Configure mdextractor service
 
 ### Offer execution permission to the mdextractor.sh script.
 
@@ -32,7 +35,7 @@ $ ls -lrt mdextractor.sh
 
 ### Move to systemd
 
-$ sudo cp  mdextractor.service /etc/systemd/system/
+$ sudo cp mdextractor.service /etc/systemd/system/
 
 
 ### Add the correct credentials to the mdextractor.service:
@@ -51,10 +54,10 @@ $ sudo systemctl start mdextractor.service
 $ sudo systemctl enable mdextractor.service
 
 
-## Monitoring 
+# Monitoring Niffler Real-time DICOM Extractor
 
 
-### Check the status of the mdextractor service.
+## Check the status of the mdextractor service.
 
 $ sudo systemctl status mdextractor.service
 
@@ -77,17 +80,14 @@ Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Started mdextractor servi
 Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Starting mdextractor service...
 
 
-### Restart to confirm everything works as expected:
+## Restart to confirm everything works as expected:
 
 $ sudo systemctl reboot
 
 
-### View the service logs:
+## View the service logs:
 
 $ sudo journalctl -u mdextractor.service -n 100
-
-
-
 
 
 
@@ -98,6 +98,3 @@ Check and make sure Mongo Service is running. If not, start it.
 Is the disk not full? Check whether the mdextractor service is running. If not, start it.
 
 Is the disk full, and consequently Niffler is unable to receive new images? Stop the mdextractor service if it is running. Empty the storage folder and remove the pickle file. Then, start the mdextractor service again.
-
-
-
