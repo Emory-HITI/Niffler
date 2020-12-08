@@ -1,0 +1,7 @@
+{
+	"PrintImages": true,
+	"CommonHeadersOnly": false,
+	"DICOMHome": "/opt/dicom-images",
+	"OutputDirectory": "/opt/converted",
+	"Depth": 3
+}

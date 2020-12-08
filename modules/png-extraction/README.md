@@ -1,43 +1,36 @@
-# The PNG Extractor
+# The Niffler PNG Extractor
 
 The PNG Extractor converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
 
-## Configuring the PNG Extractor
 
-A few parameters should be set in the Python class:
+## Configuring Niffler PNG Extractor
 
-root = '/opt/localdrive/'     #the root directory for yor project
+Find the config.json file in the folder and modify accordingly.
 
-dicomHome = root + 'dicom-files/' #the folder containing your dicom files
-
-Make sure to have empty extracted-images, failed-dicom/1, failed-dicom/2, failed-dicom/3 folders 
-
-ready in the root folder.
-
-## The output files
-
-### PNG files
-
-The png destination denotes where the png outcomes are stored
-
-png_destination = root + 'extracted-images/' #where you want the extracted images to print
+config.json entries are to be set *for each* Niffler PNG extractions.
 
 
-### CSV file for Metadata
+* *DICOMHome*: The folder where you have your DICOM files whose metadata and binary imaging data (png) must be extracted.
 
-The csv destination file stores all the metadata upon the png conversion in a csv format.
+* *OutputDirectory*: The root folder where Niffler produces the output after running the PNG Extractor.
 
-csvDestination = root + 'metadata.csv' #where you want the dataframe csv to print
+* *PrintImages*: Do you want to print the images from these dicom files? Default is _true_.
 
-### Mappings CSV file
+* *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? See section 'find common fields'. Default is _false_.
 
-The mappings csv file produces the original dicom file -> png location
-
-mappings= root + 'mapping.csv'
+* *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm indicates a depth of 3.
 
 
-### Failed conversions
+## The output files and folders
 
-A failed files folder stores the DICOM files that fail the PNG conversion in a separate folder.
+In the OutputDirectory, there will be several sub folders and directories.
 
-failed = root +'failed-dicom/'
+* *metadata.csv*: The metadata from the DICOM images in a csv format.
+
+* *mapping.csv*: A csv file that maps the DICOM -> PNG file locations.
+
+* *ImageExtractor.out*: The log file.
+
+* *extracted-images*: The folder that consists of extracted PNG images
+
+* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor.

@@ -17,6 +17,7 @@ import hashlib
 from shutil import copyfile
 import logging
 from multiprocessing import Pool
+import json
 
 #pydicom imports needed to handle data errrors 
 from pydicom import config
@@ -24,18 +25,32 @@ from pydicom import datadict
 from pydicom import values
 import time 
 
-#%%CHANGE THESE FOR YOUR USE
-print_images=True #do you want to print the images from these dicom files?
-print_only_common_headers=False #do you want the resulting dataframe csv to contain only the common headers? See section 'find common fields'
-root = '/labs/banerjeelab/ramon_chxcl/JACR_Jan_April_2020_full/'     #the root directory for yor project
-dicomHome = os.path.join(root,'JACR_Jan_April_2020/') #the folder containing your dicom files
-png_destination = os.path.join(root ,'extracted-images/') #where you want the extracted images to print 
-csvDestination = root + 'metadata.csv' #where you want the dataframe csv to print
-mappings= root + 'mapping.csv'
-failed = root +'failed-dicom_single/'
-LOG_FILENAME = root + 'ImageExtractor.out'
+
+#Get variables for StoreScp from config.json.
+print_images = config['PrintImages'] #do you want to print the images from these dicom files?
+print_only_common_headers = config['CommonHeadersOnly'] #do you want the resulting dataframe csv to contain only the common headers? See section 'find common fields'
+dicom_home = config['DICOMHome'] #the folder containing your dicom files
+output_directory = config['OutputDirectory']
+depth = config['Depth']
+
+
+png_destination = os.path.join(output_directory ,'/extracted-images/') #where you want the extracted images to print 
+csvDestination = output_directory + '/metadata.csv' #where you want the dataframe csv to print
+mappings= output_directory + '/mapping.csv'
+failed = output_directory +'/failed-dicom/'
+LOG_FILENAME = output_directory + '/ImageExtractor.out'
 
 logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
+
+try:
+    os.makedirs(png_destination)
+    os.makedirs(failed)
+    os.makedirs(failed + "/1")
+    os.makedirs(failed + "/2")
+    os.makedirs(failed + "/3")
+except OSError as e:
+    if e.errno != errno.EEXIST:
+        logging.error('Error while creating the folder to store failed DICOM files')
 
 #%%Function for getting tuple for field,val pairs for this file
 #plan is instance of dicom class, the data for single mammo file
@@ -154,6 +169,19 @@ def fix_mismatch_callback(raw_elem, **kwargs):
                 break  # I want to exit immediately after change is applied 
     return raw_elem
 
+
+def get_path(depth):
+    directory = './'
+
+    i = 0;
+    while i < depth:
+        directory += "*/"
+        i += 1
+
+    return directory + "*.dcm"
+
+
+
 #%%Function used by pydicom. 
 def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
     """A callback function to check that RawDataElements are translatable
@@ -176,10 +204,12 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
 fix_mismatch()
 core_count = int(os.cpu_count()/2) # use half the cores avoid  high ram usage
 #%% get set up to create dataframe
-dirs = os.listdir( root )
+dirs = os.listdir(dicom_home)
 #gets all dicom files. if editing this code, get filelist into the format of a list of strings, 
 #with each string as the file path to a different dicom file.
-filelist=glob.glob(dicomHome + '*/*/*/*.dcm', recursive=True) #this searches the folders at the depth we request and finds all dicoms
+file_path = get_path(depth)
+
+filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
 logging.info('Number of dicom files: ' + str(len(filelist)))
 
 ff = filelist[0] #load first file as a templat to look at all 
