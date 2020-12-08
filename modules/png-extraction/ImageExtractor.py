@@ -17,11 +17,13 @@ import hashlib
 from shutil import copyfile
 import logging
 from multiprocessing import Pool
+
 #pydicom imports needed to handle data errrors 
 from pydicom import config
 from pydicom import datadict
 from pydicom import values
 import time 
+
 #%%CHANGE THESE FOR YOUR USE
 print_images=True #do you want to print the images from these dicom files?
 print_only_common_headers=False #do you want the resulting dataframe csv to contain only the common headers? See section 'find common fields'
@@ -32,8 +34,9 @@ csvDestination = root + 'metadata.csv' #where you want the dataframe csv to prin
 mappings= root + 'mapping.csv'
 failed = root +'failed-dicom_single/'
 LOG_FILENAME = root + 'ImageExtractor.out'
-logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
-depth = 4
+
+logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
+
 #%%Function for getting tuple for field,val pairs for this file
 #plan is instance of dicom class, the data for single mammo file
 def get_tuples(plan, outlist = None, key = ""):
@@ -45,8 +48,7 @@ def get_tuples(plan, outlist = None, key = ""):
         try: 
             hasattr(plan,aa) 
         except TypeError as e: 
-            print(aa)
-            print(plan)
+            logging.warning('Type Error encountered')
         if (hasattr(plan, aa) and aa!='PixelData'):
             value = getattr(plan, aa)
             if type(value) is dicom.sequence.Sequence:
@@ -126,19 +128,15 @@ def extract_images(i):
             w.write(png_file, image_2d_scaled)
             
         filemapping = filedata.iloc[i].loc['file'] + ', ' + pngfile + '\n'
-        #fm.write(filemapping)
     except AttributeError as error:
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '1/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
-        #copyfile(filedata.iloc[i].loc['file'], failed + '1/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm')
     except ValueError as error:
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '2/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
-        #copyfile(filedata.iloc[i].loc['file'], failed + '2/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm')
     except BaseException as error : #ramonNote added base exception catch. so i can also catch this one 
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
-        #copyfile(filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm')
     return (filemapping,fail_path,found_err)
 #%%Function when pydicom fails to read a value attempt to read as 
 #other types. 
@@ -153,7 +151,7 @@ def fix_mismatch_callback(raw_elem, **kwargs):
                 pass
             else:
                 raw_elem = raw_elem._replace(VR=vr)
-                break  # i want to exit immediately after change is applied 
+                break  # I want to exit immediately after change is applied 
     return raw_elem
 
 #%%Function used by pydicom. 
@@ -187,24 +185,18 @@ logging.info('Number of dicom files: ' + str(len(filelist)))
 ff = filelist[0] #load first file as a templat to look at all 
 plan = dicom.dcmread(ff, force=True) 
 logging.debug('Loaded the first file successfully')
-#print(type(plan)) #is recorded as pydicom class, has attributes numerated in keys
-#print(plan.dir()) #lists class attributes
+
 keys = [(aa) for aa in plan.dir() if (hasattr(plan, aa) and aa!='PixelData')]
-#print(keys) keys are attributes in this instance of the dicom class from the source file
 
 #%%checks for images in fields and prints where they are
 for field in plan.dir():
     if (hasattr(plan, field) and field!='PixelData'):
         entry = getattr(plan, field)
-        #print(field)        #prints header
-        #print(str(entry))   #prints associated value
         if type(entry) is bytes:
-            print(field)
-            print(str(entry))
+            logging.debug(field)
+            logging.debug(str(entry))
             
 
-#set([ type(getattr(plan, field)) for field in plan.dir() if (hasattr(plan, field) and field!='PixelData')])
-#print(plan)
 fm = open(mappings, "w+")
 filemapping = 'Original dicom file location, jpeg location \n'
 fm.write(filemapping)
@@ -220,7 +212,6 @@ with Pool(core_count) as p:
         headerlist.append(e)
 df = pd.DataFrame(headerlist)
 
-#print(df.columns) #all fields
 logging.info('Number of fields per file: ' + str(len(df.columns)))
 
 
@@ -229,11 +220,8 @@ mask_common_fields = df.isnull().mean() < 0.1 #find if less than 10% of the rows
 common_fields = set(np.asarray(df.columns)[mask_common_fields]) #define the common fields as those with more than 90% filled
 
 
-#print(headerlist) #list of all field,value arguments for all data
 for nn,kv in enumerate(headerlist):
-    #print(kv)                #all field,value tuples for this one in headerlist
     for kk in list(kv.keys()):
-        #print(kk)            #field names
         if print_only_common_headers:
             if kk not in common_fields:  #run this and next line if need to see only common fields
                 kv.pop(kk)        #remove field if not in common fields
@@ -248,12 +236,9 @@ export_csv = data.to_csv (csvDestination, index = None, header=True)
 fields=df.keys()
 count = 0; #potential painpoint 
 
-
-#%% print images
-
 #writting of log handled by main process
 if print_images:
-    print("Start processing Images")
+    logging.info("Start processing Images")
     filedata=data
     total = len(filelist)
     stamp = time.time()
@@ -265,7 +250,7 @@ if print_images:
             count +=1 
             copyfile(fail_path[0],fail_path[1]) 
             err_msg = str(count) + 'out of' + str(len(filelist)) + ' dicom images have failed extraction' 
-            logging.error( err_msg)
+            logging.error(err_msg)
         else: 
             fm.write(fmap)
              
