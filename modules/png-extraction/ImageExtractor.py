@@ -19,6 +19,7 @@ import logging
 from multiprocessing import Pool
 import json
 import errno
+import sys
 
 #pydicom imports needed to handle data errrors 
 from pydicom import config
@@ -36,23 +37,33 @@ dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
 output_directory = niffler['OutputDirectory']
 depth = niffler['Depth']
 
-png_destination = os.path.join(output_directory ,'/extracted-images/') #where you want the extracted images to print 
-csvDestination = output_directory + '/metadata.csv' #where you want the dataframe csv to print
+png_destination = output_directory + '/extracted-images/' 
+csvDestination = output_directory + '/metadata.csv'
 mappings= output_directory + '/mapping.csv'
 failed = output_directory +'/failed-dicom/'
 LOG_FILENAME = output_directory + '/ImageExtractor.out'
 
-logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
 
-try:
+if not os.path.exists(output_directory):
+    os.makedirs(output_directory)
+
+logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+
+if not os.path.exists(png_destination):
     os.makedirs(png_destination)
+
+if not os.path.exists(failed):
     os.makedirs(failed)
+
+if not os.path.exists(failed + "/1"):
     os.makedirs(failed + "/1")
+
+if not os.path.exists(failed + "/2"):
     os.makedirs(failed + "/2")
+
+if not os.path.exists(failed + "/3"):
     os.makedirs(failed + "/3")
-except OSError as e:
-    if e.errno != errno.EEXIST:
-        logging.error('Error while creating the folder to store failed DICOM files')
+
 
 #%%Function for getting tuple for field,val pairs for this file
 #plan is instance of dicom class, the data for single mammo file
@@ -173,7 +184,7 @@ def fix_mismatch_callback(raw_elem, **kwargs):
 
 
 def get_path(depth):
-    directory = './'
+    directory = dicom_home + '/'
 
     i = 0;
     while i < depth:
@@ -214,7 +225,12 @@ file_path = get_path(depth)
 filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
 logging.info('Number of dicom files: ' + str(len(filelist)))
 
-ff = filelist[0] #load first file as a template to look at all 
+try:
+    ff = filelist[0] #load first file as a template to look at all 
+except IndexError:
+    logging.error("There is no file present in the given folder in " + file_path)
+    sys.exit(1)
+
 plan = dicom.dcmread(ff, force=True) 
 logging.debug('Loaded the first file successfully')
 
