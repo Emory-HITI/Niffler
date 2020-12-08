@@ -5,10 +5,7 @@ The PNG Extractor converts a set of DICOM images into png images, extract metada
 
 ## Configuring Niffler PNG Extractor
 
-Find the config.json file in the folder and modify accordingly.
-
-config.json entries are to be set *for each* Niffler PNG extractions.
-
+Find the config.json file in the folder and modify accordingly *for each* Niffler PNG extractions.
 
 * *DICOMHome*: The folder where you have your DICOM files whose metadata and binary imaging data (png) must be extracted.
 
