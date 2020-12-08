@@ -14,11 +14,16 @@ config.json entries are to be set *for each* Niffler PNG extractions.
 
 * *OutputDirectory*: The root folder where Niffler produces the output after running the PNG Extractor.
 
+* *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm indicates a depth of 3.
+
+
+### Print the Images or Limit the Extraction to Include only the Common DICOM Attributes.
+
+The below two fields can be left unmodified for most executions.
+
 * *PrintImages*: Do you want to print the images from these dicom files? Default is _true_.
 
 * *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? Finds if less than 10% of the rows are missing this column field. To extract all the headers, default is set as _false_.
-
-* *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm indicates a depth of 3.
 
 
 ## The output files and folders
