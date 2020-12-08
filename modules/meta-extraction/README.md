@@ -40,7 +40,7 @@ $ sudo cp mdextractor.service /etc/systemd/system/
 
 ### Add the correct credentials to the mdextractor.service:
 
-Environment="MONGO_URI=USERNAME:PASSWORD"
+Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
 
 
 ### Reload the systemctl daemon.
