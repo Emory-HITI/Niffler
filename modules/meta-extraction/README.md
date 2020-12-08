@@ -6,6 +6,15 @@ The Real-time DICOM Extractor runs continuously to receive DICOM files, extract 
 
 Niffler real-time extraction must be configured as a service for it to run continuously, and resume even when the server restarts.
 
+## Metadata Extraction Configuration Files
+
+The conf folder consists of several featureset.txt files. Each featureset has multiple attributes. Each featureset corresponds to a collection in the database.
+
+If you desire more DICOM attributes to an existing collection, add the attribute to an existing featureset.txt. Similarly, you may remove existing attributes from the featureset files. 
+
+If you prefer them in a separate collection, create a new txt file with the preferred attributes.
+
+
 
 ### Offer execution permission to the mdextractor.sh script.
 

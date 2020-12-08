@@ -1,0 +1,6 @@
+{
+	"DCM4CHEBin": "/opt/dcm4che-5.22.5/bin",
+	"QueryAet": "RTNIFFLER:4242",
+	"StorageFolder": "/opt/niffler-dicom-root",
+	"FilePath": "{00100020}/{0020000D}/{0020000E}/{00080018}.dcm"
+}

@@ -28,15 +28,22 @@ import pandas as pd
 import json
 
 
+with open('system.json', 'r') as f:
+    niffler = json.load(f)
+
+# Get constants from system.json
+DCM4CHE_BIN = niffler['DCM4CHEBin']
+STORAGE_FOLDER = niffler['StorageFolder']
+FILE_PATH = niffler['FilePath']
+QUERY_AET = niffler['QueryAet']
+
 # Global Constants: Configurations and folder locations
 EXTRACTION_RUNNING = False
 IS_DCM4CHE_NOT_RUNNING = True
 logging.basicConfig(level=logging.INFO)
 
-FEATURES_FOLDER = "/opt/localdrive/featureset/"
-PICKLE_FOLDER = "/opt/localdrive/pickles/"
-STORAGE_FOLDER = "/opt/new-localdrive/dcm4che-dicom-root/"
-DCM4CHE_BIN = "/opt/localdrive/dcm4che-5.19.0/bin"
+FEATURES_FOLDER = "conf/"
+PICKLE_FOLDER = "pickles/"
 
 
 # Variables to track progress between iterations.
@@ -50,13 +57,13 @@ feature_files = list()
 
 # All processed series is saved between iterations as pickle files.
 try:
-    with open(PICKLE_FOLDER +'processed_series_but_yet_to_delete.pickle', 'rb') as f:
+    with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'rb') as f:
         processed_series_but_yet_to_delete = pickle.load(f)
 except:
     logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_series_but_yet_to_delete")
 
 try:
-    with open(PICKLE_FOLDER +'processed_and_deleted_series.pickle', 'rb') as f:
+    with open(PICKLE_FOLDER + 'processed_and_deleted_series.pickle', 'rb') as f:
         processed_and_deleted_series = pickle.load(f)
 except:
     logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_and_deleted_series")
@@ -136,7 +143,6 @@ def extract():
 def extract_metadata():
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
-    global plan
     global EXTRACTION_RUNNING
     global features_lists
     global feature_files
@@ -271,7 +277,8 @@ def run_dcm4che():
         IS_DCM4CHE_NOT_RUNNING = False   
         logging.info('Starting DCM4CHE..')
         os.chdir(DCM4CHE_BIN)
-        subprocess.call("./storescp --accept-unknown --directory /opt/new-localdrive/dcm4che-dicom-root  --filepath {00100020}/{0020000D}/{0020000E}/{00080018}.dcm -b BMIPACS:4242 > nohup.out", shell=True)
+        subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > nohup.out &".format(DCM4CHE_BIN, STORAGE_FOLDER, FILE_PATH, QUERY_AET), shell=True)
+
         logging.info('Stopped DCM4CHE successfully..')
 
 def run_threaded(job_func):
@@ -286,11 +293,11 @@ logging.debug('Debug logs enabled.')
 # Create connections for communicating with Mongo DB server, to store metadata
 try:
     if os.environ['MONGO_URI'] != "":
-        mongo_uri = 'mongodb://' + os.environ['MONGO_URI'] + '@localhost:27017/'
+        mongo_uri = 'mongodb://' + os.environ['MONGO_URI']
     else:
-        mongo_uri = 'mongodb://' + sys.argv[1] + '@localhost:27017/'
+        mongo_uri = 'mongodb://' + sys.argv[1]
 except KeyError:
-    mongo_uri = 'mongodb://' + sys.argv[1] + '@localhost:27017/'
+    mongo_uri = 'mongodb://' + sys.argv[1]
 
 client = pymongo.MongoClient(mongo_uri)
 DB = client.ScannersInfo
