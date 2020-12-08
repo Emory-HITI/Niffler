@@ -14,7 +14,7 @@ config.json entries are to be set *for each* Niffler PNG extractions.
 
 * *OutputDirectory*: The root folder where Niffler produces the output after running the PNG Extractor.
 
-* *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm indicates a depth of 3.
+* *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm hierarchy indicates a depth of 3. If the DICOM files are in the DICOMHome itself with no folder hierarchy, the depth will be 0.
 
 
 ### Print the Images or Limit the Extraction to Include only the Common DICOM Attributes
