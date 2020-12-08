@@ -16,7 +16,7 @@ config.json entries are to be set *for each* Niffler PNG extractions.
 
 * *PrintImages*: Do you want to print the images from these dicom files? Default is _true_.
 
-* *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? See section 'find common fields'. Default is _false_.
+* *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? Finds if less than 10% of the rows are missing this column field. To extract all the headers, default is set as _false_.
 
 * *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm indicates a depth of 3.
 
