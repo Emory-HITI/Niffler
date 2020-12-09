@@ -290,7 +290,7 @@ if print_images:
     filedata=data
     total = len(filelist)
     stamp = time.time()
-    p = Pool(cpu_count)
+    p = Pool(os.cpu_count())
     res = p.imap_unordered(extract_images,range(len(filedata)) )
     for out in res: 
         (fmap,fail_path,err) = out 
