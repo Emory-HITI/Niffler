@@ -297,7 +297,7 @@ if print_images:
         if err: 
             count +=1 
             copyfile(fail_path[0],fail_path[1]) 
-            err_msg = str(count) + 'out of' + str(len(filelist)) + ' dicom images have failed extraction' 
+            err_msg = str(count) + ' out of ' + str(len(filelist)) + ' dicom images have failed extraction' 
             logging.error(err_msg)
         else: 
             fm.write(fmap)
