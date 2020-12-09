@@ -18,7 +18,6 @@ from shutil import copyfile
 import logging
 from multiprocessing import Pool
 import json
-import errno
 import sys
 
 #pydicom imports needed to handle data errrors 
