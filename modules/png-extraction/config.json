@@ -3,5 +3,6 @@
 	"OutputDirectory": "/Users/pradeeban/Downloads/root",
 	"Depth": 0,
 	"PrintImages": true,
-	"CommonHeadersOnly": false
+	"CommonHeadersOnly": false,
+	"UseHalfOfTheProcessorsOnly": true
 }
