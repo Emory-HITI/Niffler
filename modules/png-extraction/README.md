@@ -50,4 +50,4 @@ In the OutputDirectory, there will be several sub folders and directories.
 
 * *extracted-images*: The folder that consists of extracted PNG images
 
-* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor. Failed DICOM images are stored in 3 sub-folders named 1, 2, and 3, categorizing according to their failure reason.
+* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor. Failed DICOM images are stored in 3 sub-folders named 1, 2, 3, and 4, categorizing according to their failure reason.

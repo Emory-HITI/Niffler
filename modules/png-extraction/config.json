@@ -1,6 +1,6 @@
 {
-	"DICOMHome": "/opt/dicom-home",
-	"OutputDirectory": "/opt/converted",
+	"DICOMHome": "/Users/pradeeban/Downloads",
+	"OutputDirectory": "/Users/pradeeban/Downloads/root",
 	"Depth": 0,
 	"PrintImages": true,
 	"CommonHeadersOnly": false,

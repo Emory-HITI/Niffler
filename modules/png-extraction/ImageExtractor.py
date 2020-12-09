@@ -38,9 +38,10 @@ depth = niffler['Depth']
 half_mode = niffler['UseHalfOfTheProcessorsOnly'] #use only half of the available processors.
 
 png_destination = output_directory + '/extracted-images/' 
-csvDestination = output_directory + '/metadata.csv'
-mappings= output_directory + '/mapping.csv'
 failed = output_directory +'/failed-dicom/'
+
+csv_destination = output_directory + '/metadata.csv'
+mappings = output_directory + '/mapping.csv'
 LOG_FILENAME = output_directory + '/ImageExtractor.out'
 
 
@@ -64,9 +65,10 @@ if not os.path.exists(failed + "/2"):
 if not os.path.exists(failed + "/3"):
     os.makedirs(failed + "/3")
 
+if not os.path.exists(failed + "/4"):
+    os.makedirs(failed + "/4")
 
-#%%Function for getting tuple for field,val pairs for this file
-#plan is instance of dicom class, the data for single mammo file
+#%%Function for getting tuple for field,val pairs
 def get_tuples(plan, outlist = None, key = ""):
     if len(key)>0:
         key =  key + "_"
@@ -95,8 +97,7 @@ def get_tuples(plan, outlist = None, key = ""):
                 outlist.append((key + aa, value)) #appends name, value pair for this file. these are later concatenated to the dataframe
     return outlist
 
-#%%Function called by multiprocessing.Takes a tuple with a (index,dicomPath)
-#ff is the file to be loaded. nn is the index of the file in the fileList
+
 def extract_headers(f_list_elem): 
     nn,ff = f_list_elem # unpack enumerated list 
     plan = dicom.dcmread(ff, force=True)  #reads in dicom file
@@ -162,10 +163,15 @@ def extract_images(i):
     except ValueError as error:
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '2/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
-    except BaseException as error : #ramonNote added base exception catch. so i can also catch this one 
+    except BaseException as error: 
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
+    except:
+        found_err = error
+        fail_path = filedata.iloc[i].loc['file'], failed + '4/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'       
     return (filemapping,fail_path,found_err)
+
+
 #%%Function when pydicom fails to read a value attempt to read as 
 #other types. 
 def fix_mismatch_callback(raw_elem, **kwargs):
@@ -214,6 +220,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
     config.data_element_callback_kwargs = {
         'with_VRs': with_VRs,
     }
+
 fix_mismatch()
 
 if half_mode:
@@ -223,6 +230,7 @@ else:
 
 #%% get set up to create dataframe
 dirs = os.listdir(dicom_home)
+
 #gets all dicom files. if editing this code, get filelist into the format of a list of strings, 
 #with each string as the file path to a different dicom file.
 file_path = get_path(depth)
@@ -284,7 +292,7 @@ for nn,kv in enumerate(headerlist):
 data=pd.DataFrame(headerlist)
 
 #%%export csv file of final dataframe
-export_csv = data.to_csv (csvDestination, index = None, header=True) 
+export_csv = data.to_csv (csv_destination, index = None, header=True) 
 
 fields=df.keys()
 count = 0; #potential painpoint 
