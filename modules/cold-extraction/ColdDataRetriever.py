@@ -245,5 +245,9 @@ schedule.every(10).minutes.do(run_threaded, update_pickle)
 
 # Keep running in a loop.
 while True:
-    schedule.run_pending()
-    time.sleep(1)
+    try:
+        schedule.run_pending()
+        time.sleep(1)
+    except KeyboardInterrupt:
+        check_kill_process()
+        sys.exit(0)
