@@ -25,6 +25,19 @@ The below two fields can be left unmodified for most executions. The default val
 * *UseHalfOfTheProcessorsOnly*: Do you want to execute using only half of the available processors? Default is _true_.
 
 
+## Running the Niffler PNG Extractor
+
+$ nohup python3 ImageExtractor.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+
+There is also an experimental PNG extractor implementation that provides a distributed execution based on Slurm.
+
+$ nohup python3 ImageExtractorSlurm.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+
+Check that the extraction is going smooth with no errors, by,
+
+$ tail -f UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out
+
+
 ## The output files and folders
 
 In the OutputDirectory, there will be several sub folders and directories.

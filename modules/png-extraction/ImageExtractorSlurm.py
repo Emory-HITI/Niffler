@@ -27,8 +27,7 @@ from pydicom import values
 #things needed for the slurm task array 
 task_id = int(os.environ['SLURM_ARRAY_TASK_ID'] )
 num_task = int(os.environ['SLURM_ARRAY_TASK_COUNT'])
-print("I am Task: " + str(task_id))
-print(" There are this many others" + str(num_task))
+
 #%%CHANGE THESE FOR YOUR USE
 print_images=True #do you want to print the images from these dicom files?
 print_only_common_headers=False #do you want the resulting dataframe csv to contain only the common headers? See section 'find common fields'
@@ -41,7 +40,7 @@ failed = root +'failed-dicom/'
 
 LOG_FILENAME = root + 'ImageExtractor_'+str(task_id)+'.out'
 logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
-depth = 4
+
 #%%Function for getting tuple for field,val pairs for this file
 #plan is instance of dicom class, the data for single mammo file
 def get_tuples(plan, outlist = None, key = ""):
@@ -53,8 +52,7 @@ def get_tuples(plan, outlist = None, key = ""):
         try: 
             hasattr(plan,aa) 
         except TypeError as e: 
-            print(aa)
-            print(plan)
+            logging.warning('Type Error encountered')
         if (hasattr(plan, aa) and aa!='PixelData'):
             value = getattr(plan, aa)
             if type(value) is dicom.sequence.Sequence:
@@ -184,27 +182,20 @@ else:
     filelist=glob.glob(dicomHome + '*/*/*/*.dcm', recursive=True) #this searches the folders at the depth we request and finds all dicoms
     pickle.dump(filelist,open(root+'ramen.pickle','wb'))
 logging.info('Number of dicom files: ' + str(len(filelist)))
-print('Original File list is:' + str(len(filelist)))
 file_split = np.array_split(filelist,num_task)
 filelist = file_split[task_id]
-print('Task will have a nominal  File list of' + str(len(filelist)))
 ff = filelist[0] #load first file as a templat to look at all 
 plan = dicom.dcmread(ff, force=True) 
 logging.debug('Loaded the first file successfully')
-#print(type(plan)) #is recorded as pydicom class, has attributes numerated in keys
-#print(plan.dir()) #lists class attributes
 keys = [(aa) for aa in plan.dir() if (hasattr(plan, aa) and aa!='PixelData')]
-#print(keys) keys are attributes in this instance of the dicom class from the source file
 
 #%%checks for images in fields and prints where they are
 for field in plan.dir():
     if (hasattr(plan, field) and field!='PixelData'):
         entry = getattr(plan, field)
-        #print(field)        #prints header
-        #print(str(entry))   #prints associated value
         if type(entry) is bytes:
-            print(field)
-            print(str(entry))
+            logging.debug(field)
+            logging.debug(str(entry))
             
 
 #set([ type(getattr(plan, field)) for field in plan.dir() if (hasattr(plan, field) and field!='PixelData')])
@@ -226,8 +217,7 @@ for i,e in enumerate(res):
     headerlist.append(e)
 p.close()
 p.join()
-print('done with getting headers')
-#RAMON NOTE: im assuming that the context manager handles closing for me 
+#Assuming that the context manager handles closing for me 
 #make dataframe containing all fields and all files
 df = pd.DataFrame(headerlist)
 
@@ -240,7 +230,6 @@ mask_common_fields = df.isnull().mean() < 0.1 #find if less than 10% of the rows
 common_fields = set(np.asarray(df.columns)[mask_common_fields]) #define the common fields as those with more than 90% filled
 
 
-#print(headerlist) #list of all field,value arguments for all data
 for nn,kv in enumerate(headerlist):
     #print(kv)                #all field,value tuples for this one in headerlist
     for kk in list(kv.keys()):
@@ -264,7 +253,6 @@ fields=df.keys()
 
 #todo: in consumer loop add sgment that checks if an error has occured and updates error count 
 if print_images:
-    print("Start processing Images")
     filedata=data
     count =0 
     other =0 
@@ -285,10 +273,8 @@ if print_images:
             logging.error( err_msg)
         else: 
             fm.write(fmap)
-    print("Done working closing  pool")
     p.close()
     p.join()              
-    print("Pool Close we done boys")
 fm.close()
 #insert multiprocessing call here     
 #for i in range(len(filedata)):
