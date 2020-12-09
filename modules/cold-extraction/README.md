@@ -1,5 +1,6 @@
 # The Niffler On-Demand Retrospective DICOM Extractor
-This extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. Below we discuss the steps to run Niffler on-demand DICOM extraction queries. 
+
+The retrospective DICOM Extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. Below we discuss the steps to run Niffler on-demand DICOM extraction queries. 
 
 First go to the src/cold-extraction directory in the Niffler source code in your server.
 
@@ -27,7 +28,7 @@ system.json entries are to be set *only once* for the Niffler deployment by the 
 
 * *DestAet*:   Set the correct AET of the detination AET. Must match the AET of the storescp.
 
-* *NightlyOnly*: This is set to "True" by default. Setting it to anything else will make Niffler on-demand extraction run at any time.
+* *NightlyOnly*: This is set to _true_ by default. Setting it to _false_ will make Niffler on-demand extraction run at any time.
 	
 * *StartHour*: When a night-only mode is enabled, when should the extraction start. A rough 24 hour time (hours only), calculated by the hour. Not an exact time.
 

@@ -7,6 +7,8 @@ pip3 install image numpy pandas pydicom pillow pypng
 Make sure to have empty extracted-images, failed-dicom/1, failed-dicom/2, failed-dicom/3 folders 
 ready in the root folder.
 """
+import time 
+import pdb 
 import numpy as np
 import pandas as pd
 import pydicom as dicom #pydicom is most recent form of dicom python interface. see https://pydicom.github.io/
@@ -16,55 +18,30 @@ from pprint import pprint
 import hashlib
 from shutil import copyfile
 import logging
+import pickle #this is a temporary addition 
 from multiprocessing import Pool
-import json
-import errno
-import sys
-
-#pydicom imports needed to handle data errrors 
 from pydicom import config
 from pydicom import datadict
 from pydicom import values
-import time 
 
-with open('config.json', 'r') as f:
-    niffler = json.load(f)
+#things needed for the slurm task array 
+task_id = int(os.environ['SLURM_ARRAY_TASK_ID'] )
+num_task = int(os.environ['SLURM_ARRAY_TASK_COUNT'])
+print("I am Task: " + str(task_id))
+print(" There are this many others" + str(num_task))
+#%%CHANGE THESE FOR YOUR USE
+print_images=True #do you want to print the images from these dicom files?
+print_only_common_headers=False #do you want the resulting dataframe csv to contain only the common headers? See section 'find common fields'
+root = '/labs/banerjeelab/ramon_chxcl/JACR_Jan_April_2020_full/'     #the root directory for yor project
+dicomHome = os.path.join(root,'JACR_Jan_April_2020/') #the folder containing your dicom files
+png_destination = os.path.join(root ,'extracted-images/') #where you want the extracted images to print 
+csvDestination = root + 'metadata_'+str(task_id)+'.csv' #where you want the dataframe csv to print
+mappings= root + 'mapping_'+str(task_id)+'.csv'
+failed = root +'failed-dicom/'
 
-#Get variables for StoreScp from config.json.
-print_images = niffler['PrintImages'] 
-print_only_common_headers = niffler['CommonHeadersOnly'] 
-dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
-output_directory = niffler['OutputDirectory']
-depth = niffler['Depth']
-
-png_destination = output_directory + '/extracted-images/' 
-csvDestination = output_directory + '/metadata.csv'
-mappings= output_directory + '/mapping.csv'
-failed = output_directory +'/failed-dicom/'
-LOG_FILENAME = output_directory + '/ImageExtractor.out'
-
-
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
-
+LOG_FILENAME = root + 'ImageExtractor_'+str(task_id)+'.out'
 logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
-
-if not os.path.exists(png_destination):
-    os.makedirs(png_destination)
-
-if not os.path.exists(failed):
-    os.makedirs(failed)
-
-if not os.path.exists(failed + "/1"):
-    os.makedirs(failed + "/1")
-
-if not os.path.exists(failed + "/2"):
-    os.makedirs(failed + "/2")
-
-if not os.path.exists(failed + "/3"):
-    os.makedirs(failed + "/3")
-
-
+depth = 4
 #%%Function for getting tuple for field,val pairs for this file
 #plan is instance of dicom class, the data for single mammo file
 def get_tuples(plan, outlist = None, key = ""):
@@ -76,7 +53,8 @@ def get_tuples(plan, outlist = None, key = ""):
         try: 
             hasattr(plan,aa) 
         except TypeError as e: 
-            logging.warning('Type Error encountered')
+            print(aa)
+            print(plan)
         if (hasattr(plan, aa) and aa!='PixelData'):
             value = getattr(plan, aa)
             if type(value) is dicom.sequence.Sequence:
@@ -94,9 +72,6 @@ def get_tuples(plan, outlist = None, key = ""):
                     value = str(value)
                 outlist.append((key + aa, value)) #appends name, value pair for this file. these are later concatenated to the dataframe
     return outlist
-
-#%%Function called by multiprocessing.Takes a tuple with a (index,dicomPath)
-#ff is the file to be loaded. nn is the index of the file in the fileList
 def extract_headers(f_list_elem): 
     nn,ff = f_list_elem # unpack enumerated list 
     plan = dicom.dcmread(ff, force=True)  #reads in dicom file
@@ -116,12 +91,6 @@ def extract_headers(f_list_elem):
         kv.append(('category','no image'))      #adds my custom category field, makes note as imageless
     return dict(kv)
 
-#%%Function to extract pixel array information 
-#takes an integer used to index into the global filedata dataframe
-#returns tuple of 
-# filemapping: dicom to png paths   (as str) 
-# fail_path: dicom to failed folder (as tuple) 
-# found_err: error code produced when processing
 def extract_images(i):
     ds = dicom.dcmread(filedata.iloc[i].loc['file'], force=True) #read file in
     found_err=None
@@ -134,8 +103,8 @@ def extract_images(i):
     
         imName=os.path.split(filedata.iloc[i].loc['file'])[1][:-4] #get file name ex: IM-0107-0022
         #check for existence of patient folder, create if needed
-        if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time. 
-            os.mkdir(png_destination+folderName)              
+        if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at this time. 
+            os.mkdir(png_destination+folderName)              # TODO: ADD TRY STATEMENT TO FAIL GRACEFULY
     
         shape = ds.pixel_array.shape
 
@@ -156,18 +125,20 @@ def extract_images(i):
             w.write(png_file, image_2d_scaled)
             
         filemapping = filedata.iloc[i].loc['file'] + ', ' + pngfile + '\n'
+        #fm.write(filemapping)
     except AttributeError as error:
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '1/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
+        #copyfile(filedata.iloc[i].loc['file'], failed + '1/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm')
     except ValueError as error:
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '2/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
+        #copyfile(filedata.iloc[i].loc['file'], failed + '2/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm')
     except BaseException as error : #ramonNote added base exception catch. so i can also catch this one 
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
+        #copyfile(filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm')
     return (filemapping,fail_path,found_err)
-#%%Function when pydicom fails to read a value attempt to read as 
-#other types. 
 def fix_mismatch_callback(raw_elem, **kwargs):
     try:
         values.convert_value(raw_elem.VR, raw_elem)
@@ -179,23 +150,10 @@ def fix_mismatch_callback(raw_elem, **kwargs):
                 pass
             else:
                 raw_elem = raw_elem._replace(VR=vr)
-                break  # I want to exit immediately after change is applied 
+                break  # i want to exit immediately after change is applied 
     return raw_elem
 
 
-def get_path(depth):
-    directory = dicom_home + '/'
-
-    i = 0;
-    while i < depth:
-        directory += "*/"
-        i += 1
-
-    return directory + "*.dcm"
-
-
-
-#%%Function used by pydicom. 
 def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
     """A callback function to check that RawDataElements are translatable
     with their provided VRs.  If not, re-attempt translation using
@@ -215,51 +173,65 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
         'with_VRs': with_VRs,
     }
 fix_mismatch()
-core_count = int(os.cpu_count()/2) # use half the cores avoid  high ram usage
 #%% get set up to create dataframe
-dirs = os.listdir(dicom_home)
+dirs = os.listdir( root )
 #gets all dicom files. if editing this code, get filelist into the format of a list of strings, 
 #with each string as the file path to a different dicom file.
-file_path = get_path(depth)
-
-filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
+if os.path.isfile(root+'ramen.pickle'):
+    f= open(root +'ramen.pickle', 'rb')
+    filelist = pickle.load(f)
+else:
+    filelist=glob.glob(dicomHome + '*/*/*/*.dcm', recursive=True) #this searches the folders at the depth we request and finds all dicoms
+    pickle.dump(filelist,open(root+'ramen.pickle','wb'))
 logging.info('Number of dicom files: ' + str(len(filelist)))
-
-try:
-    ff = filelist[0] #load first file as a template to look at all 
-except IndexError:
-    logging.error("There is no file present in the given folder in " + file_path)
-    sys.exit(1)
-
+print('Original File list is:' + str(len(filelist)))
+file_split = np.array_split(filelist,num_task)
+filelist = file_split[task_id]
+print('Task will have a nominal  File list of' + str(len(filelist)))
+ff = filelist[0] #load first file as a templat to look at all 
 plan = dicom.dcmread(ff, force=True) 
 logging.debug('Loaded the first file successfully')
-
+#print(type(plan)) #is recorded as pydicom class, has attributes numerated in keys
+#print(plan.dir()) #lists class attributes
 keys = [(aa) for aa in plan.dir() if (hasattr(plan, aa) and aa!='PixelData')]
+#print(keys) keys are attributes in this instance of the dicom class from the source file
 
 #%%checks for images in fields and prints where they are
 for field in plan.dir():
     if (hasattr(plan, field) and field!='PixelData'):
         entry = getattr(plan, field)
+        #print(field)        #prints header
+        #print(str(entry))   #prints associated value
         if type(entry) is bytes:
-            logging.debug(field)
-            logging.debug(str(entry))
+            print(field)
+            print(str(entry))
             
 
+#set([ type(getattr(plan, field)) for field in plan.dir() if (hasattr(plan, field) and field!='PixelData')])
+#print(plan)
 fm = open(mappings, "w+")
 filemapping = 'Original dicom file location, jpeg location \n'
 fm.write(filemapping)
 #%%step through whole file list, read in file, append fields to future dataframe of all files
 headerlist = []
 #start up a multi processing pool 
-
-#for every item in filelist send data to a subprocess and run extract_headers func
-#output is then added to headerlist as they are completed (no ordering is done) 
-with Pool(core_count) as p:
-    res= p.imap_unordered(extract_headers,enumerate(filelist))
-    for i,e in enumerate(res):
-        headerlist.append(e)
+print('start with getting headers')
+p = Pool(15)
+stamp = time.time()
+res= p.imap_unordered(extract_headers,enumerate(filelist))
+for i,e in enumerate(res):
+    if i %100 ==0: 
+        print(stamp-time.time())
+        stamp= time.time()
+    headerlist.append(e)
+p.close()
+p.join()
+print('done with getting headers')
+#RAMON NOTE: im assuming that the context manager handles closing for me 
+#make dataframe containing all fields and all files
 df = pd.DataFrame(headerlist)
 
+#print(df.columns) #all fields
 logging.info('Number of fields per file: ' + str(len(df.columns)))
 
 
@@ -268,8 +240,11 @@ mask_common_fields = df.isnull().mean() < 0.1 #find if less than 10% of the rows
 common_fields = set(np.asarray(df.columns)[mask_common_fields]) #define the common fields as those with more than 90% filled
 
 
+#print(headerlist) #list of all field,value arguments for all data
 for nn,kv in enumerate(headerlist):
+    #print(kv)                #all field,value tuples for this one in headerlist
     for kk in list(kv.keys()):
+        #print(kk)            #field names
         if print_only_common_headers:
             if kk not in common_fields:  #run this and next line if need to see only common fields
                 kv.pop(kk)        #remove field if not in common fields
@@ -279,27 +254,43 @@ for nn,kv in enumerate(headerlist):
 data=pd.DataFrame(headerlist)
 
 #%%export csv file of final dataframe
-export_csv = data.to_csv (csvDestination, index = None, header=True) 
+export_csv = data.to_csv(csvDestination, index = None, header=True) 
 
 fields=df.keys()
-count = 0; #potential painpoint 
 
-#writting of log handled by main process
+#current assumption is that processes will have acces to global variables 
+#meaning that i can get away with ismple just call imap on the range of indices to idne 
+#%% print images
+
+#todo: in consumer loop add sgment that checks if an error has occured and updates error count 
 if print_images:
-    logging.info("Start processing Images")
+    print("Start processing Images")
     filedata=data
+    count =0 
+    other =0 
     total = len(filelist)
     stamp = time.time()
-    p = Pool(os.cpu_count())
+    p = Pool(15)
     res = p.imap_unordered(extract_images,range(len(filedata)) )
     for out in res: 
+        if other %100 ==0:
+            print(time.time()-stamp)
+            stamp = time.time()
         (fmap,fail_path,err) = out 
+        other +=1
         if err: 
             count +=1 
             copyfile(fail_path[0],fail_path[1]) 
-            err_msg = str(count) + ' out of ' + str(len(filelist)) + ' dicom images have failed extraction' 
-            logging.error(err_msg)
+            err_msg = str(count) + 'out of' + str(len(filelist)) + ' dicom images have failed extraction' 
+            logging.error( err_msg)
         else: 
             fm.write(fmap)
-             
+    print("Done working closing  pool")
+    p.close()
+    p.join()              
+    print("Pool Close we done boys")
 fm.close()
+#insert multiprocessing call here     
+#for i in range(len(filedata)):
+# todo: for cases where erorr is not none 
+# add this: error_msg = str(count) + ' out of ' + str(len(filelist)) + ' dicom images have failed extraction.')

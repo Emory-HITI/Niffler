@@ -4,7 +4,7 @@ Requires=mongod.service
 After=network.target
 
 [Service]
-Environment="MONGO_URI=USERNAME:PASSWORD"
+Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
 Type=simple
 ExecStart=/opt/localdrive/researchpacs/src/meta-extraction/service/mdextractor.sh
 TimeoutStartSec=360

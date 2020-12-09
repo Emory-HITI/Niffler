@@ -1,43 +1,38 @@
-# The PNG Extractor
+# The Niffler PNG Extractor
 
 The PNG Extractor converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
 
-## Configuring the PNG Extractor
 
-A few parameters should be set in the Python class:
+## Configuring Niffler PNG Extractor
 
-root = '/opt/localdrive/'     #the root directory for yor project
+Find the config.json file in the folder and modify accordingly *for each* Niffler PNG extractions.
 
-dicomHome = root + 'dicom-files/' #the folder containing your dicom files
+* *DICOMHome*: The folder where you have your DICOM files whose metadata and binary imaging data (png) must be extracted.
 
-Make sure to have empty extracted-images, failed-dicom/1, failed-dicom/2, failed-dicom/3 folders 
+* *OutputDirectory*: The root folder where Niffler produces the output after running the PNG Extractor.
 
-ready in the root folder.
-
-## The output files
-
-### PNG files
-
-The png destination denotes where the png outcomes are stored
-
-png_destination = root + 'extracted-images/' #where you want the extracted images to print
+* *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm hierarchy indicates a depth of 3. If the DICOM files are in the DICOMHome itself with no folder hierarchy, the depth will be 0.
 
 
-### CSV file for Metadata
+### Print the Images or Limit the Extraction to Include only the Common DICOM Attributes
 
-The csv destination file stores all the metadata upon the png conversion in a csv format.
+The below two fields can be left unmodified for most executions. The default values are included below for these boolean properties.
 
-csvDestination = root + 'metadata.csv' #where you want the dataframe csv to print
+* *PrintImages*: Do you want to print the images from these dicom files? Default is _true_.
 
-### Mappings CSV file
-
-The mappings csv file produces the original dicom file -> png location
-
-mappings= root + 'mapping.csv'
+* *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? Finds if less than 10% of the rows are missing this column field. To extract all the headers, default is set as _false_.
 
 
-### Failed conversions
+## The output files and folders
 
-A failed files folder stores the DICOM files that fail the PNG conversion in a separate folder.
+In the OutputDirectory, there will be several sub folders and directories.
 
-failed = root +'failed-dicom/'
+* *metadata.csv*: The metadata from the DICOM images in a csv format.
+
+* *mapping.csv*: A csv file that maps the DICOM -> PNG file locations.
+
+* *ImageExtractor.out*: The log file.
+
+* *extracted-images*: The folder that consists of extracted PNG images
+
+* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor.

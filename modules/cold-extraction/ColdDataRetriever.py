@@ -164,7 +164,7 @@ def retrieve():
             Accession = accessions[pid]
             PatientID = patients[pid]
             temp_id = PatientID + SEPARATOR + Accession
-            if (NIGHTLY_ONLY == 'True'):
+            if NIGHTLY_ONLY:
                 if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
                     # log once while sleeping
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
@@ -179,7 +179,7 @@ def retrieve():
     elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
         # Create our Identifier (query) dataset
         for pid in range(0, length):
-            if (NIGHTLY_ONLY == 'True'):
+            if NIGHTLY_ONLY:
                 if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
                     # log once while sleeping
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
