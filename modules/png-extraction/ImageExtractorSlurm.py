@@ -18,7 +18,8 @@ from pprint import pprint
 import hashlib
 from shutil import copyfile
 import logging
-import pickle #this is a temporary addition 
+import json
+import pickle 
 from multiprocessing import Pool
 from pydicom import config
 from pydicom import datadict
