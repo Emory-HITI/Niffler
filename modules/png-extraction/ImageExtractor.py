@@ -36,6 +36,7 @@ print_only_common_headers = niffler['CommonHeadersOnly']
 dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
 output_directory = niffler['OutputDirectory']
 depth = niffler['Depth']
+half_mode = niffler['UseHalfOfTheProcessorsOnly'] #use only half of the available processors.
 
 png_destination = output_directory + '/extracted-images/' 
 csvDestination = output_directory + '/metadata.csv'
@@ -135,7 +136,7 @@ def extract_images(i):
         imName=os.path.split(filedata.iloc[i].loc['file'])[1][:-4] #get file name ex: IM-0107-0022
         #check for existence of patient folder, create if needed
         if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time. 
-            os.mkdir(png_destination+folderName)              
+            os.mkdir(png_destination + folderName)              
     
         shape = ds.pixel_array.shape
 
@@ -148,7 +149,7 @@ def extract_images(i):
         # Convert to uint
         image_2d_scaled = np.uint8(image_2d_scaled)
 
-        pngfile = png_destination+folderName+'/' +imName +'.png'
+        pngfile = png_destination+folderName+'/' + imName + '.png'
 
         # Write the PNG file
         with open(pngfile , 'wb') as png_file:
@@ -215,7 +216,12 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
         'with_VRs': with_VRs,
     }
 fix_mismatch()
-core_count = int(os.cpu_count()/2) # use half the cores avoid  high ram usage
+
+if half_mode:
+    core_count = int(os.cpu_count()/2) # use half the cores avoid  high ram usage
+else:
+    core_count = int(os.cpu_count())
+
 #%% get set up to create dataframe
 dirs = os.listdir(dicom_home)
 #gets all dicom files. if editing this code, get filelist into the format of a list of strings, 

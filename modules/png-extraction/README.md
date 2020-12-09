@@ -22,6 +22,8 @@ The below two fields can be left unmodified for most executions. The default val
 
 * *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? Finds if less than 10% of the rows are missing this column field. To extract all the headers, default is set as _false_.
 
+* *UseHalfOfTheProcessorsOnly*: Do you want to execute using only half of the available processors? Default is _true_.
+
 
 ## The output files and folders
 
@@ -35,4 +37,4 @@ In the OutputDirectory, there will be several sub folders and directories.
 
 * *extracted-images*: The folder that consists of extracted PNG images
 
-* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor.
+* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor. Failed DICOM images are stored in 3 sub-folders named 1, 2, and 3, categorizing according to their failure reason.
