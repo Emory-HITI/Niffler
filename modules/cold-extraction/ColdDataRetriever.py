@@ -194,24 +194,28 @@ def retrieve():
                 Accession = accessions[pid]
                 subprocess.call("{0}/findscu -c {1} -b {2} -m AccessionNumber={3} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Accession), shell=True)
 
-            #Processing the Intermediate CSV file with EMPI and StudyIDs
-            with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
-                reader2 = csv.reader(g)
-                # Array of studies
-                patients2 = []
-                studies2 = []
-                for row2 in reader2:
-                    patients2.append(row2[1])
-                    studies2.append(row2[0])
+            try:
+                #Processing the Intermediate CSV file with EMPI and StudyIDs
+                with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
+                    reader2 = csv.reader(g)
+                    # Array of studies
+                    patients2 = []
+                    studies2 = []
+                    for row2 in reader2:
+                        patients2.append(row2[1])
+                        studies2.append(row2[0])
  
-            # Create our Identifier (query) dataset
-            for pid2 in range(0, len(patients2)):
-                Study = studies2[pid2]
-                Patient = patients2[pid2]
-                temp_id = Patient + SEPARATOR + Study
-                if ((not resume) or (resume and (temp_id not in extracted_ones))):
-                    subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
-                    extracted_ones.append(temp_id)
+                # Create our Identifier (query) dataset
+                for pid2 in range(0, len(patients2)):
+                    Study = studies2[pid2]
+                    Patient = patients2[pid2]
+                    temp_id = Patient + SEPARATOR + Study
+                    if ((not resume) or (resume and (temp_id not in extracted_ones))):
+                        subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
+                        extracted_ones.append(temp_id)
+                        
+            except IOError:
+                logging.info("No EMPI, StudyInstanceUID found for the current entry. Skipping this line, and moving to the next")
 
 
     # Kill the running storescp process of QbNiffler.
