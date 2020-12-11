@@ -153,11 +153,11 @@ INFO:root:[EXTRACTION COMPLETE] 2020-09-21 17:42:38.465501: Niffler Extraction t
 
 A pickle file tracks the progress. The pickle file is created by appending ".pickle" to the csv file name.
 
-<8c>^X1234_000056789<94>
+<8c>^X1234, 000056789<94>
 
-For "empi_accession" extractions, each entry above is empi_accession.
+For "empi_accession" extractions, each entry above is empi, accession.
 
-For "empi_date" and "accession" extractions, each entry above will be empi_study. The reason is we have to _translate_ "empi_date" and "accession" into empi_study for C-MOVE queries.
+For "empi_date" and "accession" extractions, each entry above will be empi, study. The reason is we have to _translate_ "empi_date" and "accession" into empi_study for C-MOVE queries.
 
 
 ## Troubleshooting
