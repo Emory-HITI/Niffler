@@ -117,6 +117,9 @@ config.json entries are to be set *for each* Niffler on-demand DICOM extractions
 
 * *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. For extractions without a Date, leave this entry unmodified.
 
+* *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
+
+* *YourEmail*: Replace "test@test.test" with a valid email if you would like to receive an email notification. If the SendEmail property is disabled, you can leave this as is.
 
 ## Running the Niffler Retrospective Data Retriever
 
@@ -153,11 +156,11 @@ INFO:root:[EXTRACTION COMPLETE] 2020-09-21 17:42:38.465501: Niffler Extraction t
 
 A pickle file tracks the progress. The pickle file is created by appending ".pickle" to the csv file name.
 
-<8c>^X1234_000056789<94>
+<8c>^X1234, 000056789<94>
 
-For "empi_accession" extractions, each entry above is empi_accession.
+For "empi_accession" extractions, each entry above is empi, accession.
 
-For "empi_date" and "accession" extractions, each entry above will be empi_study. The reason is we have to _translate_ "empi_date" and "accession" into empi_study for C-MOVE queries.
+For "empi_date" and "accession" extractions, each entry above will be empi, study. The reason is we have to _translate_ "empi_date" and "accession" into empi_study for C-MOVE queries.
 
 
 ## Troubleshooting

@@ -8,5 +8,7 @@
 	"PatientIndex": 0,
 	"DateIndex": 1,
 	"DateType": "StudyDate",
-	"DateFormat": "%Y%m%d"
+	"DateFormat": "%Y%m%d",
+	"SendEmail": true,
+	"YourEmail": "test@test.test"
 }

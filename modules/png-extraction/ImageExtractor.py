@@ -19,6 +19,7 @@ import logging
 from multiprocessing import Pool
 import json
 import sys
+import subprocess
 
 #pydicom imports needed to handle data errrors 
 from pydicom import config
@@ -36,14 +37,19 @@ dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
 output_directory = niffler['OutputDirectory']
 depth = niffler['Depth']
 half_mode = niffler['UseHalfOfTheProcessorsOnly'] #use only half of the available processors.
+email = niffler['YourEmail']
+send_email = niffler['SendEmail']
 
 png_destination = output_directory + '/extracted-images/' 
 failed = output_directory +'/failed-dicom/'
 
 csv_destination = output_directory + '/metadata.csv'
 mappings = output_directory + '/mapping.csv'
+
 LOG_FILENAME = output_directory + '/ImageExtractor.out'
 
+# record the start time
+t_start = time.time()
 
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
@@ -316,3 +322,11 @@ if print_images:
             fm.write(fmap)
              
 fm.close()
+
+
+if send_email:
+    subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
+
+# Record the total run-time
+logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+

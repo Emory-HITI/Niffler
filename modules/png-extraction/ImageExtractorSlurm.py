@@ -39,6 +39,8 @@ dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
 output_directory = niffler['OutputDirectory']
 depth = niffler['Depth']
 half_mode = niffler['UseHalfOfTheProcessorsOnly'] #use only half of the available processors.
+email = niffler['YourEmail']
+send_email = niffler['SendEmail']
 
 png_destination = output_directory + '/extracted-images/' 
 failed = output_directory +'/failed-dicom/'
@@ -337,3 +339,9 @@ fm.close()
 #for i in range(len(filedata)):
 # todo: for cases where erorr is not none 
 # add this: error_msg = str(count) + ' out of ' + str(len(filelist)) + ' dicom images have failed extraction.')
+
+if send_email:
+    subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
+
+# Record the total run-time
+logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
