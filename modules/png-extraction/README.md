@@ -13,6 +13,10 @@ Find the config.json file in the folder and modify accordingly *for each* Niffle
 
 * *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm hierarchy indicates a depth of 3. If the DICOM files are in the DICOMHome itself with no folder hierarchy, the depth will be 0.
 
+* *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
+
+* *YourEmail*: Replace "test@test.test" with a valid email if you would like to receive an email notification. If the SendEmail property is disabled, you can leave this as is.
+
 
 ### Print the Images or Limit the Extraction to Include only the Common DICOM Attributes
 

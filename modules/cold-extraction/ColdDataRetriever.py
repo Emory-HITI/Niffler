@@ -28,6 +28,8 @@ patient_index = config['PatientIndex']
 date_index = config['DateIndex']
 date_type = config['DateType']
 date_format = config['DateFormat']
+email = config['YourEmail']
+send_email = config['SendEmail']
 
 # Reads the system_json file.
 system_json = config['NifflerSystem']
@@ -220,6 +222,9 @@ def retrieve():
 
     # Kill the running storescp process of QbNiffler.
     check_kill_process() 
+
+    if send_email:
+        subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
 
     # Record the total run-time
     logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')

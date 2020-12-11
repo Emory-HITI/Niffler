@@ -117,6 +117,9 @@ config.json entries are to be set *for each* Niffler on-demand DICOM extractions
 
 * *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. For extractions without a Date, leave this entry unmodified.
 
+* *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
+
+* *YourEmail*: Replace "test@test.test" with a valid email if you would like to receive an email notification. If the SendEmail property is disabled, you can leave this as is.
 
 ## Running the Niffler Retrospective Data Retriever
 
