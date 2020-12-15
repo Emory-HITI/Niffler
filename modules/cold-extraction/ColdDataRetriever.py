@@ -224,7 +224,7 @@ def retrieve():
     check_kill_process() 
 
     if send_email:
-        subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
+        subprocess.call('echo "Niffler has successfully completed the DICOM retrieval" | mail -s "The DICOM retrieval has been complete" {0}'.format(email), shell=True)
 
     # Record the total run-time
     logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
