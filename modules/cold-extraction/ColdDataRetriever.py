@@ -114,7 +114,7 @@ def initialize():
     logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes, storescp_processes))
 
     if niffler_processes > MAX_PROCESSES:
-        logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction attempt was not suuccessful this time. Please wait until those complete and re-run your query.".format(datetime.datetime.now(), MAX_PROCESSES))
+        logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction attempt was not successful this time. Please wait until those complete and re-run your query.".format(datetime.datetime.now(), MAX_PROCESSES))
         sys.exit(0)
 
     if storescp_processes >= niffler_processes:
@@ -230,8 +230,7 @@ def retrieve():
     logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
 
     #Extraction has successfully completed.
-    sys.exit(0)                
-
+    os.kill(os.getpid(), signal.SIGINT)
 
 
 # Write the pickle file periodically to track the progress and persist it to the filesystem
