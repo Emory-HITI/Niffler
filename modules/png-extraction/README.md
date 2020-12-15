@@ -26,7 +26,7 @@ The below two fields can be left unmodified for most executions. The default val
 
 * *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? Finds if less than 10% of the rows are missing this column field. To extract all the headers, default is set as _false_.
 
-* *UseHalfOfTheProcessorsOnly*: Do you want to execute using only half of the available processors? Default is _true_.
+* *UseProcessors*: How many of the processors to be used for the Image Extraction. Default is 0, indicating all the processors. 0.5 indicates, using only half of the available processors. Any other number sets the number of processors to be used to that value. If a value more than the available processors is specified, all the processors will be used.
 
 
 ## Running the Niffler PNG Extractor
