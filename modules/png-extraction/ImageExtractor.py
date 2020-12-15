@@ -36,7 +36,7 @@ print_only_common_headers = niffler['CommonHeadersOnly']
 dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
 output_directory = niffler['OutputDirectory']
 depth = niffler['Depth']
-processors = niffler['UseProcessors'] #how many processors to use.
+processes = niffler['UseProcesses'] #how many processes to use.
 email = niffler['YourEmail']
 send_email = niffler['SendEmail']
 
@@ -229,12 +229,12 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
 
 fix_mismatch()
 
-if processors == 0.5:  # use half the cores to avoid  high ram usage
+if processes == 0.5:  # use half the cores to avoid  high ram usage
     core_count = int(os.cpu_count()/2)
-elif processors == 0:  # use all the cores
+elif processes == 0:  # use all the cores
     core_count = int(os.cpu_count())
-elif processors < os.cpu_count():  # use the specified number of cores to avoid high ram usage
-    core_count = processors
+elif processes < os.cpu_count():  # use the specified number of cores to avoid high ram usage
+    core_count = processes
 else:
     core_count = int(os.cpu_count())
 
