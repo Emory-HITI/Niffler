@@ -4,7 +4,7 @@
 	"Depth": 0,
 	"PrintImages": true,
 	"CommonHeadersOnly": false,
-	"UseProcessors": 0,
+	"UseProcesses": 0,
 	"SendEmail": true,
 	"YourEmail": "test@test.test"
 }
