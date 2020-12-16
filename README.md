@@ -48,7 +48,7 @@ $ unzip dcm4che-5.22.5-bin.zip
 
 Make sure Java is available, as DCM4CHE and Niffler Application Layer require Java to run.
 
-Also you should first configure _mail_ client for the user that runs Niffler modules, if you have enabled mail sender for any of the modules through their respective config.json. This is a one-time configuration that is not specific to Niffler.
+You should first configure _mail_ client for the user that runs Niffler modules, if you have enabled mail sender for any of the modules through their respective config.json. This is a one-time configuration that is not specific to Niffler.
 
 ## Deploy Niffler
 
