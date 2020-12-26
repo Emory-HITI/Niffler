@@ -20,7 +20,8 @@ from multiprocessing import Pool
 import json
 import sys
 import subprocess
-
+import pdb 
+import pickle 
 #pydicom imports needed to handle data errrors 
 from pydicom import config
 from pydicom import datadict
@@ -43,11 +44,9 @@ send_email = niffler['SendEmail']
 png_destination = output_directory + '/extracted-images/' 
 failed = output_directory +'/failed-dicom/'
 
-csv_destination = output_directory + '/metadata.csv'
-mappings = output_directory + '/mapping.csv'
 
 LOG_FILENAME = output_directory + '/ImageExtractor.out'
-
+pickle_file = output_directory + '/ImageExtractor.pickle'
 # record the start time
 t_start = time.time()
 
@@ -87,10 +86,15 @@ def get_tuples(plan, outlist = None, key = ""):
             logging.warning('Type Error encountered')
         if (hasattr(plan, aa) and aa!='PixelData'):
             value = getattr(plan, aa)
+            start = len(outlist)
             if type(value) is dicom.sequence.Sequence:
                 for nn, ss in enumerate(list(value)):
                     newkey = "_".join([key,("%d"%nn),aa]) if len(key) else "_".join([("%d"%nn),aa])
-                    outlist.extend(get_tuples(ss, outlist = None, key = newkey))
+                    candidate = get_tuples(ss,outlist=None,key=newkey) 
+                    if len(candidate)>2000:
+                        outlist.append((newkey,str(candidate)))
+                    else:
+                        outlist.extend(candidate)
             else:
                 if type(value) is dicom.valuerep.DSfloat:
                     value = float(value)
@@ -113,8 +117,9 @@ def extract_headers(f_list_elem):
         check=plan.pixel_array #throws error if dicom file has no image
     except: 
         c = False
-        
     kv = get_tuples(plan)       #gets tuple for field,val pairs for this file. function defined above
+    if len(kv)>500: 
+        logging.debug(str(len(kv)) + " dicoms produced by " + ff) 
     kv.append(('file',filelist[nn])) #adds my custom field with the original filepath
     kv.append(('has_pix_array',c))   #adds my custom field with if file has image
     if c:
@@ -175,6 +180,7 @@ def extract_images(i):
     except:
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '4/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'       
+    print(found_err)
     return (filemapping,fail_path,found_err)
 
 
@@ -197,15 +203,11 @@ def fix_mismatch_callback(raw_elem, **kwargs):
 
 def get_path(depth):
     directory = dicom_home + '/'
-
     i = 0;
     while i < depth:
         directory += "*/"
         i += 1
-
     return directory + "*.dcm"
-
-
 
 #%%Function used by pydicom. 
 def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
@@ -226,9 +228,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
     config.data_element_callback_kwargs = {
         'with_VRs': with_VRs,
     }
-
 fix_mismatch()
-
 if processes == 0.5:  # use half the cores to avoid  high ram usage
     core_count = int(os.cpu_count()/2)
 elif processes == 0:  # use all the cores
@@ -237,16 +237,22 @@ elif processes < os.cpu_count():  # use the specified number of cores to avoid h
     core_count = processes
 else:
     core_count = int(os.cpu_count())
-
 #%% get set up to create dataframe
 dirs = os.listdir(dicom_home)
-
 #gets all dicom files. if editing this code, get filelist into the format of a list of strings, 
 #with each string as the file path to a different dicom file.
 file_path = get_path(depth)
 
-filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
+if os.path.isfile(pickle_file): 
+    f=open(pickle_file,'rb')
+    filelist=pickle.load(f)
+else: 
+    filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
+    pickle.dump(filelist,open(pickle_file,'wb'))
+
+file_chunks = np.array_split(filelist,100)
 logging.info('Number of dicom files: ' + str(len(filelist)))
+logging.info('Number of chunks is 100 with size ' + str(len(file_chunks[0])) )
 
 try:
     ff = filelist[0] #load first file as a template to look at all 
@@ -258,7 +264,6 @@ plan = dicom.dcmread(ff, force=True)
 logging.debug('Loaded the first file successfully')
 
 keys = [(aa) for aa in plan.dir() if (hasattr(plan, aa) and aa!='PixelData')]
-
 #%%checks for images in fields and prints where they are
 for field in plan.dir():
     if (hasattr(plan, field) and field!='PixelData'):
@@ -266,67 +271,59 @@ for field in plan.dir():
         if type(entry) is bytes:
             logging.debug(field)
             logging.debug(str(entry))
-            
-
-fm = open(mappings, "w+")
-filemapping = 'Original dicom file location, jpeg location \n'
-fm.write(filemapping)
-#%%step through whole file list, read in file, append fields to future dataframe of all files
-headerlist = []
-#start up a multi processing pool 
-
-#for every item in filelist send data to a subprocess and run extract_headers func
-#output is then added to headerlist as they are completed (no ordering is done) 
-with Pool(core_count) as p:
-    res= p.imap_unordered(extract_headers,enumerate(filelist))
-    for i,e in enumerate(res):
-        headerlist.append(e)
-df = pd.DataFrame(headerlist)
-
-logging.info('Number of fields per file: ' + str(len(df.columns)))
-
-
-#%%find common fields
-mask_common_fields = df.isnull().mean() < 0.1 #find if less than 10% of the rows in df are missing this column field
-common_fields = set(np.asarray(df.columns)[mask_common_fields]) #define the common fields as those with more than 90% filled
-
-
-for nn,kv in enumerate(headerlist):
-    for kk in list(kv.keys()):
-        if print_only_common_headers:
-            if kk not in common_fields:  #run this and next line if need to see only common fields
-                kv.pop(kk)        #remove field if not in common fields
-        headerlist[nn] = kv   #return altered set of field,value pairs to headerlist
-
-#make dataframe containing all fields and all files minus those removed in previous block
-data=pd.DataFrame(headerlist)
-
-#%%export csv file of final dataframe
-export_csv = data.to_csv (csv_destination, index = None, header=True) 
-
-fields=df.keys()
-count = 0; #potential painpoint 
-
-#writting of log handled by main process
-if print_images:
-    logging.info("Start processing Images")
-    filedata=data
-    total = len(filelist)
-    stamp = time.time()
-    p = Pool(os.cpu_count())
-    res = p.imap_unordered(extract_images,range(len(filedata)) )
-    for out in res: 
-        (fmap,fail_path,err) = out 
-        if err: 
-            count +=1 
-            copyfile(fail_path[0],fail_path[1]) 
-            err_msg = str(count) + ' out of ' + str(len(filelist)) + ' dicom images have failed extraction' 
-            logging.error(err_msg)
-        else: 
-            fm.write(fmap)
-             
-fm.close()
-
+for i,chunk in enumerate(file_chunks): 
+    csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
+    mappings ="{}/maps/mapping_{}.csv".format(output_directory,i)
+    fm = open(mappings, "w+")
+    filemapping = 'Original dicom file location, jpeg location \n'
+    fm.write(filemapping)
+    # add a check to see if the metadata has already been extracted 
+    #%%step through whole file list, read in file, append fields to future dataframe of all files
+    headerlist = []
+    #start up a multi processing pool 
+    #for every item in filelist send data to a subprocess and run extract_headers func
+    #output is then added to headerlist as they are completed (no ordering is done) 
+    with Pool(core_count) as p:
+        res= p.imap_unordered(extract_headers,enumerate(chunk))
+        for i,e in enumerate(res):
+            headerlist.append(e)
+    df = pd.DataFrame(headerlist)
+    logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(df.columns)))
+    #%%find common fields
+    mask_common_fields = df.isnull().mean() < 0.1 #find if less than 10% of the rows in df are missing this column field
+    common_fields = set(np.asarray(df.columns)[mask_common_fields]) #define the common fields as those with more than 90% filled
+    for nn,kv in enumerate(headerlist):
+        for kk in list(kv.keys()):
+            if print_only_common_headers:
+                if kk not in common_fields:  #run this and next line if need to see only common fields
+                    kv.pop(kk)        #remove field if not in common fields
+            headerlist[nn] = kv   #return altered set of field,value pairs to headerlist
+    #make dataframe containing all fields and all files minus those removed in previous block
+    data=pd.DataFrame(headerlist)
+    #%%export csv file of final dataframe
+    export_csv = data.to_csv (csv_destination, index = None, header=True) 
+    fields=df.keys()
+    count = 0; #potential painpoint 
+    #writting of log handled by main process
+    if print_images:
+        logging.info("Start processing Images")
+        filedata=data
+        total = len(chunk)
+        stamp = time.time()
+        p = Pool(os.cpu_count())
+        res = p.imap_unordered(extract_images,range(len(filedata)))
+        for out in res: 
+            (fmap,fail_path,err) = out 
+            if err: 
+                count +=1 
+                copyfile(fail_path[0],fail_path[1]) 
+                print(err)
+                err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
+                logging.error(err_msg)
+            else: 
+                fm.write(fmap)
+    fm.close()
+    logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
 if send_email:
     subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
