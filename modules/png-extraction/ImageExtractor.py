@@ -87,10 +87,12 @@ def get_tuples(plan, outlist = None, key = ""):
         if (hasattr(plan, aa) and aa!='PixelData'):
             value = getattr(plan, aa)
             start = len(outlist)
+            #if dicom sequence extract tags from each element
             if type(value) is dicom.sequence.Sequence:
                 for nn, ss in enumerate(list(value)):
                     newkey = "_".join([key,("%d"%nn),aa]) if len(key) else "_".join([("%d"%nn),aa])
                     candidate = get_tuples(ss,outlist=None,key=newkey) 
+                    #if extracted tuples are too big condense to a string 
                     if len(candidate)>2000:
                         outlist.append((newkey,str(candidate)))
                     else:
@@ -118,6 +120,7 @@ def extract_headers(f_list_elem):
     except: 
         c = False
     kv = get_tuples(plan)       #gets tuple for field,val pairs for this file. function defined above
+    # dicom images should not have more than 300 
     if len(kv)>500: 
         logging.debug(str(len(kv)) + " dicoms produced by " + ff) 
     kv.append(('file',filelist[nn])) #adds my custom field with the original filepath
@@ -180,7 +183,6 @@ def extract_images(i):
     except:
         found_err = error
         fail_path = filedata.iloc[i].loc['file'], failed + '4/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'       
-    print(found_err)
     return (filemapping,fail_path,found_err)
 
 
@@ -317,7 +319,6 @@ for i,chunk in enumerate(file_chunks):
             if err: 
                 count +=1 
                 copyfile(fail_path[0],fail_path[1]) 
-                print(err)
                 err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
                 logging.error(err_msg)
             else: 
@@ -327,7 +328,22 @@ for i,chunk in enumerate(file_chunks):
 
 if send_email:
     subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
-
 # Record the total run-time
 logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+logging.info('Generating final metadata file')
+#getting a single metadatafile 
+metas = glob.glob("{}/meta/*.csv".format(output_directory))
+meta_list = list()
+for meta in metas: 
+    meta_list.append(pd.read_csv(meta,dtype='str'))
+merged_meta = pd.concat(meta_list,ignore_index=True)
+merged_meta.to_csv('{}/metadata.csv'.format(output_directory),index=False)
+#getting a single mapping file 
+logging.info('Generatign final mapping file')
+mappings = glob.glob("{}/maps/*.csv".format(output_directory))
+map_list = list()
+for mapping in mappings: 
+    map_list.append(pd.read_csv(mapping,dtype='str'))
+merged_maps = pd.concat(map_list,ignore_index=True)
+merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
 
