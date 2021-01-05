@@ -326,10 +326,7 @@ for i,chunk in enumerate(file_chunks):
     fm.close()
     logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
-if send_email:
-    subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
-# Record the total run-time
-logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+
 logging.info('Generating final metadata file')
 #getting a single metadatafile 
 metas = glob.glob("{}/meta/*.csv".format(output_directory))
@@ -347,3 +344,8 @@ for mapping in mappings:
 merged_maps = pd.concat(map_list,ignore_index=True)
 merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
 
+
+if send_email:
+    subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
+# Record the total run-time
+logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
