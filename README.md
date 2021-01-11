@@ -1,27 +1,29 @@
 # Niffler: A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images
 
-Niffler is an efficient DICOM receiver and metadata extractor framework. It facilitates efficient transfer of DICOM images on-demand and real-time from PACS to the research environments, to run processing workflows and machine learning pipelines.
+Niffler is an efficient DICOM Framework for machine learning pipelines and processing workflows on metadata. It facilitates efficient transfer of DICOM images on-demand and real-time from PACS to the research environments, to run processing workflows and machine learning pipelines.
+
+Niffler enables receiving DICOM images real-time as a data stream from PACS as well as specific DICOM data based on a series of DICOM C-MOV queries. The Niffler real-time DICOM receiver extracts the metadata free of PHI as the images arrive, store the metadata in a Mongo database, and deletes the images nightly. The on-demand extractor reads a CSV file provided by the user (consisting of EMPIs, AccessionNumbers, or other properties), and performs a series of DICOM C-MOVE requests to receive them from the PACS, without manually querying them. Niffler also provides additional features such as converting DICOM images into PNG images, and perform additional computations such as computing scanner utilization and finding scanners with misconfigured clocks.
+
 
 # Niffler Modules
 
-Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python-3.6. Niffler application layer (app-layer) is built with Java and Javascript.
+Niffler consists of a modular architecture that provides its features. Each module can run independently. Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python-3.6. Niffler application layer (app-layer) is built with Java and Javascript.
 
 ## cold-extraction
 
-On-demand queries to retrieve retrospective DICOM data.
+Parses a CSV file consisting of EMPIs, AccessionNumbers, or Study/Accession Dates, and performs a series of DICOM C-MOVE queries (often each C-MOVE following a C-FIND query) to retrieve DICOM images retrospectively from the PACS.
 
 ## meta-extraction
 
-Extracts metadata from a continuous real-time DICOM imaging stream.
+Receives DICOM images as a stream from a PACS and extracts and stores the metadata in a metadata store (by default, MongoDB), deleting the received DICOM images nightly.
 
 ## png-extraction
 
-Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
+Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner. The extracted metadata is stored in a CSV file, along with the de-identified PNG images. The mapping of PNG files and their respective metadata is stored in a separate CSV file.
 
 ## app-layer
 
-In the app-layer, the scanner utilization tool is developed in Java, whereas the scripts such as scanner clock calibration are developed in Javascript.
-
+The app-layer (application layer) consists of specific algorithms. The app-layer/src/main/scripts consists of Javascript scripts such as scanner clock calibration. The app-layer/src/main/java consists of the the scanner utilization computation algorithms developed in Java.
 
 
 # Configuring Niffler
