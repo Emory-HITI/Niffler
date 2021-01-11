@@ -11,20 +11,19 @@ Niffler consists of a modular architecture that provides its features. Each modu
 
 ## cold-extraction
 
-On-demand queries to retrieve retrospective DICOM data.
+Parses a CSV file consisting of EMPIs, AccessionNumbers, or Study/Accession Dates, and performs a series of DICOM C-MOVE queries (often each C-MOVE following a C-FIND query) to retrieve DICOM images retrospectively from the PACS.
 
 ## meta-extraction
 
-Extracts metadata from a continuous real-time DICOM imaging stream.
+Receives DICOM images as a stream from a PACS and extracts and stores the metadata in a metadata store (by default, MongoDB), deleting the received DICOM images nightly.
 
 ## png-extraction
 
-Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
+Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner. The extracted metadata is stored in a CSV file, along with the de-identified PNG images. The mapping of PNG files and their respective metadata is stored in a separate CSV file.
 
 ## app-layer
 
-In the app-layer, the scanner utilization tool is developed in Java, whereas the scripts such as scanner clock calibration are developed in Javascript.
-
+The app-layer (application layer) consists of specific algorithms. The app-layer/src/main/scripts consists of Javascript scripts such as scanner clock calibration. The app-layer/src/main/java consists of the the scanner utilization computation algorithms developed in Java.
 
 
 # Configuring Niffler
