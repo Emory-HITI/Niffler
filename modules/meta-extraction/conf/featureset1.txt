@@ -39,3 +39,6 @@ PercentPhaseFieldOfView
 PixelBandwidth
 FlipAngle
 SAR
+Modality
+0x0051,0x100F
+0x0051,0x100C
