@@ -43,7 +43,8 @@ send_email = niffler['SendEmail']
 
 png_destination = output_directory + '/extracted-images/' 
 failed = output_directory +'/failed-dicom/'
-
+maps_directory = output_directory + '/maps/'
+meta_directory = output_directory + '/meta/'
 
 LOG_FILENAME = output_directory + '/ImageExtractor.out'
 pickle_file = output_directory + '/ImageExtractor.pickle'
@@ -54,6 +55,12 @@ if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 
 logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+
+if not os.path.exists(maps_directory):
+    os.makedirs(maps_directory)
+
+if not os.path.exists(meta_directory):
+    os.makedirs(meta_directory)
 
 if not os.path.exists(png_destination):
     os.makedirs(png_destination)
