@@ -8,6 +8,7 @@ PerformedProcedureStepDescription
 NumberOfStudyRelatedSeries
 NumberOfStudyRelatedInstances
 AcquisitionTime
+SeriesDate
 SeriesTime
 SeriesNumber
 SeriesDescription
