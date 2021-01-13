@@ -40,7 +40,7 @@ depth = niffler['Depth']
 processes = niffler['UseProcesses'] #how many processes to use.
 email = niffler['YourEmail']
 send_email = niffler['SendEmail']
-split = niffler['SplitIntoChunks']
+no_splits = niffler['SplitIntoChunks']
 
 png_destination = output_directory + '/extracted-images/' 
 failed = output_directory +'/failed-dicom/'
@@ -260,7 +260,7 @@ else:
     filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
     pickle.dump(filelist,open(pickle_file,'wb'))
 
-file_chunks = np.array_split(filelist,split)
+file_chunks = np.array_split(filelist,no_splits)
 logging.info('Number of dicom files: ' + str(len(filelist)))
 logging.info('Number of chunks is 100 with size ' + str(len(file_chunks[0])) )
 
