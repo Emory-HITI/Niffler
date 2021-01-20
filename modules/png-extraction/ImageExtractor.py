@@ -131,7 +131,7 @@ def extract_headers(f_list_elem):
     # dicom images should not have more than 300 
     if len(kv)>500: 
         logging.debug(str(len(kv)) + " dicoms produced by " + ff) 
-    kv.append(('file',filelist[nn])) #adds my custom field with the original filepath
+    kv.append(('file',chunk[nn])) #adds my custom field with the original filepath
     kv.append(('has_pix_array',c))   #adds my custom field with if file has image
     if c:
         kv.append(('category','uncategorized')) #adds my custom category field - useful if classifying images before processing
@@ -259,7 +259,6 @@ if os.path.isfile(pickle_file):
 else: 
     filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
     pickle.dump(filelist,open(pickle_file,'wb'))
-
 file_chunks = np.array_split(filelist,no_splits)
 logging.info('Number of dicom files: ' + str(len(filelist)))
 logging.info('Number of chunks is 100 with size ' + str(len(file_chunks[0])) )
