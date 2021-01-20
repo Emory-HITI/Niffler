@@ -297,22 +297,13 @@ for i,chunk in enumerate(file_chunks):
         res= p.imap_unordered(extract_headers,enumerate(chunk))
         for i,e in enumerate(res):
             headerlist.append(e)
-    df = pd.DataFrame(headerlist)
-    logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(df.columns)))
+    data = pd.DataFrame(headerlist)
+    logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(data.columns)))
     #%%find common fields
-    mask_common_fields = df.isnull().mean() < 0.1 #find if less than 10% of the rows in df are missing this column field
-    common_fields = set(np.asarray(df.columns)[mask_common_fields]) #define the common fields as those with more than 90% filled
-    for nn,kv in enumerate(headerlist):
-        for kk in list(kv.keys()):
-            if print_only_common_headers:
-                if kk not in common_fields:  #run this and next line if need to see only common fields
-                    kv.pop(kk)        #remove field if not in common fields
-            headerlist[nn] = kv   #return altered set of field,value pairs to headerlist
     #make dataframe containing all fields and all files minus those removed in previous block
-    data=pd.DataFrame(headerlist)
     #%%export csv file of final dataframe
     export_csv = data.to_csv (csv_destination, index = None, header=True) 
-    fields=df.keys()
+    fields=data.keys()
     count = 0; #potential painpoint 
     #writting of log handled by main process
     if print_images:
@@ -350,6 +341,10 @@ map_list = list()
 for mapping in mappings: 
     map_list.append(pd.read_csv(mapping,dtype='str'))
 merged_maps = pd.concat(map_list,ignore_index=True)
+if print_only_common_headers:
+    mask_common_fields = merged_maps.isnull().mean() < 0.1
+    common_fields = set(np.asarray(merged_maps.columns)[mask_common_fields])
+    merged_maps = merged_maps[common_fields]
 merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
 
 
