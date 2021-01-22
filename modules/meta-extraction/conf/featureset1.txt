@@ -42,5 +42,7 @@ PixelBandwidth
 FlipAngle
 SAR
 Modality
+Manufacturer
+ManufacturerModelName
 0x0051100F
 0x0051100C
