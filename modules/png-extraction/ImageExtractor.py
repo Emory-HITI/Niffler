@@ -295,7 +295,7 @@ for i,chunk in enumerate(file_chunks):
     csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
     mappings ="{}/maps/mapping_{}.csv".format(output_directory,i)
     fm = open(mappings, "w+")
-    filemapping = 'Original dicom file location, jpeg location \n'
+    filemapping = 'Original DICOM file location, PNG location \n'
     fm.write(filemapping)
     # add a check to see if the metadata has already been extracted 
     #%%step through whole file list, read in file, append fields to future dataframe of all files
