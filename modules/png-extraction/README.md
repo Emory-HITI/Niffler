@@ -27,6 +27,8 @@ Find the config.json file in the folder and modify accordingly *for each* Niffle
 
 * *SplitIntoChunks*: How many chunks do you want to split the metadata extraction process into? By default, 1. Leave it as it is for most of the extractions. For extremely large batches, split it accordingly. Single chunk works for 10,000 files. So you can set it to 2, if you have 20,000 files, for example.
 
+* *UseProcesses*: How many of the CPU cores to be used for the Image Extraction. Default is 0, indicating all the cores. 0.5 indicates, using only half of the available cores. Any other number sets the number of cores to be used to that value. If a value more than the available cores is specified, all the cores will be used.
+
 * *FlattenedToLevel*: Specify how you want your folder tree to be. Default is, "patient" (produces patient/*.png). 
   You may change this value to "study" (patient/study/*.png) or "series" (patient/study/series/*.png). All IDs are de-identified.
   
@@ -42,8 +44,6 @@ The below two fields can be left unmodified for most executions. The default val
 * *PrintImages*: Do you want to print the images from these dicom files? Default is _true_.
 
 * *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? Finds if less than 10% of the rows are missing this column field. To extract all the headers, default is set as _false_.
-
-* *UseProcesses*: How many of the CPU cores to be used for the Image Extraction. Default is 0, indicating all the cores. 0.5 indicates, using only half of the available cores. Any other number sets the number of cores to be used to that value. If a value more than the available cores is specified, all the cores will be used.
 
 
 ## Running the Niffler PNG Extractor
