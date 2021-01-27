@@ -6,7 +6,7 @@
 	"PrintImages": true,
 	"CommonHeadersOnly": false,
 	"UseProcesses": 0,
-	"FlattenedToPatientLevel": true,
+	"FlattenedToLevel": "patient",
 	"SendEmail": true,
 	"YourEmail": "test@test.test"
 }
