@@ -38,7 +38,7 @@ dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
 output_directory = niffler['OutputDirectory']
 depth = niffler['Depth']
 processes = niffler['UseProcesses'] #how many processes to use.
-flattened_to_patient_level = niffler['FlattenedToPatientLevel']
+flattened_to_level = niffler['FlattenedToLevel']
 email = niffler['YourEmail']
 send_email = niffler['SendEmail']
 no_splits = niffler['SplitIntoChunks']
@@ -155,12 +155,20 @@ def extract_images(i):
         im=ds.pixel_array #pull image from read dicom
         imName=os.path.split(filedata.iloc[i].loc['file'])[1][:-4] #get file name ex: IM-0107-0022
 
-        if flattened_to_patient_level:
+        if flattened_to_level == 'patient':
             ID=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
             #check for existence of patient folder. Create if it does not exist.
             if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
                 os.mkdir(png_destination + folderName)
+        elif flattened_to_level == 'study':
+            ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
+            ID2=filedata.iloc[i].loc['StudyInstanceUID']  # Unique identifier for the Study.
+            folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
+                         hashlib.sha224(ID2.encode('utf-8')).hexdigest()
+            #check for existence of the folder tree patient/study/series. Create if it does not exist.
+            if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
+                os.makedirs(png_destination + folderName)
         else:
             ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             ID2=filedata.iloc[i].loc['StudyInstanceUID']  # Unique identifier for the Study.
@@ -295,7 +303,7 @@ for i,chunk in enumerate(file_chunks):
     csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
     mappings ="{}/maps/mapping_{}.csv".format(output_directory,i)
     fm = open(mappings, "w+")
-    filemapping = 'Original dicom file location, jpeg location \n'
+    filemapping = 'Original DICOM file location, PNG location \n'
     fm.write(filemapping)
     # add a check to see if the metadata has already been extracted 
     #%%step through whole file list, read in file, append fields to future dataframe of all files
