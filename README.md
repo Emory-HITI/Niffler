@@ -72,9 +72,8 @@ Please refer to each module's individual README for additional instructions on d
 
 # Citing Niffler
 
-If you use Niffler in your research, please cite the below paper:
+If you use Niffler in your research, please cite the below papers:
 
 * Pradeeban Kathiravelu, Puneet Sharma, Ashish Sharma, Imon Banerjee, Hari Trivedi, Saptarshi Purkayastha, Priyanshu Sinha, Alexandre Cadrin-Chenevert, Nabile Safdar, Judy Wawira Gichoya. **A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images.** arXiv preprint [arXiv:2004.07965](http://arxiv.org/abs/2004.07965) (2020).
 
-* Pradeeban Kathiravelu, Ashish Sharma, Puneet Sharma. **Understanding Scanner Utilization with Real-Time DICOM Metadata Extraction**. In IEEE Access. January 2021. https://doi.org/10.1109/ACCESS.2021.3050467
-
+* Kathiravelu, P., Sharma, A., & Sharma, P. (2021). **Understanding Scanner Utilization With Real-Time DICOM Metadata Extraction.** IEEE Access, 9, 10621-10633. https://doi.org/10.1109/ACCESS.2021.3050467
