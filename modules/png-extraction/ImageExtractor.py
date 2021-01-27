@@ -22,7 +22,7 @@ import sys
 import subprocess
 import pdb 
 import pickle 
-#pydicom imports needed to handle data errrors 
+#pydicom imports needed to handle data errrors
 from pydicom import config
 from pydicom import datadict
 from pydicom import values
@@ -38,6 +38,7 @@ dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
 output_directory = niffler['OutputDirectory']
 depth = niffler['Depth']
 processes = niffler['UseProcesses'] #how many processes to use.
+flattened_to_patient_level = niffler['FlattenedToPatientLevel']
 email = niffler['YourEmail']
 send_email = niffler['SendEmail']
 no_splits = niffler['SplitIntoChunks']
@@ -131,7 +132,7 @@ def extract_headers(f_list_elem):
     # dicom images should not have more than 300 
     if len(kv)>500: 
         logging.debug(str(len(kv)) + " dicoms produced by " + ff) 
-    kv.append(('file',filelist[nn])) #adds my custom field with the original filepath
+    kv.append(('file',chunk[nn])) #adds my custom field with the original filepath
     kv.append(('has_pix_array',c))   #adds my custom field with if file has image
     if c:
         kv.append(('category','uncategorized')) #adds my custom category field - useful if classifying images before processing
@@ -152,14 +153,24 @@ def extract_images(i):
     fail_path = ""
     try:
         im=ds.pixel_array #pull image from read dicom
-        ID=filedata.iloc[i].loc['PatientID'] #get patientID ex: BAC_00040
-        folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
-    
         imName=os.path.split(filedata.iloc[i].loc['file'])[1][:-4] #get file name ex: IM-0107-0022
-        #check for existence of patient folder, create if needed
-        if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time. 
-            os.mkdir(png_destination + folderName)              
-    
+
+        if flattened_to_patient_level:
+            ID=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
+            folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
+            #check for existence of patient folder. Create if it does not exist.
+            if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
+                os.mkdir(png_destination + folderName)
+        else:
+            ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
+            ID2=filedata.iloc[i].loc['StudyInstanceUID']  # Unique identifier for the Study.
+            ID3=filedata.iloc[i].loc['SeriesInstanceUID']  # Unique identifier of the Series.
+            folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
+                         hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + hashlib.sha224(ID3.encode('utf-8')).hexdigest()
+            #check for existence of the folder tree patient/study/series. Create if it does not exist.
+            if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
+                os.makedirs(png_destination + folderName)
+
         shape = ds.pixel_array.shape
 
         # Convert to float to avoid overflow or underflow losses.
@@ -213,7 +224,7 @@ def fix_mismatch_callback(raw_elem, **kwargs):
 
 def get_path(depth):
     directory = dicom_home + '/'
-    i = 0;
+    i = 0
     while i < depth:
         directory += "*/"
         i += 1
@@ -259,7 +270,6 @@ if os.path.isfile(pickle_file):
 else: 
     filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
     pickle.dump(filelist,open(pickle_file,'wb'))
-
 file_chunks = np.array_split(filelist,no_splits)
 logging.info('Number of dicom files: ' + str(len(filelist)))
 logging.info('Number of chunks is 100 with size ' + str(len(file_chunks[0])) )
@@ -297,23 +307,14 @@ for i,chunk in enumerate(file_chunks):
         res= p.imap_unordered(extract_headers,enumerate(chunk))
         for i,e in enumerate(res):
             headerlist.append(e)
-    df = pd.DataFrame(headerlist)
-    logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(df.columns)))
+    data = pd.DataFrame(headerlist)
+    logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(data.columns)))
     #%%find common fields
-    mask_common_fields = df.isnull().mean() < 0.1 #find if less than 10% of the rows in df are missing this column field
-    common_fields = set(np.asarray(df.columns)[mask_common_fields]) #define the common fields as those with more than 90% filled
-    for nn,kv in enumerate(headerlist):
-        for kk in list(kv.keys()):
-            if print_only_common_headers:
-                if kk not in common_fields:  #run this and next line if need to see only common fields
-                    kv.pop(kk)        #remove field if not in common fields
-            headerlist[nn] = kv   #return altered set of field,value pairs to headerlist
     #make dataframe containing all fields and all files minus those removed in previous block
-    data=pd.DataFrame(headerlist)
     #%%export csv file of final dataframe
     export_csv = data.to_csv (csv_destination, index = None, header=True) 
-    fields=df.keys()
-    count = 0; #potential painpoint 
+    fields=data.keys()
+    count = 0 #potential painpoint
     #writting of log handled by main process
     if print_images:
         logging.info("Start processing Images")
@@ -350,6 +351,10 @@ map_list = list()
 for mapping in mappings: 
     map_list.append(pd.read_csv(mapping,dtype='str'))
 merged_maps = pd.concat(map_list,ignore_index=True)
+if print_only_common_headers:
+    mask_common_fields = merged_maps.isnull().mean() < 0.1
+    common_fields = set(np.asarray(merged_maps.columns)[mask_common_fields])
+    merged_maps = merged_maps[common_fields]
 merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
 
 
