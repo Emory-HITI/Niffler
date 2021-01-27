@@ -26,6 +26,8 @@ Find the config.json file in the folder and modify accordingly *for each* Niffle
 * *Depth*: How far in the folder hierarchy from the DICOMHome are the DICOM images. For example, a patient/study/series/instances.dcm hierarchy indicates a depth of 3. If the DICOM files are in the DICOMHome itself with no folder hierarchy, the depth will be 0.
 
 * *SplitIntoChunks*: How many chunks do you want to split the metadata extraction process into? By default, 1. Leave it as it is for most of the extractions. For extremely large batches, split it accordingly. Single chunk works for 10,000 files. So you can set it to 2, if you have 20,000 files, for example.
+
+* *FlattenedToPatientLevel*: Do you want the png files to reside in their respective Patient ID (de-identified) folder or a folder tree. By default, true.
   
 * *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
 

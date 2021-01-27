@@ -22,7 +22,7 @@ import sys
 import subprocess
 import pdb 
 import pickle 
-#pydicom imports needed to handle data errrors 
+#pydicom imports needed to handle data errrors
 from pydicom import config
 from pydicom import datadict
 from pydicom import values
@@ -38,6 +38,7 @@ dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
 output_directory = niffler['OutputDirectory']
 depth = niffler['Depth']
 processes = niffler['UseProcesses'] #how many processes to use.
+flattened_to_patient_level = niffler['FlattenedToPatientLevel']
 email = niffler['YourEmail']
 send_email = niffler['SendEmail']
 no_splits = niffler['SplitIntoChunks']
@@ -152,14 +153,24 @@ def extract_images(i):
     fail_path = ""
     try:
         im=ds.pixel_array #pull image from read dicom
-        ID=filedata.iloc[i].loc['PatientID'] #get patientID ex: BAC_00040
-        folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
-    
         imName=os.path.split(filedata.iloc[i].loc['file'])[1][:-4] #get file name ex: IM-0107-0022
-        #check for existence of patient folder, create if needed
-        if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time. 
-            os.mkdir(png_destination + folderName)              
-    
+
+        if flattened_to_patient_level:
+            ID=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
+            folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
+            #check for existence of patient folder. Create if it does not exist.
+            if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
+                os.mkdir(png_destination + folderName)
+        else:
+            ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
+            ID2=filedata.iloc[i].loc['StudyInstanceUID']  # Unique identifier for the Study.
+            ID3=filedata.iloc[i].loc['SeriesInstanceUID']  # Unique identifier of the Series.
+            folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
+                         hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + hashlib.sha224(ID3.encode('utf-8')).hexdigest()
+            #check for existence of the folder tree patient/study/series. Create if it does not exist.
+            if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
+                os.makedirs(png_destination + folderName)
+
         shape = ds.pixel_array.shape
 
         # Convert to float to avoid overflow or underflow losses.
@@ -213,7 +224,7 @@ def fix_mismatch_callback(raw_elem, **kwargs):
 
 def get_path(depth):
     directory = dicom_home + '/'
-    i = 0;
+    i = 0
     while i < depth:
         directory += "*/"
         i += 1
@@ -303,7 +314,7 @@ for i,chunk in enumerate(file_chunks):
     #%%export csv file of final dataframe
     export_csv = data.to_csv (csv_destination, index = None, header=True) 
     fields=data.keys()
-    count = 0; #potential painpoint 
+    count = 0 #potential painpoint
     #writting of log handled by main process
     if print_images:
         logging.info("Start processing Images")
