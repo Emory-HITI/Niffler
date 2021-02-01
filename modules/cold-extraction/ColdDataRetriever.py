@@ -39,9 +39,12 @@ with open(system_json, 'r') as f:
 
 # Get constants from system.json
 DCM4CHE_BIN = niffler['DCM4CHEBin']
+
+# The below 3 Aet can be a string entry (if system.json format is used) or arrays (if concurrent-system.json is used).
 SRC_AET = niffler['SrcAet']
 QUERY_AET = niffler['QueryAet']
 DEST_AET = niffler['DestAet']
+
 NIGHTLY_ONLY = niffler['NightlyOnly']
 START_HOUR = niffler['StartHour']
 END_HOUR = niffler['EndHour']
@@ -49,35 +52,52 @@ IS_EXTRACTION_NOT_RUNNING = True
 NIFFLER_ID = niffler['NifflerID']
 MAX_PROCESSES = niffler['MaxNifflerProcesses']
 
-SEPARATOR = ','
-
-accessions = []
-patients = []
-dates = []
-
-storescp_processes = 0
-niffler_processes = 0
-
-nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
-qbniffler_str = 'ColdDataRetriever'
-
 niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
 logging.basicConfig(filename=niffler_log,level=logging.INFO)
 logging.getLogger('schedule').setLevel(logging.WARNING)
 
+SEPARATOR = ','
+qbniffler_str = 'ColdDataRetriever'
+nifflerscp_str = []
+niffler_log = []
+id_array = []
+
+if isinstance(SRC_AET, list):
+    i = 0
+    NUMBER_OF_CONCURRENT_THREADS = len(SRC_AET)
+    for queryaet in QUERY_AET:
+        nifflerscp_str.append("storescp.*{0}".format(queryaet))
+        i = i + 1
+        id_array.append(i)
+else:
+    i = 0
+    NUMBER_OF_CONCURRENT_THREADS = 1
+    nifflerscp_str.append("storescp.*{0}".format(QUERY_AET))
+    id_array.append(i)
+
+accessions = [[], []]
+patients = [[], []]
+dates = [[], []]
+
+storescp_processes = 0
+niffler_processes = 0
+
+
 # Variables to track progress between iterations.
-extracted_ones = list()
+extracted_ones = []
+extracted_ones.append(list())
 
 # By default, assume that this is a fresh extraction.
 resume = False
 
 # All extracted files from the csv file are saved in a respective .pickle file.
 try:
-    with open(csv_file +'.pickle', 'rb') as f:
-        extracted_ones = pickle.load(f)
-        # Since we have successfully located a pickle file, it indicates that this is a resume.
-        resume = True
+    for id in id_array:
+        with open(csv_file + id +'.pickle', 'rb') as f:
+            extracted_ones.append(pickle.load(f))
+            # Since we have successfully located a pickle file, it indicates that this is a resume.
+            resume = True
 except:
     logging.info("No existing pickle file found. Therefore, initialized with empty value to track the progress to {0}.pickle.".format(csv_file))
 
@@ -86,20 +106,21 @@ t_start = time.time()
 
 # Check and kill the StoreScp processes.
 def check_kill_process():
-    for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
-        fields = line.split()
-        pid = fields[0]
-        logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Terminating the completed storescp process.".format(datetime.datetime.now(), storage_folder))
-        try:
-            os.kill(int(pid), signal.SIGKILL)
-        except PermissionError:
-            logging.warning("The previous user's StoreScp process has become an orphan. It is roaming around freely, like a zombie. Please kill it first")
-            logging.warning("From your terminal run the below commands.")
-            logging.warning("First find the pid of the storescp:- sudo ps -xa | grep storescp")
-            logging.warning("Then kill that above process with:- sudo kill -9 PID-FROM-THE-PREVIOUS-STEP")
-            logging.warning("Once killed, restart Niffler as before.")
-            logging.error("Your current Niffler process terminates now. You or someone with sudo privilege must kill the idling storescp process first...")
-            sys.exit(1)                
+    for niffler_pid in nifflerscp_str:
+        for line in os.popen("ps ax | grep -E " + niffler_pid + " | grep -v grep"):
+            fields = line.split()
+            pid = fields[0]
+            logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Terminating the completed storescp process.".format(datetime.datetime.now(), storage_folder))
+            try:
+                os.kill(int(pid), signal.SIGKILL)
+            except PermissionError:
+                logging.warning("The previous user's StoreScp process has become an orphan. It is roaming around freely, like a zombie. Please kill it first")
+                logging.warning("From your terminal run the below commands.")
+                logging.warning("First find the pid of the storescp:- sudo ps -xa | grep storescp")
+                logging.warning("Then kill that above process with:- sudo kill -9 PID-FROM-THE-PREVIOUS-STEP")
+                logging.warning("Once killed, restart Niffler as before.")
+                logging.error("Your current Niffler process terminates now. You or someone with sudo privilege must kill the idling storescp process first...")
+                sys.exit(1)
 
 
 # Initialize the storescp and Niffler AET.
@@ -108,8 +129,9 @@ def initialize():
     global storescp_processes
     for line in os.popen("ps ax | grep " + qbniffler_str + " | grep -v grep"):
         niffler_processes += 1
-    for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
-        storescp_processes += 1
+    for niffler_pid in nifflerscp_str:
+        for line in os.popen("ps ax | grep -E " + niffler_pid + " | grep -v grep"):
+            storescp_processes += 1
 
     logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes, storescp_processes))
 
@@ -117,13 +139,14 @@ def initialize():
         logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction attempt was not successful this time. Please wait until those complete and re-run your query.".format(datetime.datetime.now(), MAX_PROCESSES))
         sys.exit(0)
 
-    if storescp_processes >= niffler_processes:
+    if storescp_processes >= niffler_processes + (NUMBER_OF_CONCURRENT_THREADS - 1):
         logging.info('Killing the idling storescp processes')       
         check_kill_process()
 
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(datetime.datetime.now()))
 
-    subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
+    for queryaet in QUERY_AET:
+        subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, queryaet), shell=True)
 
 
 

@@ -1,0 +1,11 @@
+{
+	"DCM4CHEBin": "/opt/dcm4che-5.22.5/bin",
+	"SrcAet": ["SRC_AET1@SRCHOST1:104", "SRC_AET2@SRCHOST2:104"],
+	"QueryAet": ["RTNIFFLER:4242","QBNIFFLER:4243"],
+	"DestAet": ["RTNIFFLER",",QBNIFFLER"],
+	"NightlyOnly": true,
+	"StartHour": 19,
+	"EndHour": 7,
+	"NifflerID": 1,
+	"MaxNifflerProcesses": 1
+}
