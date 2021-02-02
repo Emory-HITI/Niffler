@@ -1,10 +1,10 @@
 import os
 import csv
 
-def split(filehandler, delimiter=',', row_limit=4276,
-          output_name_template='output_%s.csv', output_path='.', keep_headers=True):
+row_limit = 0
+
+def split(filehandler, delimiter=',', output_name_template='output_%s.csv', output_path='.', keep_headers=True):
     reader = csv.reader(filehandler, delimiter=delimiter)
-    
 
     current_piece = 1
     current_out_path = os.path.join(
@@ -30,4 +30,11 @@ def split(filehandler, delimiter=',', row_limit=4276,
         current_out_writer.writerow(row)
 
 
-split(open('origin.csv', 'r'));
+with open('origin.csv','r') as f:
+    reader = csv.reader(f,delimiter = ",")
+    data = list(reader)
+    row_limit = int(len(data) / 2)
+    print(row_limit)
+
+
+split(open('origin.csv', 'r'))
