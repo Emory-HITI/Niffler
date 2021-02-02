@@ -163,7 +163,10 @@ def extract_images(i):
                 os.mkdir(png_destination + folderName)
         elif flattened_to_level == 'study':
             ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
-            ID2=filedata.iloc[i].loc['StudyInstanceUID']  # Unique identifier for the Study.
+            try:
+                ID2=filedata.iloc[i].loc['StudyInstanceUID']  # Unique identifier for the Study.
+            except:
+                ID2='ALL-STUDIES'
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest()
             #check for existence of the folder tree patient/study/series. Create if it does not exist.
@@ -171,8 +174,12 @@ def extract_images(i):
                 os.makedirs(png_destination + folderName)
         else:
             ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
-            ID2=filedata.iloc[i].loc['StudyInstanceUID']  # Unique identifier for the Study.
-            ID3=filedata.iloc[i].loc['SeriesInstanceUID']  # Unique identifier of the Series.
+            try:
+                ID2=filedata.iloc[i].loc['StudyInstanceUID']  # Unique identifier for the Study.
+                ID3=filedata.iloc[i].loc['SeriesInstanceUID']  # Unique identifier of the Series.
+            except:
+                ID2='ALL-STUDIES'
+                ID2='ALL-SERIES'
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + hashlib.sha224(ID3.encode('utf-8')).hexdigest()
             #check for existence of the folder tree patient/study/series. Create if it does not exist.
