@@ -73,3 +73,16 @@ In the OutputDirectory, there will be several sub folders and directories.
 ## Running the Niffler PNG Extractor with Slurm
 
 There is also an experimental PNG extractor implementation (ImageExtractorSlurm.py) that provides a distributed execution based on Slurm on a cluster.
+
+
+## Troubleshooting
+
+If you encounter your images being ending in the failed-dicom/3 folder (the folder signifying base exception), check the
+ImageExtractor.out.
+
+Check whether you still have conda installed and configured correctly (by running "conda"), if you observe the below error log:
+
+"The following handlers are available to decode the pixel data however they are missing required dependencies: GDCM (req. GDCM)"
+
+The above error indicates a missing gdcm, which usually happens if either it is not configured (if you did not follow the
+installation steps correctly) or if conda (together with gdcm) was later broken (mostly due to a system upgrade or a manual removal of conda).
