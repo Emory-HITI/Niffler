@@ -2,8 +2,10 @@ import os
 import csv
 
 row_limit = 0
+file_name = 'origin.csv'
 
-def split(filehandler, delimiter=',', output_name_template='output_%s.csv', output_path='.', keep_headers=True):
+def split(delimiter=',', output_name_template='output_%s.csv', output_path='.', keep_headers=True):
+    filehandler = open(file_name, 'r')
     reader = csv.reader(filehandler, delimiter=delimiter)
 
     current_piece = 1
@@ -30,11 +32,9 @@ def split(filehandler, delimiter=',', output_name_template='output_%s.csv', outp
         current_out_writer.writerow(row)
 
 
-with open('origin.csv','r') as f:
+with open(file_name,'r') as f:
     reader = csv.reader(f,delimiter = ",")
     data = list(reader)
     row_limit = int(len(data) / 2)
-    print(row_limit)
 
-
-split(open('origin.csv', 'r'))
+split()
