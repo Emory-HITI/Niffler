@@ -207,15 +207,19 @@ def extract_images(i):
         filemapping = filedata.iloc[i].loc['file'] + ', ' + pngfile + '\n'
     except AttributeError as error:
         found_err = error
+        logging.error(found_err)
         fail_path = filedata.iloc[i].loc['file'], failed + '1/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
     except ValueError as error:
         found_err = error
+        logging.error(found_err)
         fail_path = filedata.iloc[i].loc['file'], failed + '2/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
     except BaseException as error: 
         found_err = error
+        logging.error(found_err)
         fail_path = filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
     except:
         found_err = error
+        logging.error(found_err)
         fail_path = filedata.iloc[i].loc['file'], failed + '4/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'       
     return (filemapping,fail_path,found_err)
 
