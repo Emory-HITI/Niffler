@@ -217,7 +217,7 @@ def extract_images(i):
         found_err = error
         logging.error(found_err)
         fail_path = filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
-    except:
+    except Exception as error:
         found_err = error
         logging.error(found_err)
         fail_path = filedata.iloc[i].loc['file'], failed + '4/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'       
