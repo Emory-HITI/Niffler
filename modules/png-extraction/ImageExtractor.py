@@ -179,7 +179,7 @@ def extract_images(i):
                 ID3=filedata.iloc[i].loc['SeriesInstanceUID']  # Unique identifier of the Series.
             except:
                 ID2='ALL-STUDIES'
-                ID2='ALL-SERIES'
+                ID3='ALL-SERIES'
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + hashlib.sha224(ID3.encode('utf-8')).hexdigest()
             #check for existence of the folder tree patient/study/series. Create if it does not exist.
@@ -197,7 +197,7 @@ def extract_images(i):
         # Convert to uint
         image_2d_scaled = np.uint8(image_2d_scaled)
 
-        pngfile = png_destination+folderName+'/' + imName + '.png'
+        pngfile = png_destination+folderName+'/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
 
         # Write the PNG file
         with open(pngfile , 'wb') as png_file:
