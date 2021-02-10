@@ -87,28 +87,31 @@ for file in txt_files:
 
 # Function for getting tuple for field, val pairs for this file
 # plan is instance of dicom class, the data for single mammo file
-def get_tuples(plan, outlist = None, key = ""):
+def get_tuples(plan, features, outlist = None, key = ""):
     if len(key)>0:
         key =  key + "_"
     if not outlist:
         outlist = []
-    for aa  in plan.dir():
-        if (hasattr(plan, aa) and aa!='PixelData'):
-            value = getattr(plan, aa)
-            if type(value) is pydicom.sequence.Sequence:
-                for nn, ss in enumerate(list(value)):
-                    newkey = "_".join([key,("%d"%nn),aa]) if len(key) else "_".join([("%d"%nn),aa])
-                    outlist.extend(get_tuples(ss, outlist = None, key = newkey))
-            else:
-                if type(value) is pydicom.valuerep.DSfloat:
-                    value = float(value)
-                elif type(value) is pydicom.valuerep.IS:
-                    value = str(value)
-                elif type(value) is pydicom.valuerep.MultiValue:
-                    value = tuple(value)
-                elif type(value) is pydicom.uid.UID:
-                    value = str(value)
-                outlist.append((key + aa, value)) #appends name, value pair for this file. these are later concatenated to the dataframe
+    for aa in features:
+        if (aa!='PixelData'):
+            try:
+                value1 = plan[aa].value
+                if type(value1) is pydicom.sequence.Sequence:
+                    for nn, ss in enumerate(list(value1)):
+                        newkey = "_".join([key,("%d"%nn),aa]) if len(key) else "_".join([("%d"%nn),aa])
+                        outlist.extend(get_tuples(ss, outlist = None, key = newkey))
+                else:
+                    if type(value1) is pydicom.valuerep.DSfloat:
+                        value1 = float(value1)
+                    elif type(value1) is pydicom.valuerep.IS:
+                        value1 = str(value1)
+                    elif type(value1) is pydicom.valuerep.MultiValue:
+                        value1 = tuple(value1)
+                    elif type(value1) is pydicom.uid.UID:
+                        value1 = str(value1)
+                    outlist.append((key + aa, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
+            except KeyError:
+                logging.debug("Key error encountered for %s", aa)
     return outlist
 
 
@@ -182,11 +185,11 @@ def extract_metadata():
 
             # get and store series-level information
             try:
-                first_instance = series_path.decode("utf-8") + "/" +  os.listdir(series_path.decode("utf-8"))[0]
+                first_instance = series_path.decode("utf-8") + "/" + os.listdir(series_path.decode("utf-8"))[0]
                 ds = pydicom.dcmread(first_instance, force=True)
-                kv = get_tuples(ds)       #gets tuple for field,val pairs for this file. function defined above
 
                 for index, features in enumerate(features_lists):
+                    kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
                     doc = get_dict_fields(dict(kv), features)
                     # insert to a Mongo DB collection
                     doc = {k: 'NaN' if not v else v for k, v in doc.items()}
