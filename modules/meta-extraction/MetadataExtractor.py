@@ -28,7 +28,7 @@ import pandas as pd
 import json
 
 
-with open('system.json', 'r') as f:
+with open('service/system.json', 'r') as f:
     niffler = json.load(f)
 
 # Get constants from system.json
@@ -206,7 +206,8 @@ def extract_metadata():
                 logging.debug('The file %s is not found', series_path.decode("utf-8"))
             except IndexError:
                 logging.debug('Index error while attempting to access the Series %s', series_path.decode("utf-8"))
-            except:
+            except Exception as e:
+                logging.warn(e)
                 logging.warn('The script could not extract the series %s', series_path.decode("utf-8"))
         logging.info('Metadata Extraction Completed at: %s', str(datetime.datetime.now()))
 
@@ -282,7 +283,7 @@ def run_dcm4che():
         os.chdir(DCM4CHE_BIN)
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > nohup.out &".format(DCM4CHE_BIN, STORAGE_FOLDER, FILE_PATH, QUERY_AET), shell=True)
 
-        logging.info('Stopped DCM4CHE successfully..')
+        logging.info('Started DCM4CHE successfully..')
 
 def run_threaded(job_func):
     job_thread = threading.Thread(target=job_func)

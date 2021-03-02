@@ -6,10 +6,10 @@ After=network.target
 [Service]
 Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
 Type=simple
-ExecStart=/opt/localdrive/researchpacs/src/meta-extraction/service/mdextractor.sh
+ExecStart=/opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
 TimeoutStartSec=360
-StandardOutput=/opt/localdrive/researchpacs/service.log
-StandardError=/opt/localdrive/researchpacs/service-error.log
+StandardOutput=/opt/localdrive/Niffler/modules/meta-extraction/service.log
+StandardError=/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
 
 [Install]
 WantedBy=default.target
