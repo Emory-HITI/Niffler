@@ -15,7 +15,6 @@ Manufacturer
 ManufacturerModelName
 Modality
 ScanOptions
-SmartScanOnOffFlag
 StartScanToXrayOnDelay
 StationName
 StudyDescription
