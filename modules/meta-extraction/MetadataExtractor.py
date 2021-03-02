@@ -206,7 +206,8 @@ def extract_metadata():
                 logging.debug('The file %s is not found', series_path.decode("utf-8"))
             except IndexError:
                 logging.debug('Index error while attempting to access the Series %s', series_path.decode("utf-8"))
-            except:
+            except Exception as e:
+                logging.warn(e)
                 logging.warn('The script could not extract the series %s', series_path.decode("utf-8"))
         logging.info('Metadata Extraction Completed at: %s', str(datetime.datetime.now()))
 
