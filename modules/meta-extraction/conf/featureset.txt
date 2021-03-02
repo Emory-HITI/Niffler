@@ -13,7 +13,6 @@ ExposureTime
 ImageType
 Manufacturer
 ManufacturerModelName
-MidScanFlag
 MidScanTime
 Modality
 ScanFOVType
