@@ -8,7 +8,6 @@ SeriesTime
 SOPInstanceUID
 AcquisitionDate
 AcquisitionTime
-DurationOfXrayOn
 Exposure
 ExposureTime
 ImageType
