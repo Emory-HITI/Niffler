@@ -282,7 +282,7 @@ def run_dcm4che():
         os.chdir(DCM4CHE_BIN)
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > nohup.out &".format(DCM4CHE_BIN, STORAGE_FOLDER, FILE_PATH, QUERY_AET), shell=True)
 
-        logging.info('Stopped DCM4CHE successfully..')
+        logging.info('Started DCM4CHE successfully..')
 
 def run_threaded(job_func):
     job_thread = threading.Thread(target=job_func)
