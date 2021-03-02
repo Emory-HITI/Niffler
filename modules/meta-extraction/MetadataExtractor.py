@@ -28,7 +28,7 @@ import pandas as pd
 import json
 
 
-with open('system.json', 'r') as f:
+with open('service/system.json', 'r') as f:
     niffler = json.load(f)
 
 # Get constants from system.json
