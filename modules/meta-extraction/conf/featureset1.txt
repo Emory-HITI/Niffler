@@ -45,3 +45,6 @@ Manufacturer
 ManufacturerModelName
 0x0051100F
 0x0051100C
+0x00090010
+0x0019100B
+0x0019105A
