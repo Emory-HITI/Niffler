@@ -35,6 +35,10 @@ The services folder consists of mdextractor.sh, system.json, and mdextractor.ser
 
 mdextractor.sh produces the output in services/niffler-rt.out.
 
+Make sure to provide the correct full path of your meta-extraction folder in the 2nd line of mdextractor.sh, replacing the below:
+
+cd /opt/localdrive/Niffler/modules/meta-extraction/
+
 
 Offer execution permission to the mdextractor.sh script.
 
