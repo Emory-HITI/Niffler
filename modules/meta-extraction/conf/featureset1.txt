@@ -15,7 +15,6 @@ SeriesNumber
 SeriesDescription
 ImageType
 SequenceName
-PulseSeqName
 MRAcquisitionType
 ScanOptions
 ReceiveCoilName
