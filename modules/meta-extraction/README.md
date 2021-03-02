@@ -5,7 +5,7 @@ The Real-time DICOM Extractor runs continuously to receive DICOM files, extract 
 
 # Configuring Niffler Real-time DICOM Extractor
 
-Niffler real-time extraction must be configured as a service for it to run continuously, and resume even when the server restarts.
+Niffler real-time extraction must be configured as a service for it to run continuously and resume automatically even when the server restarts. Unless you are the administrator who is configuring Niffler for the first time, skip this section.
 
 
 ## Configure DICOM attributes to extract
