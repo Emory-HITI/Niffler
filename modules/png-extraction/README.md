@@ -13,7 +13,9 @@ GDCM is necessary to read the DICOM images that are jpeg lossless compressed by 
 
 * $ pip install pydicom image numpy pandas pypng
 
-* $ conda install -c conda-forge -y gdcm
+* $ conda install -c conda-forge -y gdcm 
+
+* instal dcmtk  https://support.dcmtk.org/docs/file_install.html  
 
 ## Configuring Niffler PNG Extractor
 
@@ -31,6 +33,8 @@ Find the config.json file in the folder and modify accordingly *for each* Niffle
 
 * *FlattenedToLevel*: Specify how you want your folder tree to be. Default is, "patient" (produces patient/*.png). 
   You may change this value to "study" (patient/study/*.png) or "series" (patient/study/series/*.png). All IDs are de-identified.
+ 
+* * is16Bit*:  Specifies whether to save extracted image as 16-bit  image. By default set to false in order to run 8-bit extraction. if running extraction make sure to have  dcmtk installed . 
   
 * *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
 
