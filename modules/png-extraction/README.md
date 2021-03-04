@@ -15,7 +15,7 @@ GDCM is necessary to read the DICOM images that are jpeg lossless compressed by 
 
 * $ conda install -c conda-forge -y gdcm 
 
-* instal dcmtk  https://support.dcmtk.org/docs/file_install.html  
+* install dcmtk  https://support.dcmtk.org/docs/file_install.html  
 
 ## Configuring Niffler PNG Extractor
 
