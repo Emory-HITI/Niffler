@@ -4,6 +4,8 @@
 This code creates a dataframe of dicom headers based on dicom files in a filepath.
 This code also extracts the images within those dicoms if requested. see section 'print images'
 pip3 install image numpy pandas pydicom pillow pypng
+Make sure to have empty extracted-images, failed-dicom/1, failed-dicom/2, failed-dicom/3 folders
+ready in the root folder.
 """
 import numpy as np
 import pandas as pd
@@ -191,10 +193,16 @@ def extract_images(i):
         dicom_path = filedata.iloc[i].loc['file']
         image_path = png_destination+folderName+'/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
         if is16Bit: 
-            # write the PNG file as a 16-bit greyscale
-            # change the input to use different transformations - http://support.dcmtk.org/docs/dcmj2pnm.html
-            # Popen(['dcmj2pnm', '+on2', dicom_path, image_path]).wait()
-            Popen(['dcmj2pnm', '+on2', '--min-max-window', dicom_path, image_path]).wait()
+            # write the PNG file as a 16-bit greyscale 
+            image_2d = ds.pixel_array.astype(np.double) 
+            # # Rescaling grey scale between 0-255
+            image_2d_scaled =  (np.maximum(image_2d,0) / image_2d.max()) * 65535.0  
+            # # Convert to uint
+            shape = ds.pixel_array.shape
+            image_2d_scaled = np.uint16(image_2d_scaled) 
+            with open(pngfile , 'wb') as png_file:
+                    w = png.Writer(shape[1], shape[0], greyscale=True,bitdepth=16)
+                    w.write(png_file, image_2d_scaled)
         else: 
             shape = ds.pixel_array.shape
             # # Convert to float to avoid overflow or underflow losses.
@@ -207,8 +215,8 @@ def extract_images(i):
             image_2d_scaled = np.uint8(image_2d_scaled)
         # # Write the PNG file
             with open(pngfile , 'wb') as png_file:
-                 w = png.Writer(shape[1], shape[0], greyscale=True)
-                 w.write(png_file, image_2d_scaled)
+                    w = png.Writer(shape[1], shape[0], greyscale=True)
+                    w.write(png_file, image_2d_scaled)
         filemapping = filedata.iloc[i].loc['file'] + ', ' + pngfile + '\n'
     except AttributeError as error:
         found_err = error
@@ -346,7 +354,7 @@ for i,chunk in enumerate(file_chunks):
         filedata=data
         total = len(chunk)
         stamp = time.time()
-        p = Pool(os.cpu_count())
+        p = Pool(os.cpu_count()) 
         res = p.imap_unordered(extract_images,range(len(filedata)))
         for out in res:
             (fmap,fail_path,err) = out
