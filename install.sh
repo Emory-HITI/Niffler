@@ -1,9 +1,16 @@
 #!/bin/sh
 echo "Configuring Niffler"
-echo "Installing pip"
-sudo yum install python3-pip
+
+PIP=`head -n 1 config/pip.out`
+if [ "$PIP" = false ] ; then
+    echo "Installing pip"
+    sudo yum install python3-pip
+    echo "true" > config/pip.out
+fi
+
 alias python=python3
 alias pip=pip3
+
 MONGO=`head -n 1 config/mongo.out`
 if [ "$MONGO" = false ] ; then
     echo "Installing mongo"
