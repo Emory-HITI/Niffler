@@ -5,7 +5,18 @@ PIP=`head -n 1 init/pip.out`
 if [ "$PIP" = false ] ; then
     echo "Installing pip"
     sudo yum install python3-pip
+    sudo pip3 install -r requirements.txt
     echo "true" > init/pip.out
+fi
+
+DCM4CHE=`head -n 1 init/dcm4che.out`
+if [ "$DCM4CHE" = false ] ; then
+    echo "Installing DCM4CHE"
+    cd ..
+    wget https://sourceforge.net/projects/dcm4che/files/dcm4che3/5.22.5/dcm4che-5.22.5-bin.zip/download -O dcm4che-5.22.5-bin.zip
+    unzip dcm4che-5.22.5-bin.zip
+    cd Niffler
+    echo "true" > init/dcm4che.out
 fi
 
 MONGO=`head -n 1 init/mongo.out`
@@ -18,4 +29,3 @@ if [ "$MONGO" = false ] ; then
     echo "true" > init/mongo.out
 fi
 
-sudo pip3 install -r requirements.txt
