@@ -34,11 +34,7 @@ Make sure to configure the PACS to send data to Niffler's host, port, and AE_Tit
 
 ## Install Dependencies
 
-To use Niffler, first, install the dependencies.
-
-$ pip install -r requirements.txt
-
-Also install DCM4CHE from https://github.com/dcm4che/dcm4che/releases
+To use Niffler, first, install DCM4CHE from https://github.com/dcm4che/dcm4che/releases
 
 For example,
 
@@ -54,11 +50,13 @@ You should first configure the operating system's [mail](https://www.javatpoint.
 
 ## Deploy Niffler
 
-Then checkout Niffler source code.
+To deploy Niffler, checkout Niffler source code and run the installation script.
 
 $ git clone https://github.com/Emory-HITI/Niffler.git
 
 $ cd Niffler
+
+$ sh install.sh
 
 The master branch is stable whereas the dev branch has the bleeding edge.
 
