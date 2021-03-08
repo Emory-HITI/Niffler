@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-This code creates a dataframe of dicom headers based on dicom files in a filepath.
-This code also extracts the images within those dicoms if requested. see section 'print images'
-pip3 install image numpy pandas pydicom pillow pypng
-"""
 import numpy as np
 import pandas as pd
-import pydicom as dicom #pydicom is most recent form of dicom python interface. see https://pydicom.github.io/
+import pydicom as dicom 
 import png, os, glob
 import PIL as pil
 from pprint import pprint
