@@ -1,11 +1,14 @@
 #!/bin/sh
 echo "Configuring Niffler"
-
+sudo chmod -R 777 .
+touch /opt/localdrive/Niffler/modules/meta-extraction/service/service.log
+touch /opt/localdrive/Niffler/modules/meta-extraction/service/service-error.log
+sudo yum install -y python3
 PIP=`head -n 1 init/pip.out`
 if [ "$PIP" = false ] ; then
     echo "Installing pip"
     sudo yum install python3-pip
-    sudo pip3 install -r requirements.txt
+    pip install -r requirements.txt
     wget https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
     sh Anaconda3-2020.11-Linux-x86_64.sh -u
     source ~/.bashrc
@@ -13,16 +16,21 @@ if [ "$PIP" = false ] ; then
     echo "true" > init/pip.out
 fi
 
-
+mongo init/mongoinit.js
 MISC=`head -n 1 init/misc.out`
 if [ "$MISC" = false ] ; then
     echo "Installing gdcm and mail"
     conda install -c conda-forge -y gdcm
     sudo yum install mailx -y
+    sudo yum install sendmail sendmail-cf
     chmod +x modules/meta-extraction/service/mdextractor.sh
     echo "true" > init/misc.out
 fi
 
+sudo cp modules/meta-extraction/service/mdextractor.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl start mdextractor.service
+sudo systemctl enable mdextractor.service
 
 DCM4CHE=`head -n 1 init/dcm4che.out`
 if [ "$DCM4CHE" = false ] ; then
