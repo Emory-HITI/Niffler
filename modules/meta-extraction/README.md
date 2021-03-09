@@ -39,21 +39,17 @@ If you prefer the additional attributes in a separate collection in the Mongo Me
 $ sudo systemctl status mdextractor.service
 
 ● mdextractor.service - mdextractor service
-
    Loaded: loaded (/etc/systemd/system/mdextractor.service; enabled; vendor preset: disabled)
-   
-   Active: active (running) since Thu 2019-08-15 14:20:40 EDT; 13s ago
-   
- Main PID: 28934 (mdextractor.sh)
- 
+   Active: active (running) since Tue 2021-03-02 00:31:38 EST; 1 weeks 0 days ago
+ Main PID: 14351 (mdextractor.sh)
+    Tasks: 23
+   Memory: 9.2G
    CGroup: /system.slice/mdextractor.service
-   
-           ├─28934 /bin/bash /home/pkathi2/researchpacs/mdextractor.sh           
-           ├─28936 /bin/bash /home/pkathi2/researchpacs/mdextractor.sh    
-           └─28940 sleep 1800
+           ├─14351 /bin/bash /opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
+           ├─14352 python3.6 -u MetadataExtractor.py
+           └─14391 java -cp /opt/localdrive/dcm4che-5.22.5/etc/storescp/:/opt/localdrive/dcm4che-5.22.5/etc/certs/:/opt/l...
 
 Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Started mdextractor service.
-
 Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Starting mdextractor service...
 ```
 
