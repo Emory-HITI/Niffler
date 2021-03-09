@@ -115,8 +115,14 @@ $ sudo systemctl reboot
 
 $ sudo journalctl -u mdextractor.service -n 100
 
+Defining the below aliases in ~/.bashrc will help.
+```
+alias md='sudo journalctl -u mdextractor.service -f'
 
+export MONGO_URI="researchpacsroot:##ricaer$&p5*X"
 
+alias mm='mongo -u researchpacsroot --authenticationDatabase admin -p'
+```
 ## Troubleshooting 
 
 Check and make sure Mongo Service is running. If not, start it.
