@@ -5,16 +5,20 @@ Niffler is an efficient DICOM Framework for machine learning pipelines and proce
 Niffler enables receiving DICOM images real-time as a data stream from PACS as well as specific DICOM data based on a series of DICOM C-MOV queries. The Niffler real-time DICOM receiver extracts the metadata free of PHI as the images arrive, store the metadata in a Mongo database, and deletes the images nightly. The on-demand extractor reads a CSV file provided by the user (consisting of EMPIs, AccessionNumbers, or other properties), and performs a series of DICOM C-MOVE requests to receive them from the PACS, without manually querying them. Niffler also provides additional features such as converting DICOM images into PNG images, and perform additional computations such as computing scanner utilization and finding scanners with misconfigured clocks.
 
 
-# Configuring Niffler
+# Configure Niffler
 
 Niffler consists of 4 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. 
 
 ## Configure PACS
 
-Make sure to configure the PACS to send data to Niffler's host, port, and AE_Title. Niffler won't receive data unless the PACS allows the requests from Niffler (host/port/AE_Title).
+Both meta-extraction and cold-extraction modules require proper configuration of a PACS environment to allow data transfer and query retrieval to Niffler, respectively.
+
+* Make sure to configure the PACS to send data to Niffler meta-extraction module's host, port, and AE_Title. 
+
+* Niffler cold-extraction won't receive data unless the PACS allows the requests from Niffler cold-extraction (host/port/AE_Title).
 
 
-## Configure mdextractor service
+## Configure Niffler mdextractor service
 
 The modules/meta-extraction/services folder consists of mdextractor.sh, system.json, and mdextractor.service.
 
