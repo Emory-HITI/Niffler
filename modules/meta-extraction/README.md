@@ -29,40 +29,6 @@ If you desire more DICOM attributes to an existing collection, add the attribute
 If you prefer the additional attributes in a separate collection in the Mongo Metadata Store, create a new txt file with the preferred attributes in the conf folder.
 
 
-## Configure mdextractor service
-
-The services folder consists of mdextractor.sh, system.json, and mdextractor.service.
-
-mdextractor.sh produces the output in services/niffler-rt.out.
-
-Make sure to provide the correct full path of your meta-extraction folder in the 2nd line of mdextractor.sh, replacing the below:
-
-```
-cd /opt/localdrive/Niffler/modules/meta-extraction/
-```
-
-Offer execution permission to the mdextractor.sh script.
-
-$ chmod +x mdextractor.sh
-
-
-Check permissions.
-
-$ ls -lrt mdextractor.sh
-
--rwxrwxr-x. 1 pkathi2 pkathi2 332 Aug 15 14:10 mdextractor.sh
-
-Provide the appropriate values for mdextractor.service.
-
-```
-[Service]
-Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
-Type=simple
-ExecStart=/opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
-TimeoutStartSec=360
-StandardOutput=/opt/localdrive/Niffler/modules/meta-extraction/service.log
-StandardError=/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
-```
 
 ### Move to systemd
 
