@@ -59,21 +59,21 @@ Make sure to configure the PACS to send data to Niffler's host, port, and AE_Tit
 ## Install Niffler
 
 To deploy Niffler, checkout Niffler source code and run the installation script.
-
+```
 $ git clone https://github.com/Emory-HITI/Niffler.git
 
 $ cd Niffler
-
+```
 The master branch is stable whereas the dev branch has the bleeding edge.
 
 You might want to use the dev branch for the latest updates. For more stable version, skip the below step:
-
+```
 $ git checkout dev
-
+```
 Finally, run the installation script.
-
+```
 $ sh install.sh
-
+```
 
 Please refer to each module's individual README for additional instructions on deploying and using Niffler for each of its components.
 
