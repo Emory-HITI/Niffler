@@ -2,19 +2,6 @@
 
 The PNG Extractor converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
 
-## Install Dependencies
-
-Make sure to follow the steps presented in the Niffler/README.md to initialize the environment with the common dependencies.
-
-Unless you are the administrator who is configuring the PNG Extractor for the first time, skip this section and proceed to the section "Configuring Niffler PNG Extractor".
-
-GDCM is necessary to read the DICOM images that are jpeg lossless compressed by the PACS.
-
-* Install [Anaconda](https://www.anaconda.com/distribution/#download-section) for Python 3.7
- 
-* Close and open your terminal.
-
-* $ conda install -c conda-forge -y gdcm 
 
 ## Configuring Niffler PNG Extractor
 
@@ -89,3 +76,11 @@ Check whether you still have conda installed and configured correctly (by runnin
 
 The above error indicates a missing gdcm, which usually happens if either it is not configured (if you did not follow the
 installation steps correctly) or if conda (together with gdcm) was later broken (mostly due to a system upgrade or a manual removal of conda).
+
+Check whether conda is available, by running "conda" in terminal. If it is missing, install [Anaconda](https://www.anaconda.com/distribution/#download-section).
+ 
+* Close and open your terminal, and then install gdcm.
+
+```
+$ conda install -c conda-forge -y gdcm 
+```
