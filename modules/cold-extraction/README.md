@@ -167,11 +167,11 @@ $ ps -xa | grep python
 
 1866 ?    Ss   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
 
-  1936 ?    Ssl  0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+1936 ?    Ssl  0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
 
-  2926 pts/0  T   0:00 python3 ColdDataRetriever.py
+2926 pts/0  T   0:00 python3 ColdDataRetriever.py
 
-  3384 pts/0  S+   0:00 grep --color=auto python
+3384 pts/0  S+   0:00 grep --color=auto python
 
 $ kill 2926
 ```
