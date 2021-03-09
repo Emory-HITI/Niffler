@@ -7,7 +7,7 @@ Niffler enables receiving DICOM images real-time as a data stream from PACS as w
 
 # Configure Niffler
 
-Niffler consists of 4 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. 
+Niffler consists of 4 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
 
 ## Configure PACS
 
