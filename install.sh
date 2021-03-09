@@ -13,8 +13,16 @@ if [ "$PIP" = false ] ; then
     echo "true" > init/pip.out
 fi
 
-conda install -c conda-forge -y gdcm
-sudo yum install mailx -y
+
+MISC=`head -n 1 init/misc.out`
+if [ "$MISC" = false ] ; then
+    echo "Installing gdcm and mail"
+    conda install -c conda-forge -y gdcm
+    sudo yum install mailx -y
+    chmod +x modules/meta-extraction/service/mdextractor.sh
+    echo "true" > init/misc.out
+fi
+
 
 DCM4CHE=`head -n 1 init/dcm4che.out`
 if [ "$DCM4CHE" = false ] ; then
