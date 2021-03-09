@@ -28,27 +28,46 @@ The app-layer (application layer) consists of specific algorithms. The app-layer
 
 # Configuring Niffler
 
+## Configure mdextractor service
+
+The modules/meta-extraction/services folder consists of mdextractor.sh, system.json, and mdextractor.service.
+
+mdextractor.sh produces the output in services/niffler-rt.out.
+
+Make sure to provide the correct full path of your meta-extraction folder in the 2nd line of mdextractor.sh, replacing the below:
+
+```
+cd /opt/localdrive/Niffler/modules/meta-extraction/
+```
+
+Offer execution permission to the mdextractor.sh script.
+
+$ chmod +x mdextractor.sh
+
+
+Check permissions.
+
+$ ls -lrt mdextractor.sh
+
+-rwxrwxr-x. 1 pkathi2 pkathi2 332 Aug 15 14:10 mdextractor.sh
+
+Provide the appropriate values for mdextractor.service.
+
+```
+[Service]
+Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
+Type=simple
+ExecStart=/opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
+TimeoutStartSec=360
+StandardOutput=/opt/localdrive/Niffler/modules/meta-extraction/service.log
+StandardError=/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
+```
+
 ## Configure PACS
 
 Make sure to configure the PACS to send data to Niffler's host, port, and AE_Title. Niffler won't receive data unless the PACS allows the requests from Niffler (host/port/AE_Title).
 
-## Install Dependencies
-
-To use Niffler, first, install DCM4CHE from https://github.com/dcm4che/dcm4che/releases
-
-For example,
-
-$ wget https://sourceforge.net/projects/dcm4che/files/dcm4che3/5.22.5/dcm4che-5.22.5-bin.zip/download -O dcm4che-5.22.5-bin.zip
-
-$ sudo apt install unzip
-
-$ unzip dcm4che-5.22.5-bin.zip
-
-Make sure Java is available, as DCM4CHE and Niffler Application Layer require Java to run.
-
-You should first configure the operating system's [mail](https://www.javatpoint.com/linux-mail-command) client for the user that runs Niffler modules, if you have enabled mail sender for any of the modules through their respective config.json. This is a one-time configuration that is not specific to Niffler.
-
-## Deploy Niffler
+## Install Niffler
 
 To deploy Niffler, checkout Niffler source code and run the installation script.
 
@@ -56,13 +75,16 @@ $ git clone https://github.com/Emory-HITI/Niffler.git
 
 $ cd Niffler
 
-$ sh install.sh
-
 The master branch is stable whereas the dev branch has the bleeding edge.
 
-The Java components of Niffler Application Layer are managed via Apache Maven 3.
+You might want to use the dev branch for the latest updates. For more stable version, skip the below step:
 
-$ mvn clean install
+$ git checkout dev
+
+Finally, run the installation script.
+
+$ sh install.sh
+
 
 Please refer to each module's individual README for additional instructions on deploying and using Niffler for each of its components.
 
