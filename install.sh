@@ -23,6 +23,11 @@ if [ "$MISC" = false ] ; then
     sudo yum install mailx -y
     sudo yum install sendmail sendmail-cf
     chmod +x modules/meta-extraction/service/mdextractor.sh
+    echo "Disable THP"
+    sudo cp init/disable-thp.service /etc/systemd/system/disable-thp.service
+    sudo systemctl daemon-reload
+    sudo systemctl start disable-thp
+    sudo systemctl enable disable-thp
     echo "true" > init/misc.out
 fi
 
