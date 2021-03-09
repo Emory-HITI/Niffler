@@ -79,7 +79,7 @@ installation steps correctly) or if conda (together with gdcm) was later broken 
 
 Check whether conda is available, by running "conda" in terminal. If it is missing, install [Anaconda](https://www.anaconda.com/distribution/#download-section).
  
-* Close and open your terminal, and then install gdcm.
+If you just installed conda, make sure to close and open your terminal. Then, install gdcm.
 
 ```
 $ conda install -c conda-forge -y gdcm 
