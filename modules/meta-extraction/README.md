@@ -37,7 +37,7 @@ If you prefer the additional attributes in a separate collection in the Mongo Me
 
 ```
 $ sudo systemctl status mdextractor.service
-```
+
 ● mdextractor.service - mdextractor service
 
    Loaded: loaded (/etc/systemd/system/mdextractor.service; enabled; vendor preset: disabled)
@@ -55,7 +55,7 @@ $ sudo systemctl status mdextractor.service
 Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Started mdextractor service.
 
 Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Starting mdextractor service...
-
+```
 
 ## Restart to confirm everything works as expected:
 
