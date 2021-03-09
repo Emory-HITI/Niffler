@@ -37,13 +37,14 @@ The below two fields can be left unmodified for most executions. The default val
 
 
 ## Running the Niffler PNG Extractor
-
+```
 $ nohup python3 ImageExtractor.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
-
+```
 Check that the extraction is going smooth with no errors, by,
 
+```
 $ tail -f UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out
-
+```
 
 ## The output files and folders
 
