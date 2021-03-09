@@ -14,6 +14,7 @@ if [ "$PIP" = false ] ; then
 fi
 
 conda install -c conda-forge -y gdcm
+sudo yum install mailx -y
 
 DCM4CHE=`head -n 1 init/dcm4che.out`
 if [ "$DCM4CHE" = false ] ; then
