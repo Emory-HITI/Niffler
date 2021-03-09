@@ -1,11 +1,10 @@
 #!/bin/sh
 echo "Configuring Niffler"
 sudo chmod -R 777 .
-touch /opt/localdrive/Niffler/modules/meta-extraction/service/service.log
-touch /opt/localdrive/Niffler/modules/meta-extraction/service/service-error.log
-sudo yum install -y python3
+
 PIP=`head -n 1 init/pip.out`
 if [ "$PIP" = false ] ; then
+    sudo yum install -y python3
     echo "Installing pip"
     sudo yum install python3-pip
     pip install -r requirements.txt
@@ -31,11 +30,6 @@ if [ "$MISC" = false ] ; then
     echo "true" > init/misc.out
 fi
 
-sudo cp modules/meta-extraction/service/mdextractor.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl start mdextractor.service
-sudo systemctl enable mdextractor.service
-
 DCM4CHE=`head -n 1 init/dcm4che.out`
 if [ "$DCM4CHE" = false ] ; then
     echo "Installing JDK"
@@ -59,6 +53,10 @@ if [ "$MONGO" = false ] ; then
     sudo systemctl start mongod
     sudo systemctl enable mongod
     mongo init/mongoinit.js
+    sudo cp modules/meta-extraction/service/mdextractor.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl start mdextractor.service
+    sudo systemctl enable mdextractor.service
     echo "true" > init/mongo.out
 fi
 
