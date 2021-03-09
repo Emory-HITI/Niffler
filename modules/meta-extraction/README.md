@@ -30,22 +30,6 @@ If you prefer the additional attributes in a separate collection in the Mongo Me
 
 
 
-### Move to systemd
-
-$ sudo cp mdextractor.service /etc/systemd/system/
-
-
-### Reload the systemctl daemon.
-
-$ sudo systemctl daemon-reload
-
-### Start and enable the new mdextractor service.
-
-$ sudo systemctl start mdextractor.service
-
-$ sudo systemctl enable mdextractor.service
-
-
 # Monitoring Niffler Real-time DICOM Extractor
 
 
