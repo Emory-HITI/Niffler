@@ -16,7 +16,6 @@ if [ "$PIP" = false ] ; then
     echo "true" > init/pip.out
 fi
 
-mongo init/mongoinit.js
 MISC=`head -n 1 init/misc.out`
 if [ "$MISC" = false ] ; then
     echo "Installing gdcm and mail"
@@ -54,6 +53,7 @@ if [ "$MONGO" = false ] ; then
     sudo yum install mongodb-org
     sudo systemctl start mongod
     sudo systemctl enable mongod
+    mongo init/mongoinit.js
     echo "true" > init/mongo.out
 fi
 
