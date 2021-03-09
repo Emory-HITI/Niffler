@@ -85,8 +85,6 @@ Defining the below aliases in ~/.bashrc will help.
 ```
 alias md='sudo journalctl -u mdextractor.service -f'
 
-export MONGO_URI="researchpacsroot:##ricaer$&p5*X"
-
 alias mm='mongo -u researchpacsroot --authenticationDatabase admin -p'
 ```
 ## Troubleshooting 
