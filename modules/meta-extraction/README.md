@@ -35,8 +35,9 @@ If you prefer the additional attributes in a separate collection in the Mongo Me
 
 ## Check the status of the mdextractor service.
 
+```
 $ sudo systemctl status mdextractor.service
-
+```
 ● mdextractor.service - mdextractor service
 
    Loaded: loaded (/etc/systemd/system/mdextractor.service; enabled; vendor preset: disabled)
@@ -58,14 +59,15 @@ Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Starting mdextractor serv
 
 ## Restart to confirm everything works as expected:
 
+```
 $ sudo systemctl reboot
-
+```
 
 ## View the service logs:
-
+```
 $ sudo journalctl -u mdextractor.service -n 100
-
-Defining the below aliases in ~/.bashrc will help.
+```
+Defining the below aliases in ~/.bashrc will help with quickly executing and configuring Niffler.
 ```
 alias md='sudo journalctl -u mdextractor.service -f'
 
