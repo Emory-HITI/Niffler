@@ -40,17 +40,6 @@ Make sure to provide the correct full path of your meta-extraction folder in the
 cd /opt/localdrive/Niffler/modules/meta-extraction/
 ```
 
-Offer execution permission to the mdextractor.sh script.
-
-$ chmod +x mdextractor.sh
-
-
-Check permissions.
-
-$ ls -lrt mdextractor.sh
-
--rwxrwxr-x. 1 pkathi2 pkathi2 332 Aug 15 14:10 mdextractor.sh
-
 Provide the appropriate values for mdextractor.service.
 
 ```
