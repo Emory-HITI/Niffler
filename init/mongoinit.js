@@ -1,10 +1,10 @@
 conn = new Mongo();
-use admin;
+db = conn.getDB("admin");
 db.createUser(
    {
      user: "researchpacsroot",
      pwd: passwordPrompt(),  // Or  "<cleartext password>"
-     roles: ["root"]
+     roles: [{role:"root", db:"admin"}]
    }
 );
 
