@@ -7,7 +7,7 @@ Niffler enables receiving DICOM images real-time as a data stream from PACS as w
 
 # Niffler Modules
 
-Niffler consists of a modular architecture that provides its features. Each module can run independently. Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python-3.6. Niffler application layer (app-layer) is built with Java and Javascript.
+Niffler consists of a modular architecture that provides its features. Each module can run independently. Niffler core (cold-extraction, meta-extraction, and png-extraction) is built and tested with Python-3.6 to Python-3.8. Niffler application layer (app-layer) is built with Java and Javascript.
 
 ## cold-extraction
 
