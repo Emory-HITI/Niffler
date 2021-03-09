@@ -29,94 +29,46 @@ If you desire more DICOM attributes to an existing collection, add the attribute
 If you prefer the additional attributes in a separate collection in the Mongo Metadata Store, create a new txt file with the preferred attributes in the conf folder.
 
 
-## Configure mdextractor service
-
-The services folder consists of mdextractor.sh, system.json, and mdextractor.service.
-
-mdextractor.sh produces the output in services/niffler-rt.out.
-
-Make sure to provide the correct full path of your meta-extraction folder in the 2nd line of mdextractor.sh, replacing the below:
-
-```
-cd /opt/localdrive/Niffler/modules/meta-extraction/
-```
-
-Offer execution permission to the mdextractor.sh script.
-
-$ chmod +x mdextractor.sh
-
-
-Check permissions.
-
-$ ls -lrt mdextractor.sh
-
--rwxrwxr-x. 1 pkathi2 pkathi2 332 Aug 15 14:10 mdextractor.sh
-
-Provide the appropriate values for mdextractor.service.
-
-```
-[Service]
-Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
-Type=simple
-ExecStart=/opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
-TimeoutStartSec=360
-StandardOutput=/opt/localdrive/Niffler/modules/meta-extraction/service.log
-StandardError=/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
-```
-
-### Move to systemd
-
-$ sudo cp mdextractor.service /etc/systemd/system/
-
-
-### Reload the systemctl daemon.
-
-$ sudo systemctl daemon-reload
-
-### Start and enable the new mdextractor service.
-
-$ sudo systemctl start mdextractor.service
-
-$ sudo systemctl enable mdextractor.service
-
 
 # Monitoring Niffler Real-time DICOM Extractor
 
 
 ## Check the status of the mdextractor service.
 
+```
 $ sudo systemctl status mdextractor.service
 
 ● mdextractor.service - mdextractor service
-
    Loaded: loaded (/etc/systemd/system/mdextractor.service; enabled; vendor preset: disabled)
-   
-   Active: active (running) since Thu 2019-08-15 14:20:40 EDT; 13s ago
-   
- Main PID: 28934 (mdextractor.sh)
- 
+   Active: active (running) since Tue 2021-03-02 00:31:38 EST; 1 weeks 0 days ago
+ Main PID: 14351 (mdextractor.sh)
+    Tasks: 23
+   Memory: 9.2G
    CGroup: /system.slice/mdextractor.service
-   
-           ├─28934 /bin/bash /home/pkathi2/researchpacs/mdextractor.sh           
-           ├─28936 /bin/bash /home/pkathi2/researchpacs/mdextractor.sh    
-           └─28940 sleep 1800
+           ├─14351 /bin/bash /opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
+           ├─14352 python3.6 -u MetadataExtractor.py
+           └─14391 java -cp /opt/localdrive/dcm4che-5.22.5/etc/storescp/:/opt/localdrive/dcm4che-5.22.5/etc/certs/:/opt/l...
 
 Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Started mdextractor service.
-
 Aug 15 14:20:40 researchpacs.bmi.emory.edu systemd[1]: Starting mdextractor service...
-
+```
 
 ## Restart to confirm everything works as expected:
 
+```
 $ sudo systemctl reboot
-
+```
 
 ## View the service logs:
-
+```
 $ sudo journalctl -u mdextractor.service -n 100
+```
+Defining the below aliases in ~/.bashrc will help with quickly executing and configuring Niffler.
+```
+alias md='sudo journalctl -u mdextractor.service -f'
 
-
-
+alias mm='mongo -u researchpacsroot --authenticationDatabase admin -p'
+```
 ## Troubleshooting 
 
 Check and make sure Mongo Service is running. If not, start it.

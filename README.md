@@ -5,68 +5,63 @@ Niffler is an efficient DICOM Framework for machine learning pipelines and proce
 Niffler enables receiving DICOM images real-time as a data stream from PACS as well as specific DICOM data based on a series of DICOM C-MOV queries. The Niffler real-time DICOM receiver extracts the metadata free of PHI as the images arrive, store the metadata in a Mongo database, and deletes the images nightly. The on-demand extractor reads a CSV file provided by the user (consisting of EMPIs, AccessionNumbers, or other properties), and performs a series of DICOM C-MOVE requests to receive them from the PACS, without manually querying them. Niffler also provides additional features such as converting DICOM images into PNG images, and perform additional computations such as computing scanner utilization and finding scanners with misconfigured clocks.
 
 
-# Niffler Modules
+# Configure Niffler
 
-Niffler consists of a modular architecture that provides its features. Each module can run independently. Niffler core (cold-extraction, meta-extraction, and png-extraction) is built with Python-3.6. Niffler application layer (app-layer) is built with Java and Javascript.
-
-## cold-extraction
-
-Parses a CSV file consisting of EMPIs, AccessionNumbers, or Study/Accession Dates, and performs a series of DICOM C-MOVE queries (often each C-MOVE following a C-FIND query) to retrieve DICOM images retrospectively from the PACS.
-
-## meta-extraction
-
-Receives DICOM images as a stream from a PACS and extracts and stores the metadata in a metadata store (by default, MongoDB), deleting the received DICOM images nightly.
-
-## png-extraction
-
-Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner. The extracted metadata is stored in a CSV file, along with the de-identified PNG images. The mapping of PNG files and their respective metadata is stored in a separate CSV file.
-
-## app-layer
-
-The app-layer (application layer) consists of specific algorithms. The app-layer/src/main/scripts consists of Javascript scripts such as scanner clock calibration. The app-layer/src/main/java consists of the the scanner utilization computation algorithms developed in Java.
-
-
-# Configuring Niffler
+Niffler consists of 4 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
 
 ## Configure PACS
 
-Make sure to configure the PACS to send data to Niffler's host, port, and AE_Title. Niffler won't receive data unless the PACS allows the requests from Niffler (host/port/AE_Title).
+Both meta-extraction and cold-extraction modules require proper configuration of a PACS environment to allow data transfer and query retrieval to Niffler, respectively.
 
-## Install Dependencies
+* Make sure to configure the PACS to send data to Niffler meta-extraction module's host, port, and AE_Title. 
 
-To use Niffler, first, install the dependencies.
+* Niffler cold-extraction won't receive data unless the PACS allows the requests from Niffler cold-extraction (host/port/AE_Title).
 
-$ pip install -r requirements.txt
 
-Also install DCM4CHE from https://github.com/dcm4che/dcm4che/releases
+## Configure Niffler mdextractor service
 
-For example,
+The modules/meta-extraction/services folder consists of mdextractor.sh, system.json, and mdextractor.service.
 
-$ wget https://sourceforge.net/projects/dcm4che/files/dcm4che3/5.22.5/dcm4che-5.22.5-bin.zip/download -O dcm4che-5.22.5-bin.zip
+mdextractor.sh produces the output in services/niffler-rt.out.
 
-$ sudo apt install unzip
+Make sure to provide the correct full path of your meta-extraction folder in the 2nd line of mdextractor.sh, replacing the below:
 
-$ unzip dcm4che-5.22.5-bin.zip
+```
+cd /opt/localdrive/Niffler/modules/meta-extraction/
+```
 
-Make sure Java is available, as DCM4CHE and Niffler Application Layer require Java to run.
+Provide the appropriate values for mdextractor.service.
 
-You should first configure the operating system's [mail](https://www.javatpoint.com/linux-mail-command) client for the user that runs Niffler modules, if you have enabled mail sender for any of the modules through their respective config.json. This is a one-time configuration that is not specific to Niffler.
+```
+[Service]
+Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
+Type=simple
+ExecStart=/opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
+TimeoutStartSec=360
+StandardOutput=/opt/localdrive/Niffler/modules/meta-extraction/service.log
+StandardError=/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
+```
 
-## Deploy Niffler
+## Install Niffler
 
-Then checkout Niffler source code.
-
+To deploy Niffler, checkout Niffler source code and run the installation script.
+```
 $ git clone https://github.com/Emory-HITI/Niffler.git
 
 $ cd Niffler
-
+```
 The master branch is stable whereas the dev branch has the bleeding edge.
 
-The Java components of Niffler Application Layer are managed via Apache Maven 3.
+You might want to use the dev branch for the latest updates. For more stable version, skip the below step:
+```
+$ git checkout dev
+```
+Finally, run the installation script.
+```
+$ sh install.sh
+```
 
-$ mvn clean install
-
-Please refer to each module's individual README for additional instructions on deploying and using Niffler for each of its components.
+Please refer to each module's individual README for additional instructions on deploying and using Niffler for each of its modules.
 
 
 

@@ -2,18 +2,6 @@
 
 The PNG Extractor converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
 
-## Install Dependencies
-Unless you are the administrator who is configuring the PNG Extractor for the first time, skip this section and proceed to the section "Configuring Niffler PNG Extractor".
-
-GDCM is necessary to read the DICOM images that are jpeg lossless compressed by the PACS.
-
-* Install [Anaconda](https://www.anaconda.com/distribution/#download-section) for Python 3.7
- 
-* Close and open your terminal.
-
-* $ pip install pydicom image numpy pandas pypng
-
-* $ conda install -c conda-forge -y gdcm
 
 ## Configuring Niffler PNG Extractor
 
@@ -31,6 +19,8 @@ Find the config.json file in the folder and modify accordingly *for each* Niffle
 
 * *FlattenedToLevel*: Specify how you want your folder tree to be. Default is, "patient" (produces patient/*.png). 
   You may change this value to "study" (patient/study/*.png) or "series" (patient/study/series/*.png). All IDs are de-identified.
+ 
+* *is16Bit*:  Specifies whether to save extracted image as 16-bit  image. By default, this is set to true. Please set it to false to run 8-bit extraction.
   
 * *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
 
@@ -47,13 +37,14 @@ The below two fields can be left unmodified for most executions. The default val
 
 
 ## Running the Niffler PNG Extractor
-
+```
 $ nohup python3 ImageExtractor.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
-
+```
 Check that the extraction is going smooth with no errors, by,
 
+```
 $ tail -f UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out
-
+```
 
 ## The output files and folders
 
@@ -67,7 +58,7 @@ In the OutputDirectory, there will be several sub folders and directories.
 
 * *extracted-images*: The folder that consists of extracted PNG images
 
-* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor. Failed DICOM images are stored in 3 sub-folders named 1, 2, 3, and 4, categorizing according to their failure reason.
+* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor. Failed DICOM images are stored in 4 sub-folders named 1, 2, 3, and 4, categorizing according to their failure reason.
 
 
 ## Running the Niffler PNG Extractor with Slurm
@@ -86,3 +77,11 @@ Check whether you still have conda installed and configured correctly (by runnin
 
 The above error indicates a missing gdcm, which usually happens if either it is not configured (if you did not follow the
 installation steps correctly) or if conda (together with gdcm) was later broken (mostly due to a system upgrade or a manual removal of conda).
+
+Check whether conda is available, by running "conda" in terminal. If it is missing, install [Anaconda](https://www.anaconda.com/distribution/#download-section).
+ 
+If you just installed conda, make sure to close and open your terminal. Then, install gdcm.
+
+```
+$ conda install -c conda-forge -y gdcm 
+```
