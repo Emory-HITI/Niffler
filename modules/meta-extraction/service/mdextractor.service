@@ -8,8 +8,6 @@ Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
 Type=simple
 ExecStart=/opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
 TimeoutStartSec=360
-StandardOutput=append:/opt/localdrive/Niffler/modules/meta-extraction/service.log
-StandardError=append:/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
 
 [Install]
 WantedBy=default.target
