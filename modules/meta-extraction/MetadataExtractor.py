@@ -68,8 +68,6 @@ try:
 except:
     logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_and_deleted_series")
 
-
-
 # Read the txt file which includes the features, then extract them
 os.chdir(FEATURES_FOLDER)
 txt_files = glob.glob('*.txt')
@@ -82,7 +80,6 @@ for file in txt_files:
     del feature_list[-1]
     features_lists.append(feature_list)
     feature_files.append(filename)
-
 
 
 # Function for getting tuple for field, val pairs for this file
@@ -109,16 +106,29 @@ def get_tuples(plan, features, outlist = None, key = ""):
                         value1 = tuple(value1)
                     elif type(value1) is pydicom.uid.UID:
                         value1 = str(value1)
-                    outlist.append((key + aa, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
+                    else:
+                        if (value1):
+                            value1 = str(value1)
+                        else:
+                            value1 = ""
+                        logging.debug("Default case of extraction: %s", value1)
+                    if key and aa:
+                        key_ = key + aa
+                    elif aa:
+                        key_ = aa
+                    elif key:
+                        key_ = key
+                    else:
+                        logging.debug("key and aa are empty")
+                    outlist.append((key_, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
             except KeyError as e:
-                logging.debug("Key error encountered for %s. %s", aa, e)
+                outlist.append((key_, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
     return outlist
 
 
 # Get features of a dictionary
 def get_dict_fields(bigdict, features):
     return {x: bigdict[x] for x in features if x in bigdict}
-
 
 
 # The core method of extracting metadata
@@ -141,7 +151,6 @@ def extract():
         logging.debug('There are no objects found. Waiting for new data to arrive.')
 
 
-
 # Extract a list of one instance from each series
 def extract_metadata():
     global processed_series_but_yet_to_delete
@@ -154,7 +163,6 @@ def extract_metadata():
     first_inst_of_series = list()
     headerlist = []
     
-
     if EXTRACTION_RUNNING:
         logging.info("Previous Extraction Thread Still Running. Skip this iteration.......................")
     else:
@@ -173,7 +181,6 @@ def extract_metadata():
 
         logging.info('Number of series to be processed: %s', len(series))
     
-
         for series_path in series:
             extracted_in_this_iteration += 1
             logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(series)),
