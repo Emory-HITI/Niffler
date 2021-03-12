@@ -110,8 +110,8 @@ def get_tuples(plan, features, outlist = None, key = ""):
                     elif type(value1) is pydicom.uid.UID:
                         value1 = str(value1)
                     outlist.append((key + aa, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
-            except KeyError:
-                logging.debug("Key error encountered for %s", aa)
+            except KeyError as e:
+                logging.debug("Key error encountered for %s. %s", aa, e)
     return outlist
 
 
