@@ -118,6 +118,7 @@ def get_tuples(plan, features, outlist = None, key = ""):
                     elif key:
                         key_ = key
                     else:
+                        key_ = ""
                         logging.debug("key and aa are empty")
                     outlist.append((key_, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
             except KeyError as e:
