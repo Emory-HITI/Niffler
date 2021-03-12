@@ -42,8 +42,8 @@ EXTRACTION_RUNNING = False
 IS_DCM4CHE_NOT_RUNNING = True
 logging.basicConfig(level=logging.INFO)
 
-FEATURES_FOLDER = "conf/"
-PICKLE_FOLDER = "pickles/"
+FEATURES_FOLDER = os.getcwd() + "/conf/"
+PICKLE_FOLDER = os.getcwd() + "/pickles/"
 
 
 # Variables to track progress between iterations.
@@ -258,6 +258,8 @@ def clear_storage():
 def update_pickle():
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
+    
+    os.chdir(PICKLE_FOLDER)
 
     # Pickle using the highest protocol available.
     with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'wb') as f:
