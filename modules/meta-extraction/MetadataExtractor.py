@@ -111,7 +111,6 @@ def get_tuples(plan, features, outlist = None, key = ""):
                             value1 = str(value1)
                         else:
                             value1 = ""
-                        logging.debug("Default case of extraction: %s", value1)
                     if key and aa:
                         key_ = key + aa
                     elif aa:
