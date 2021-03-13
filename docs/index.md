@@ -1,4 +1,4 @@
-# Niffler: A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images
+# Niffler: A DICOM Framework for Machine Learning Pipelines and Processing Workflows
 
 Niffler is a research project for DICOM networking, supporting efficient DICOM retrievals and subsequent ML workflows on the images and metadata on a research environment. 
 
