@@ -225,8 +225,6 @@ def extract_metadata():
 
 # Delete the processed DICOM objects from the storage.
 def clear_storage():
-    os.chdir(STORAGE_FOLDER)
-
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
 
@@ -236,7 +234,7 @@ def clear_storage():
 
     for del_series in processed_series_but_yet_to_delete:
         try:
-            shutil.rmtree(STORAGE_FOLDER + del_series)
+            shutil.rmtree(STORAGE_FOLDER + "/" + del_series)
             processed_and_deleted_series.append(del_series)
             processed_series_but_yet_to_delete.remove(del_series)
 
