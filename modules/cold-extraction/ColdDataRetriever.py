@@ -138,6 +138,9 @@ with open(csv_file, newline='') as f:
             date_str = dt_stamp.strftime('%Y%m%d')
             dates.append(date_str)
             length = len(patients)
+        elif (extraction_type == 'empi'):
+            patients.append(row[patient_index])
+            length = len(patients)
         elif (extraction_type == 'accession'):
             accessions.append(row[accession_index])
             length = len(accessions)
@@ -176,6 +179,22 @@ def retrieve():
             if ((not resume) or (resume and (temp_id not in extracted_ones))):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
                 extracted_ones.append(temp_id)
+
+    # For the cases that have the EMPI.
+    elif (extraction_type == 'empi'):
+        # Create our Identifier (query) dataset
+        for pid in range(0, len(patients)):
+            PatientID = patients[pid]
+            if NIGHTLY_ONLY:
+                if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
+                    # log once while sleeping
+                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
+                while (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
+                    # sleep for 5 minutes
+                    time.sleep(300)
+            if ((not resume) or (resume and (PatientID not in extracted_ones))):
+                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, DEST_AET), shell=True)
+                extracted_ones.append(PatientID)
 
     # For the cases that does not have the typical EMPI and Accession values together.
     elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
