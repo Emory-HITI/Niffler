@@ -138,6 +138,9 @@ with open(csv_file, newline='') as f:
             date_str = dt_stamp.strftime('%Y%m%d')
             dates.append(date_str)
             length = len(patients)
+        elif (extraction_type == 'empi'):
+            patients.append(row[patient_index])
+            length = len(patients)
         elif (extraction_type == 'accession'):
             accessions.append(row[accession_index])
             length = len(accessions)
