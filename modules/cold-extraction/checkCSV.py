@@ -1,3 +1,4 @@
+"""
 import pandas as pd
 import csv
 import os
@@ -67,3 +68,53 @@ def Check(extraction_type):
 extraction_type = input(
     "Types of Extractions\nempi_date\nempi\naccession\nempi_accession\n\nEnter the Extraction type: ")
 Check(extraction_type)
+"""
+
+# import pandas as pd --> Heavy to load library
+import csv
+import os
+
+csv_file = 'book1.csv'
+patients = []
+patient_index = 0
+extraction_type = 'empi_accession'
+accession_index = 1
+accessions = []
+
+with open(csv_file, newline='') as f:
+    reader = csv.reader(f)
+    next(f)
+    for row in reader:
+        row = [x.strip() for x in row]
+        #print(row)
+        if (extraction_type == 'empi_date'):
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                temp_date = row[date_index]
+                dt_stamp = datetime.datetime.strptime(temp_date, date_format)
+                date_str = dt_stamp.strftime('%Y%m%d')
+                dates.append(date_str)
+                length = len(patients)
+        elif (extraction_type == 'empi'):
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                length = len(patients)
+        elif (extraction_type == 'accession'):
+            if set(row).pop()=='':
+                pass
+            else:
+                accessions.append(row[accession_index])
+                length = len(accessions)
+        elif (extraction_type == 'empi_accession'):
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                accessions.append(row[accession_index])
+                length = len(accessions)
+    print("EMPI:" ,patients)
+    print("Accession:" ,accessions)

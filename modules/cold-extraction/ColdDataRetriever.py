@@ -130,21 +130,40 @@ def initialize():
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
     next(f)
+
+    # Changed below part for finding missing csv entries and skipping them
     for row in reader:
+        row = [x.strip() for x in row]
+        #print(row)
         if (extraction_type == 'empi_date'):
-            patients.append(row[patient_index])
-            temp_date = row[date_index]
-            dt_stamp = datetime.datetime.strptime(temp_date, date_format)
-            date_str = dt_stamp.strftime('%Y%m%d')
-            dates.append(date_str)
-            length = len(patients)
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                temp_date = row[date_index]
+                dt_stamp = datetime.datetime.strptime(temp_date, date_format)
+                date_str = dt_stamp.strftime('%Y%m%d')
+                dates.append(date_str)
+                length = len(patients)
+        elif (extraction_type == 'empi'):
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                length = len(patients)
         elif (extraction_type == 'accession'):
-            accessions.append(row[accession_index])
-            length = len(accessions)
+            if set(row).pop()=='':
+                pass
+            else:
+                accessions.append(row[accession_index])
+                length = len(accessions)
         elif (extraction_type == 'empi_accession'):
-            patients.append(row[patient_index])
-            accessions.append(row[accession_index])
-            length = len(accessions)
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                accessions.append(row[accession_index])
+                length = len(accessions)
 
 
 # Run the retrieval only once, when the extraction script starts, and keep it running in a separate thread.
