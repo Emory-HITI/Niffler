@@ -130,24 +130,40 @@ def initialize():
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
     next(f)
+
+    # Changed below part for finding missing csv entries and skipping them
     for row in reader:
+        row = [x.strip() for x in row]
+        #print(row)
         if (extraction_type == 'empi_date'):
-            patients.append(row[patient_index])
-            temp_date = row[date_index]
-            dt_stamp = datetime.datetime.strptime(temp_date, date_format)
-            date_str = dt_stamp.strftime('%Y%m%d')
-            dates.append(date_str)
-            length = len(patients)
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                temp_date = row[date_index]
+                dt_stamp = datetime.datetime.strptime(temp_date, date_format)
+                date_str = dt_stamp.strftime('%Y%m%d')
+                dates.append(date_str)
+                length = len(patients)
         elif (extraction_type == 'empi'):
-            patients.append(row[patient_index])
-            length = len(patients)
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                length = len(patients)
         elif (extraction_type == 'accession'):
-            accessions.append(row[accession_index])
-            length = len(accessions)
+            if set(row).pop()=='':
+                pass
+            else:
+                accessions.append(row[accession_index])
+                length = len(accessions)
         elif (extraction_type == 'empi_accession'):
-            patients.append(row[patient_index])
-            accessions.append(row[accession_index])
-            length = len(accessions)
+            if set(row).pop()=='':
+                pass
+            else:
+                patients.append(row[patient_index])
+                accessions.append(row[accession_index])
+                length = len(accessions)
 
 
 # Run the retrieval only once, when the extraction script starts, and keep it running in a separate thread.
@@ -179,22 +195,6 @@ def retrieve():
             if ((not resume) or (resume and (temp_id not in extracted_ones))):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
                 extracted_ones.append(temp_id)
-
-    # For the cases that have the EMPI.
-    elif (extraction_type == 'empi'):
-        # Create our Identifier (query) dataset
-        for pid in range(0, len(patients)):
-            PatientID = patients[pid]
-            if NIGHTLY_ONLY:
-                if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
-                    # log once while sleeping
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-                while (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
-                    # sleep for 5 minutes
-                    time.sleep(300)
-            if ((not resume) or (resume and (PatientID not in extracted_ones))):
-                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, DEST_AET), shell=True)
-                extracted_ones.append(PatientID)
 
     # For the cases that does not have the typical EMPI and Accession values together.
     elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
