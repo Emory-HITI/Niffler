@@ -29,6 +29,7 @@ def Check(extraction_type):
     else:
         # Appending Row names
         names = next(reader)
+        print(names)
 
         print("Given Extraction type:", extraction_type)
         if(extraction_type == "empi" and ("EMPI" not in names)):
