@@ -155,7 +155,3 @@ if __name__ == "__main__":
     dcm_folders = get_dcm_folders(data_dir)
     print('Starting DICOM Study Anonymization', flush=True)
     dcm_anonymize(dcm_folders, output_dir, stop=None)
-
-
-data_dir = r'C:\Users\Jason\Desktop\Code_files\HITI\Niffler\test_files'
-output_dir = r'C:\Users\Jason\Desktop\Code_files\HITI\Niffler\test_out'
