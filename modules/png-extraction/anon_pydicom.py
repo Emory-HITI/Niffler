@@ -10,7 +10,6 @@ import os
 import sys
 import pydicom
 import random
-import shutil
 import pickle
 
 
@@ -102,20 +101,17 @@ def dcm_anonymize(dcm_folders, output_path, stop=None):
             test_file = pydicom.dcmread(test_file_path)
             anon_id = anonSample(test_file, 'StudyInstanceUID', UIDs['StudyInstanceUID'])
             # make folder with the anonymized studyUID name
-            print(anon_id)
             study_folder = os.path.join(output_path, anon_id)
             os.mkdir(study_folder)
             for file in files:
-                # copy the file to the new anon folder
-                shutil.copyfile(os.path.join(dcm_folder, file), os.path.join(study_folder, file))
-                dcm_file = pydicom.dcmread(os.path.join(study_folder, file))
+                dcm_file = pydicom.dcmread(os.path.join(dcm_folder, file))
                 dcm_file.remove_private_tags()
                 for UID in UIDs.keys():
                     # get the UID and get the anonymized UID
                     anon_id = anonSample(dcm_file, UID, UIDs[UID])
                     # save instance UID to rename the filename (so that filename and SOPinstance matches)
                     if UID == 'SOPInstanceUID':
-                        new_filename = anon_id.copy()
+                        new_filename = anon_id
                     dcm_file[UID].value = anon_id
                 # for the other tags, make them anonymous
                 for tag in anon_tags:
@@ -128,9 +124,9 @@ def dcm_anonymize(dcm_folders, output_path, stop=None):
                             dcm_file.data_element(tag).value = 0
                         else:
                             dcm_file.data_element(tag).value = 0.0
-                dcm_file.save_as(os.path.join(study_folder, new_filename))
+                dcm_file.save_as(os.path.join(study_folder, new_filename + '.dcm'))
             n += 1
-            print('total files anonymized: {}/{}. Study: {}'.format(n, len(dcm_folders), study_folder), flush=True)
+            print('total folders anonymized: {}/{}. Study: {}'.format(n, len(dcm_folders), study_folder), flush=True)
         except:
             print('Invalid Dicom Error, skipping')
             skip_file = pydicom.dcmread(test_file_path, force=True)
@@ -147,9 +143,10 @@ def dcm_anonymize(dcm_folders, output_path, stop=None):
 
 if __name__ == "__main__":
     # ex: 'python anon_pydicom.py /labs/banerjeelab/researchpacs_data/ /labs/banerjeelab/HCC_anon_dcm/200_noForce/'
+    # 'python anon_pydicom.py r'C:\Users\Jason\Desktop\Code_files\HITI\Niffler' r'C:\Users\Jason\Desktop\Code_files\HITI\Niffler\test_out''
     data_dir = sys.argv[1]
     output_dir = sys.argv[2]
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 3:
         # stopping number
         stop = int(sys.argv[3])
     else:
@@ -157,4 +154,8 @@ if __name__ == "__main__":
     print('Extracting DICOM folders', flush=True)
     dcm_folders = get_dcm_folders(data_dir)
     print('Starting DICOM Study Anonymization', flush=True)
-    dcm_anonymize(dcm_folders, output_dir, stop=stop)
+    dcm_anonymize(dcm_folders, output_dir, stop=None)
+
+
+data_dir = r'C:\Users\Jason\Desktop\Code_files\HITI\Niffler\test_files'
+output_dir = r'C:\Users\Jason\Desktop\Code_files\HITI\Niffler\test_out'
