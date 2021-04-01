@@ -135,7 +135,7 @@ with open(csv_file, newline='') as f:
     for row in reader:
         row = [x.strip() for x in row]
         if (extraction_type == 'empi_date'):
-            if set(row).pop()=='':
+            if ((row[patient_index] == "") or (row[date_index] == "")):
                 pass
             else:
                 patients.append(row[patient_index])
@@ -145,19 +145,19 @@ with open(csv_file, newline='') as f:
                 dates.append(date_str)
                 length = len(patients)
         elif (extraction_type == 'empi'):
-            if set(row).pop()=='':
+            if ((row[patient_index] == "")):
                 pass
             else:
                 patients.append(row[patient_index])
                 length = len(patients)
         elif (extraction_type == 'accession'):
-            if set(row).pop()=='':
+            if ((row[accession_index] == "")):
                 pass
             else:
                 accessions.append(row[accession_index])
                 length = len(accessions)
         elif (extraction_type == 'empi_accession'):
-            if set(row).pop()=='':
+            if ((row[patient_index] == "") or (row[accession_index] == "")):
                 pass
             else:
                 patients.append(row[patient_index])
