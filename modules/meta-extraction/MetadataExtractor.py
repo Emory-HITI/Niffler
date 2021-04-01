@@ -28,7 +28,7 @@ import pandas as pd
 import json
 
 
-with open('system.json', 'r') as f:
+with open('service/system.json', 'r') as f:
     niffler = json.load(f)
 
 # Get constants from system.json
@@ -42,8 +42,8 @@ EXTRACTION_RUNNING = False
 IS_DCM4CHE_NOT_RUNNING = True
 logging.basicConfig(level=logging.INFO)
 
-FEATURES_FOLDER = "conf/"
-PICKLE_FOLDER = "pickles/"
+FEATURES_FOLDER = os.getcwd() + "/conf/"
+PICKLE_FOLDER = os.getcwd() + "/pickles/"
 
 
 # Variables to track progress between iterations.
@@ -68,8 +68,6 @@ try:
 except:
     logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_and_deleted_series")
 
-
-
 # Read the txt file which includes the features, then extract them
 os.chdir(FEATURES_FOLDER)
 txt_files = glob.glob('*.txt')
@@ -82,7 +80,6 @@ for file in txt_files:
     del feature_list[-1]
     features_lists.append(feature_list)
     feature_files.append(filename)
-
 
 
 # Function for getting tuple for field, val pairs for this file
@@ -109,16 +106,29 @@ def get_tuples(plan, features, outlist = None, key = ""):
                         value1 = tuple(value1)
                     elif type(value1) is pydicom.uid.UID:
                         value1 = str(value1)
-                    outlist.append((key + aa, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
-            except KeyError:
-                logging.debug("Key error encountered for %s", aa)
+                    else:
+                        if (value1):
+                            value1 = str(value1)
+                        else:
+                            value1 = ""
+                    if key and aa:
+                        key_ = key + aa
+                    elif aa:
+                        key_ = aa
+                    elif key:
+                        key_ = key
+                    else:
+                        key_ = ""
+                        logging.debug("key and aa are empty")
+                    outlist.append((key_, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
+            except KeyError as e:
+                logging.debug("The value is empty, %s", e)
     return outlist
 
 
 # Get features of a dictionary
 def get_dict_fields(bigdict, features):
     return {x: bigdict[x] for x in features if x in bigdict}
-
 
 
 # The core method of extracting metadata
@@ -141,7 +151,6 @@ def extract():
         logging.debug('There are no objects found. Waiting for new data to arrive.')
 
 
-
 # Extract a list of one instance from each series
 def extract_metadata():
     global processed_series_but_yet_to_delete
@@ -154,7 +163,6 @@ def extract_metadata():
     first_inst_of_series = list()
     headerlist = []
     
-
     if EXTRACTION_RUNNING:
         logging.info("Previous Extraction Thread Still Running. Skip this iteration.......................")
     else:
@@ -173,7 +181,6 @@ def extract_metadata():
 
         logging.info('Number of series to be processed: %s', len(series))
     
-
         for series_path in series:
             extracted_in_this_iteration += 1
             logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(series)),
@@ -206,7 +213,8 @@ def extract_metadata():
                 logging.debug('The file %s is not found', series_path.decode("utf-8"))
             except IndexError:
                 logging.debug('Index error while attempting to access the Series %s', series_path.decode("utf-8"))
-            except:
+            except Exception as e:
+                logging.warn(e)
                 logging.warn('The script could not extract the series %s', series_path.decode("utf-8"))
         logging.info('Metadata Extraction Completed at: %s', str(datetime.datetime.now()))
 
@@ -218,7 +226,6 @@ def extract_metadata():
 # Delete the processed DICOM objects from the storage.
 def clear_storage():
     os.chdir(STORAGE_FOLDER)
-
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
 
@@ -228,7 +235,7 @@ def clear_storage():
 
     for del_series in processed_series_but_yet_to_delete:
         try:
-            shutil.rmtree(STORAGE_FOLDER + del_series)
+            shutil.rmtree(del_series)
             processed_and_deleted_series.append(del_series)
             processed_series_but_yet_to_delete.remove(del_series)
 
@@ -257,6 +264,8 @@ def clear_storage():
 def update_pickle():
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
+    
+    os.chdir(PICKLE_FOLDER)
 
     # Pickle using the highest protocol available.
     with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'wb') as f:
@@ -282,7 +291,7 @@ def run_dcm4che():
         os.chdir(DCM4CHE_BIN)
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > nohup.out &".format(DCM4CHE_BIN, STORAGE_FOLDER, FILE_PATH, QUERY_AET), shell=True)
 
-        logging.info('Stopped DCM4CHE successfully..')
+        logging.info('Started DCM4CHE successfully..')
 
 def run_threaded(job_func):
     job_thread = threading.Thread(target=job_func)

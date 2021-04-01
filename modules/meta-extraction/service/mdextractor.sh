@@ -1,5 +1,7 @@
 #!/bin/bash
-nohup python3.6 -u /opt/localdrive/researchpacs/src/meta-extraction/MetadataExtractor.py >> /opt/localdrive/researchpacs/py.out &
+cd /opt/localdrive/Niffler/modules/meta-extraction/
+source ~/.bashrc
+python3 MetadataExtractor.py >> niffler-rt.out &
 wait
-echo "The Researchpacs Metadata Extractor Process has failed" >> /opt/localdrive/researchpacs/py.out
-echo "The Researchpacs Metadata Extractor Process has failed" | mail -s "The Researchpacs Metadata Extractor Process has failed" pkathi2@emory.edu
+echo "The Niffler Metadata Extractor Process has failed" >> niffler-rt.out
+echo "The Niffler Metadata Extractor Process has failed" | mail -s "The Niffler Metadata Extractor Process has failed" test@test.test
