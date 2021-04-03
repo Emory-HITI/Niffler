@@ -130,14 +130,10 @@ def initialize():
 with open(csv_file, newline='') as f:
     reader = csv.reader(f)
     next(f)
-    
-    # Changed below part for finding missing csv entries and skipping them
     for row in reader:
         row = [x.strip() for x in row]
         if (extraction_type == 'empi_date'):
-            if ((row[patient_index] == "") or (row[date_index] == "")):
-                pass
-            else:
+            if not ((row[patient_index] == "") or (row[date_index] == "")):
                 patients.append(row[patient_index])
                 temp_date = row[date_index]
                 dt_stamp = datetime.datetime.strptime(temp_date, date_format)
@@ -145,21 +141,15 @@ with open(csv_file, newline='') as f:
                 dates.append(date_str)
                 length = len(patients)
         elif (extraction_type == 'empi'):
-            if ((row[patient_index] == "")):
-                pass
-            else:
+            if not ((row[patient_index] == "")):
                 patients.append(row[patient_index])
                 length = len(patients)
         elif (extraction_type == 'accession'):
-            if ((row[accession_index] == "")):
-                pass
-            else:
+            if not ((row[accession_index] == "")):
                 accessions.append(row[accession_index])
                 length = len(accessions)
         elif (extraction_type == 'empi_accession'):
-            if ((row[patient_index] == "") or (row[accession_index] == "")):
-                pass
-            else:
+            if not ((row[patient_index] == "") or (row[accession_index] == "")):
                 patients.append(row[patient_index])
                 accessions.append(row[accession_index])
                 length = len(accessions)
