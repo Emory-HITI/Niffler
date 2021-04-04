@@ -131,23 +131,28 @@ with open(csv_file, newline='') as f:
     reader = csv.reader(f)
     next(f)
     for row in reader:
+        row = [x.strip() for x in row]
         if (extraction_type == 'empi_date'):
-            patients.append(row[patient_index])
-            temp_date = row[date_index]
-            dt_stamp = datetime.datetime.strptime(temp_date, date_format)
-            date_str = dt_stamp.strftime('%Y%m%d')
-            dates.append(date_str)
-            length = len(patients)
+            if not ((row[patient_index] == "") or (row[date_index] == "")):
+                patients.append(row[patient_index])
+                temp_date = row[date_index]
+                dt_stamp = datetime.datetime.strptime(temp_date, date_format)
+                date_str = dt_stamp.strftime('%Y%m%d')
+                dates.append(date_str)
+                length = len(patients)
         elif (extraction_type == 'empi'):
-            patients.append(row[patient_index])
-            length = len(patients)
+            if not ((row[patient_index] == "")):
+                patients.append(row[patient_index])
+                length = len(patients)
         elif (extraction_type == 'accession'):
-            accessions.append(row[accession_index])
-            length = len(accessions)
+            if not ((row[accession_index] == "")):
+                accessions.append(row[accession_index])
+                length = len(accessions)
         elif (extraction_type == 'empi_accession'):
-            patients.append(row[patient_index])
-            accessions.append(row[accession_index])
-            length = len(accessions)
+            if not ((row[patient_index] == "") or (row[accession_index] == "")):
+                patients.append(row[patient_index])
+                accessions.append(row[accession_index])
+                length = len(accessions)
 
 
 # Run the retrieval only once, when the extraction script starts, and keep it running in a separate thread.
