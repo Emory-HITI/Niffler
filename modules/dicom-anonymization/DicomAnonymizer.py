@@ -142,8 +142,6 @@ def dcm_anonymize(dcm_folders, output_path, stop=None):
 
 
 if __name__ == "__main__":
-    # ex: 'python anon_pydicom.py /labs/banerjeelab/researchpacs_data/ /labs/banerjeelab/HCC_anon_dcm/200_noForce/'
-    # 'python anon_pydicom.py r'C:\Users\Jason\Desktop\Code_files\HITI\Niffler' r'C:\Users\Jason\Desktop\Code_files\HITI\Niffler\test_out''
     data_dir = sys.argv[1]
     output_dir = sys.argv[2]
     if len(sys.argv) > 3:
