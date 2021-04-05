@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import numpy as np
-import pandas as pd
-import pydicom as dicom 
-import png, os, glob
-import PIL as pil
-from pprint import pprint
-import hashlib
+import os
+import glob 
 from shutil import copyfile
-import logging
-from multiprocessing import Pool
+import hashlib
 import json
 import sys
 import subprocess
+import logging
+from multiprocessing import Pool
 import pdb
+import time
 import pickle
+import numpy as np
+import pandas as pd
+import pydicom as dicom 
 #pydicom imports needed to handle data errrors
 from pydicom import config
 from pydicom import datadict
 from pydicom import values
-from subprocess import Popen
-import time
 
 with open('config.json', 'r') as f:
     niffler = json.load(f)
@@ -243,7 +241,7 @@ def fix_mismatch_callback(raw_elem, **kwargs):
                 pass
             else:
                 raw_elem = raw_elem._replace(VR=vr)
-                break  # I want to exit immediately after change is applied
+                break
     return raw_elem
 
 
@@ -298,6 +296,7 @@ else:
     pickle.dump(filelist,open(pickle_file,'wb'))
 file_chunks = np.array_split(filelist,no_splits)
 logging.info('Number of dicom files: ' + str(len(filelist)))
+logging.info('Number of chunks is 100 with size ' + str(len(file_chunks[0])) )
 
 try:
     ff = filelist[0] #load first file as a template to look at all
@@ -346,7 +345,7 @@ for i,chunk in enumerate(file_chunks):
         filedata=data
         total = len(chunk)
         stamp = time.time()
-        p = Pool(os.cpu_count()) 
+        p = Pool(core_count) 
         res = p.imap_unordered(extract_images,range(len(filedata)))
         for out in res:
             (fmap,fail_path,err) = out
@@ -357,6 +356,8 @@ for i,chunk in enumerate(file_chunks):
                 logging.error(err_msg)
             else:
                 fm.write(fmap)
+        p.join()
+        p.close()
     fm.close()
     logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
