@@ -298,7 +298,6 @@ else:
     pickle.dump(filelist,open(pickle_file,'wb'))
 file_chunks = np.array_split(filelist,no_splits)
 logging.info('Number of dicom files: ' + str(len(filelist)))
-logging.info('Number of chunks is 100 with size ' + str(len(file_chunks[0])) )
 
 try:
     ff = filelist[0] #load first file as a template to look at all
