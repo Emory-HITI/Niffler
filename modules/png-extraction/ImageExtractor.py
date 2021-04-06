@@ -153,8 +153,7 @@ def extract_images(i):
             ID=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
             #check for existence of patient folder. Create if it does not exist.
-            if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
-                os.mkdir(png_destination + folderName)
+            os.makedirs(png_destination + folderName,exist_ok=True)
         elif flattened_to_level == 'study':
             ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             try:
@@ -176,8 +175,7 @@ def extract_images(i):
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + hashlib.sha224(ID3.encode('utf-8')).hexdigest()
             #check for existence of the folder tree patient/study/series. Create if it does not exist.
-            if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
-                os.makedirs(png_destination + folderName)
+            os.makedirs(png_destination + folderName,exist_ok=True)
 
 
         pngfile = png_destination+folderName+'/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
@@ -220,9 +218,6 @@ def extract_images(i):
     except BaseException as error:
         found_err = error
         logging.error(found_err)
-        print('---pokemon--')
-        print(error)
-        print(found_err)
         fail_path = filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
     except Exception as error:
         found_err = error
