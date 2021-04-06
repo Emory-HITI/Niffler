@@ -15,6 +15,7 @@ import pickle
 import numpy as np
 import pandas as pd
 import pydicom as dicom 
+import png 
 #pydicom imports needed to handle data errrors
 from pydicom import config
 from pydicom import datadict
@@ -163,8 +164,7 @@ def extract_images(i):
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest()
             #check for existence of the folder tree patient/study/series. Create if it does not exist.
-            if not (os.path.exists(png_destination + folderName)): # it is completely possible for multiple proceses to run this check at same time.
-                os.makedirs(png_destination + folderName)
+            os.makedirs(png_destination + folderName,exist_ok=True)
         else:
             ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             try:
@@ -220,6 +220,9 @@ def extract_images(i):
     except BaseException as error:
         found_err = error
         logging.error(found_err)
+        print('---pokemon--')
+        print(error)
+        print(found_err)
         fail_path = filedata.iloc[i].loc['file'], failed + '3/' + os.path.split(filedata.iloc[i].loc['file'])[1][:-4]+'.dcm'
     except Exception as error:
         found_err = error
@@ -296,6 +299,7 @@ else:
     pickle.dump(filelist,open(pickle_file,'wb'))
 file_chunks = np.array_split(filelist,no_splits)
 logging.info('Number of dicom files: ' + str(len(filelist)))
+logging.info('Number of chunks is 100 with size ' + str(len(file_chunks[0])) )
 
 try:
     ff = filelist[0] #load first file as a template to look at all
@@ -344,19 +348,17 @@ for i,chunk in enumerate(file_chunks):
         filedata=data
         total = len(chunk)
         stamp = time.time()
-        p = Pool(core_count) 
-        res = p.imap_unordered(extract_images,range(len(filedata)))
-        for out in res:
-            (fmap,fail_path,err) = out
-            if err:
-                count +=1
-                copyfile(fail_path[0],fail_path[1])
-                err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
-                logging.error(err_msg)
-            else:
-                fm.write(fmap)
-        p.join()
-        p.close()
+        with Pool(core_count) as p:
+            res = p.imap_unordered(extract_images,range(len(filedata)))
+            for out in res:
+                (fmap,fail_path,err) = out
+                if err:
+                    count +=1
+                    copyfile(fail_path[0],fail_path[1])
+                    err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
+                    logging.error(err_msg)
+                else:
+                    fm.write(fmap)
     fm.close()
     logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
