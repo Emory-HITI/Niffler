@@ -11,28 +11,63 @@ import sys
 import schedule
 import pickle
 import threading
+import argparse
 
+from collections import defaultdict
 
+config = defaultdict(lambda: None)
+# Read Default config.json file
 with open('config.json', 'r') as f:
-    config = json.load(f)
+    tmp_config = json.load(f)
+    config.update(tmp_config)
+
+# CLI Argument Parser
+ap = argparse.ArgumentParser()
+
+ap.add_argument("--NifflerSystem", default=config['NifflerSystem'],
+                help="Path to json file with Niffler System Information.")
+ap.add_argument("--StorageFolder",
+                default=config['StorageFolder'], help="StoreSCP config: Storage Folder. Refer Readme.md")
+ap.add_argument("--FilePath", default=config['FilePath'],
+                help="StoreSCP config: FilePath, Refer configuring config.json in Readme.md.")
+ap.add_argument("--CsvFile", default=config['CsvFile'],
+                help="Path to CSV file for extraction. Refer Readme.md.")
+ap.add_argument("--ExtractionType", default=config['ExtractionType'],
+                help="One of the supported extraction type for Cold Data extraction. Refer Readme.md.")
+ap.add_argument("--AccessionIndex", default=config['AccessionIndex'], type=int,
+                help="Set the CSV column index of AccessionNumber for extractions with Accessions.")
+ap.add_argument("--PatientIndex", default=config['PatientIndex'], type=int,
+                help="Set the CSV column index of EMPI for extractions with EMPI and an accession or EMPI and a date.")
+ap.add_argument("--DateIndex", default=config['DateIndex'], type=int,
+                help="Set the CSV column index of Date(StudyDate, AcquisitionDate) for extractions with EMPI and a date.")
+ap.add_argument("--DateType", default=config['DateType'],
+                help="DateType can range from AcquisitionDate, StudyDate, etc. Refer Readme.md.")
+ap.add_argument("--DateFormat", default=config['DateFormat'],
+                help="DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. Refer Readme.md.")
+ap.add_argument("--SendEmail", default=config['SendEmail'], type=bool,
+                help="Send email when extraction is complete. Default false")
+ap.add_argument("--YourEmail", default=config['YourEmail'],
+                help="A valid email, if send email is enabled.")
+
+args = vars(ap.parse_args())
 
 #Get variables for StoreScp from config.json.
-storage_folder = config['StorageFolder']
-file_path = config['FilePath']
+storage_folder = args['StorageFolder']
+file_path = args['FilePath']
 
 # Get variables for the each on-demand extraction from config.json
-csv_file = config['CsvFile']
-extraction_type = config['ExtractionType']
-accession_index = config['AccessionIndex']
-patient_index = config['PatientIndex']
-date_index = config['DateIndex']
-date_type = config['DateType']
-date_format = config['DateFormat']
-email = config['YourEmail']
-send_email = config['SendEmail']
+csv_file = args['CsvFile']
+extraction_type = args['ExtractionType']
+accession_index = args['AccessionIndex']
+patient_index = args['PatientIndex']
+date_index = args['DateIndex']
+date_type = args['DateType']
+date_format = args['DateFormat']
+email = args['YourEmail']
+send_email = args['SendEmail']
 
 # Reads the system_json file.
-system_json = config['NifflerSystem']
+system_json = args['NifflerSystem']
 
 with open(system_json, 'r') as f:
     niffler = json.load(f)
