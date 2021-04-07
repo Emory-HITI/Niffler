@@ -84,6 +84,9 @@ Find the config.json file in the folder and modify accordingly.
 
 config.json entries are to be set *for each* Niffler on-demand DICOM extractions.
 
+All the following config entries can be passed as command line arguments. Prepend "--" to each key and pass as arguments in cli. By default, the values from `config.json` will be used. <br/>
+Example: `python3 ./ColdDataRetriever.py --ExtractionType accession --AccessionIndex 0`
+
 * *NifflerSystem*: By default, system.json. Provide a custom json file with Niffler system information, if you have any.
 
 * *StorageFolder*: Create a folder where you like your DICOM files to be. Usually, this is an empty folder (since each extraction is unique). Make sure you, i.e., the user that starts Niffler ColdDataRetriever.py, have write access to that folder.
@@ -110,8 +113,11 @@ config.json entries are to be set *for each* Niffler on-demand DICOM extractions
 
 ## Running the Niffler Retrospective Data Retriever
 
-```
+```bash
 $ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+
+# With Command Line Arguments
+$ nohup python3 ColdDataRetriever.py --SendEmail false --ExtractionType accession --AccessionIndex 0 --CsvFile "csv/accession.csv"> UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 ```
 Check that the extraction is going smooth, by,
 ```
