@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="icon" href="img/favicon.ico" type="image/gif" sizes="16x16" />
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3-array.v2.min.js"></script>
+    <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+    <script src="./js/chroma.min.js"
+    ></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Scanners Time Line</title>
+    <!--
+
+Timeless Template
+(stolen from)
+http://www.templatemo.com/tm-517-timeless
+
+-->
+    <!-- load CSS -->
+
+    <!-- Google web font "Open Sans" -->
+    <link rel="stylesheet" href="./css/style.css" />
+    <style type="text/css">
+      #container {
+        padding:2rem;
+        /*border: black 2px solid;*/
+      }
+      #view {
+        /*border: blue 2px dashed;*/
+        background: #efefef;
+      }
+      .label {
+        font-size:10px;
+        font-weight: bold;
+      }
+/*      .rect {
+        stroke: black;
+      }*/
+      #days {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        padding:.5rem;
+        flex-flow: row wrap;
+      }
+      #days > div {
+        font-size: 10px;
+        font-weight: bold;
+        box-sizing: border-box;
+        border: 1px black solid;
+        padding:2px;
+        margin: 4px 0;
+        width: 70px;
+        height: 20px;
+
+        overflow: hidden;
+        position: relative;
+      }
+      #days > div:hover {
+        background:lightblue;
+        cursor:pointer;
+      }
+      #days > div.selected {
+        background:#007dff;
+        cursor:pointer;
+      }
+
+      .tick:not(:first-of-type) line {
+        stroke: #b3b3b3;
+        stroke-dasharray: 1;
+        stroke-opacity: 1;
+      }
+      .tick:first-of-type line, .tick:last-of-type line {
+        stroke: #c0c0c0;
+        display: none;
+      }
+      .domain {
+        display: none;
+      }
+      #message {
+        margin: .5rem;
+      }
+
+      .nav > a {
+  /*font-size:85%;*/
+  margin: .5rem;
+}
+
+
+
+    </style>
+  </head>
+
+  <body>
+    <div class="nav">
+       Nav ->
+      <a href ="./d3-calendar.html">Scanners Calendar Heatmap</a>
+      <a href ="./d3-databar.html">Scanners Timeline Usage</a>
+    </div>
+    <H4 id="message"> Select A Date Below To Explore The Scanner Usage ↓</H4>
+    <div id="days"></div>
+    <div id="container">
+      <svg id ="view" width="900" height="600"></svg>
+    </div>
+  </body>
+  <script type="text/javascript">
+  const query = new URLSearchParams(window.location.search);
+  const svg = d3.select("svg"),
+  margin = {top: 50, right: 40, bottom: 20, left: 50},
+  width = svg.attr("width") - margin.left - margin.right,
+  height = svg.attr("height") - margin.top - margin.bottom;
+  var entries;
+  const _div = document.getElementById('days')
+
+  d3.csv("./data/new_file.csv").then(data => {
+    if(data.err&&data.err=="user not allowed"){
+      location.href = `./login.html`;
+    }    
+      const _set = new Set();
+
+      console.log(query)
+      var date = query.get("date")
+
+      entries = d3.nest()
+      .key(d=>d["Date YYYYMMDD"])
+      .key(d=>d["ScannerID"])
+      .entries(data);
+
+      //const mapper = [...entries.keys()]
+      const mapper = new Map()
+      entries.forEach((d,idx)=>{
+        mapper.set(d.key,idx)
+      })
+
+      Array.from(mapper, ([key, value]) => {
+        const div = document.createElement('div')
+
+        div.textContent = convertyyyyMMddToYearMonthDay(key)
+        if(value==0) div.classList.add("selected")
+        div.addEventListener('click', e=>{
+          const label = document.querySelectorAll("#days > div")
+          label.forEach(label=>label.classList.remove('selected'))
+          div.classList.add('selected');
+          drawTimeLine(entries[value])
+        })
+        _div.appendChild(div)
+      })
+
+
+      var items;
+      if(date){
+        items = entries.find(d=>d.key==date)
+        const label = document.querySelectorAll("#days > div")
+        label.forEach(label=>{
+
+          if(label.textContent.replaceAll("-","")==date)
+            label.classList.add('selected')
+          else
+            label.classList.remove('selected')
+        })
+
+      }
+      drawTimeLine(items?items:entries[0])
+
+
+
+
+    }).catch(e=>{
+  location.href = "./login.html";
+})
+
+
+  const getDomainByDay = day => {
+
+  }
+  const changeTime = time => time.length == 5?`0${time}`:time
+
+  const convertyyyyMMddToYearMonthDay = str => {
+    const pattern = /(\d{4})(\d{2})(\d{2})/;
+    const formatedDate = str.replace(pattern, '$1-$2-$3');
+    return formatedDate;
+  }
+  const convertTime = str => {
+    const pattern = /(\d{2})(\d{2})(\d{2})/;
+    const formatedDate = str.replace(pattern, '$1:$2:$3');
+    return formatedDate;
+  }
+
+
+  const convertyyyyMMddHHmmssToDate = str => {
+    const pattern = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/;
+    const formatedDate = str.replace(pattern, '$1/$2/$3 $4:$5:$6');
+    return new Date(formatedDate);
+  }
+  function visualizeTicks(scale, tickArguments) {
+    const height = 20, m = width > 599 ? 90 : 10;
+
+    if (tickArguments === undefined) tickArguments = [];
+
+    scale.range([m, width - m]);
+
+    const svg = d3.create("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    svg.append("g").call(d3.axisBottom(scale).ticks(...tickArguments));
+
+    return svg.node();
+  }
+
+  function drawTimeLine(data){
+    // clear
+    d3.selectAll("svg > *").remove();
+
+    // create
+    const list = data.values
+    const yyyyMMdd = data.key
+    const minTime = convertyyyyMMddHHmmssToDate(`${yyyyMMdd}${changeTime("000000")}`)
+    const maxTime = convertyyyyMMddHHmmssToDate(`${yyyyMMdd}${changeTime("240000")}`)
+
+    // axis x with 24 hours
+    const x_time_scale = d3.scaleTime()
+      .domain([minTime, maxTime])
+      .range([0, width])
+      .nice();
+
+    svg.append("g")
+      .attr("transform", "translate(" + (margin.left +25) + "," + height + ")")
+      .call(d3.axisBottom(x_time_scale).ticks(25,d3.timeFormat("%H")).tickSize(-height));
+    //.call(d3.axisBottom(x_time_scale).ticks(d3.timeHour.every(1)));
+
+
+
+
+
+
+
+    const scannerNameMapper = new Map();
+    const _data = []
+
+    list.forEach((d,idx)=>{
+      scannerNameMapper.set(d.key,`scanner-${idx+1}`)
+      _data.push(...d.values)
+    })
+
+    //console.log(set.size,i)
+    const color = d3.scaleOrdinal()
+      .domain([...scannerNameMapper.values()])
+      .range(d3.quantize(t => d3.interpolateSpectral(t),scannerNameMapper.size))
+
+    // y axis
+    const yScale = d3.scaleBand()
+      .domain([...scannerNameMapper.values()])
+      .range([0, height])
+      .padding(0.1);
+
+    // svg.selectAll('.label').remove();
+    svg.selectAll('.label').data(list,d=>scannerNameMapper.get(d.key)).enter()
+    .append('text')
+    //.attr('fill', d=>color(scannerNameMapper.get(d.key)))
+    .attr('class','label')
+    .attr('x', 5)
+    .attr('y', d=>yScale(scannerNameMapper.get(d.key))+yScale.bandwidth()/2+5)
+    .text(d=>scannerNameMapper.get(d.key))
+
+    svg.selectAll('line')
+    .data(list, d=>scannerNameMapper.get(d.key))
+    .enter().append("line")
+    .attr("x1", (margin.left +25) )
+    .attr("y1", d=>yScale(scannerNameMapper.get(d.key))+yScale.bandwidth()/2)
+    .attr("x2", (margin.left +25) + width)
+    .attr("y2", d=>yScale(scannerNameMapper.get(d.key))+yScale.bandwidth()/2)
+    .attr("stroke", "grey")
+
+
+
+
+    const update_bars = svg.selectAll(`rect`).data(_data)
+
+    const enter_bars = update_bars.enter().append('rect')
+    enter_bars
+        .attr('stroke','#444444')
+        .attr('idx',(d,idx)=>idx)
+        .attr('fill', d=>color(scannerNameMapper.get(d["ScannerID"])))
+        .attr("x", d=>25 + margin.left + x_time_scale(convertyyyyMMddHHmmssToDate(`${yyyyMMdd}${changeTime(d["StartTime"])}`)))
+        .attr("y", d=>yScale(scannerNameMapper.get(d["ScannerID"])))
+        .attr("height", yScale.bandwidth())
+        .attr("width", d=>{
+
+          const end = x_time_scale(convertyyyyMMddHHmmssToDate(`${yyyyMMdd}${changeTime(d["EndTime"])}`))
+          const start = x_time_scale(convertyyyyMMddHHmmssToDate(`${yyyyMMdd}${changeTime(d["StartTime"])}`))
+          if(end==undefined || start==undefined) console.log(d)
+          return end - start;
+        })
+        .append('title').text(d => `${scannerNameMapper.get(d["ScannerID"])}|${convertTime(changeTime(d["StartTime"]))}-${convertTime(changeTime(d["EndTime"]))}`)
+  }
+
+
+// 2504 -->                 9434829 364638  364927  2.816666667 2 5   MRI BRAIN W WO CONTRAST:: MRI Brain w/o Contrast Limited (over 24 hours)
+// 2552 --->                  10471569  234344  244812  64.46666667 3 22    MRI BRAIN W WO CONTRAST:: MRI SPINE LUMBAR W WO CONTRAST:: MRI SACRUMCOCCYX W  WO CONTRAST
+// 3419 --->                   11276389_ 470022  473131  31.15 1 9   MRI SPINE LUMBAR W WO CONTRAST
+// 3426 --->                  1113639 350253  360443  61.83333333 1 20    MRI SPINE THORACIC W WO CONTRAST
+
+
+
+  </script>
+</html>
