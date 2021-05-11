@@ -367,7 +367,7 @@ for meta in metas:
     m = pd.read_csv(meta,dtype='str')
     d_len = m.shape[0]
     for e in m.columns:
-        if np.sum(m[e].isna()) > 0.9*d_len:
+        if np.sum(m[e].isna()) > 0.1*d_len:
             if e in col_names:
                 col_names[e] += 1
             else:
