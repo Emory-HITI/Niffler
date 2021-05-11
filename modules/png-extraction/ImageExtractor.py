@@ -37,6 +37,8 @@ send_email = niffler['SendEmail']
 no_splits = niffler['SplitIntoChunks']
 is16Bit = niffler['is16Bit']
 
+metadata_col_freq_threshold = 0.9
+
 png_destination = output_directory + '/extracted-images/'
 failed = output_directory +'/failed-dicom/'
 maps_directory = output_directory + '/maps/'
@@ -362,12 +364,12 @@ logging.info('Generating final metadata file')
 #identify the 
 col_names = dict()
 metas = glob.glob( "{}*.csv".format(meta_directory))
-#for each meta  file identify the columns that are not na's for 90% of data 
+#for each meta  file identify the columns that are not na's for 90% (metadata_col_freq_threshold) of data 
 for meta in metas:
     m = pd.read_csv(meta,dtype='str')
     d_len = m.shape[0]
     for e in m.columns:
-        if np.sum(m[e].isna()) < 0.1*d_len:
+        if np.sum(m[e].isna()) < (1-metadata_col_freq_threshold)*d_len:
             if e in col_names:
                 col_names[e] += 1
             else:
