@@ -191,31 +191,25 @@ def extract_metadata():
                               ' series.')
 
             # get and store series-level information
-            try:
-                first_instance = series_path.decode("utf-8") + "/" + os.listdir(series_path.decode("utf-8"))[0]
-                ds = pydicom.dcmread(first_instance, force=True)
-
-                for index, features in enumerate(features_lists):
-                    kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
-                    doc = get_dict_fields(dict(kv), features)
-                    # insert to a Mongo DB collection
-                    doc = {k: 'NaN' if not v else v for k, v in doc.items()}
-                    if series_path not in processed_series_but_yet_to_delete and series_path not in processed_and_deleted_series:
-                        processed_series_but_yet_to_delete.append(series_path.decode("utf-8"))                        
-                        DB[str(feature_files[index])].insert_one(doc)
-                        logging.debug('Added the series to the processed list: %s', series_path)
-
-            except ConnectionResetError:
-                logging.warn('The connection was reset during the extraction')
-            except IsADirectoryError:
-                logging.debug('The Series full path has an invalid character \\ that prevents extracting metadata')
-            except FileNotFoundError:
-                logging.debug('The file %s is not found', series_path.decode("utf-8"))
-            except IndexError:
-                logging.debug('Index error while attempting to access the Series %s', series_path.decode("utf-8"))
-            except Exception as e:
-                logging.warn(e)
-                logging.warn('The script could not extract the series %s', series_path.decode("utf-8"))
+            if series_path not in processed_series_but_yet_to_delete and series_path not in processed_and_deleted_series:
+                try:
+                    processed_series_but_yet_to_delete.append(series_path.decode("utf-8"))                        
+                    first_instance = series_path.decode("utf-8") + "/" + os.listdir(series_path.decode("utf-8"))[0]
+                    ds = pydicom.dcmread(first_instance, force=True)
+                    for index, features in enumerate(features_lists):
+                        try:
+                            kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
+                            doc = get_dict_fields(dict(kv), features)
+                            # insert to a Mongo DB collection
+                            doc = {k: 'NaN' if not v else v for k, v in doc.items()}
+                            DB[str(feature_files[index])].insert_one(doc)
+                            logging.debug('Added the series to the processed list: %s', series_path)
+                        except Exception as e:
+                            logging.debug(e)
+                            logging.debug('The script could not extract the series %s for this feature', series_path.decode("utf-8"))         
+                except Exception as e:
+                    logging.warn(e)
+                    logging.warn('The script could not extract the series %s at all', series_path.decode("utf-8"))
         logging.info('Metadata Extraction Completed at: %s', str(datetime.datetime.now()))
 
         # Record the total run-time
@@ -265,8 +259,6 @@ def update_pickle():
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
     
-    os.chdir(PICKLE_FOLDER)
-
     # Pickle using the highest protocol available.
     with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'wb') as f:
         pickle.dump(processed_series_but_yet_to_delete, f, pickle.HIGHEST_PROTOCOL)
@@ -288,7 +280,6 @@ def run_dcm4che():
     if IS_DCM4CHE_NOT_RUNNING:
         IS_DCM4CHE_NOT_RUNNING = False   
         logging.info('Starting DCM4CHE..')
-        os.chdir(DCM4CHE_BIN)
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > nohup.out &".format(DCM4CHE_BIN, STORAGE_FOLDER, FILE_PATH, QUERY_AET), shell=True)
 
         logging.info('Started DCM4CHE successfully..')
