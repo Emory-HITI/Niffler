@@ -172,43 +172,39 @@ def extract_metadata():
         series_string = subprocess.check_output("find -maxdepth 3 -mindepth 3 -type d", shell=True)
         series = series_string.splitlines()
         logging.info('Number of series: %s', len(series))
-
+        this_iteration = len(series) - (len(processed_series_but_yet_to_delete) + len(processed_and_deleted_series))
+        logging.info('Number of series to be processed: %s', str(this_iteration))
 
         # remove the series that were processed before
-        for temp_id in series:
-            if temp_id.decode("utf-8") in processed_series_but_yet_to_delete or temp_id.decode("utf-8") in processed_and_deleted_series:
-                series.remove(temp_id)
-
-        logging.info('Number of series to be processed: %s', len(series))
-    
         for series_path in series:
-            processed_series_but_yet_to_delete.append(series_path.decode("utf-8"))                        
-            extracted_in_this_iteration += 1
-            logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(series)),
+            if series_path not in processed_series_but_yet_to_delete and series_path not in processed_and_deleted_series:
+                processed_series_but_yet_to_delete.append(series_path.decode("utf-8"))                        
+                extracted_in_this_iteration += 1
+                logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(this_iteration),
                           ' series.')
 
-            if extracted_in_this_iteration % 100 == 0:
-                logging.info('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(series)),
+                if extracted_in_this_iteration % 100 == 0:
+                    logging.info('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(this_iteration),
                               ' series.')
 
-            # get and store series-level information
-            try:
-                first_instance = series_path.decode("utf-8") + "/" + os.listdir(series_path.decode("utf-8"))[0]
-                ds = pydicom.dcmread(first_instance, force=True)
-                for index, features in enumerate(features_lists):
-                    try:
-                        kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
-                        doc = get_dict_fields(dict(kv), features)
-                        # insert to a Mongo DB collection
-                        doc = {k: 'NaN' if not v else v for k, v in doc.items()}
-                        DB[str(feature_files[index])].insert_one(doc)
-                        logging.debug('Added the series to the processed list: %s', series_path)
-                    except Exception as e:
-                        logging.debug(e)
-                        logging.debug('The script could not extract the series %s for this feature', series_path.decode("utf-8"))         
-            except Exception as e:
-                logging.warn(e)
-                logging.warn('The script could not extract the series %s at all', series_path.decode("utf-8"))
+                # get and store series-level information
+                try:
+                    first_instance = series_path.decode("utf-8") + "/" + os.listdir(series_path.decode("utf-8"))[0]
+                    ds = pydicom.dcmread(first_instance, force=True)
+                    for index, features in enumerate(features_lists):
+                        try:
+                            kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
+                            doc = get_dict_fields(dict(kv), features)
+                            # insert to a Mongo DB collection
+                            doc = {k: 'NaN' if not v else v for k, v in doc.items()}
+                            DB[str(feature_files[index])].insert_one(doc)
+                            logging.debug('Added the series to the processed list: %s', series_path)
+                        except Exception as e:
+                            logging.debug(e)
+                            logging.debug('The script could not extract the series %s for this feature', series_path.decode("utf-8"))         
+                except Exception as e:
+                    logging.warn(e)
+                    logging.warn('The script could not extract the series %s at all', series_path.decode("utf-8"))
                 
         logging.info('Metadata Extraction Completed at: %s', str(datetime.datetime.now()))
         # Record the total run-time
