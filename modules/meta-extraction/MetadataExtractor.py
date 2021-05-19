@@ -135,8 +135,6 @@ def get_dict_fields(bigdict, features):
 def extract():
     os.chdir(STORAGE_FOLDER)
 
-    logging.info('Started the metadata extraction at: %s', str(datetime.datetime.now()))
-
     if len([name for name in os.listdir(".") if os.path.isdir(name)]) == 0:  # Print once if the storage folder is empty.
         logging.debug('There are no patients found. Waiting for new data to arrive.')
 
@@ -167,6 +165,7 @@ def extract_metadata():
         logging.info("Previous Extraction Thread Still Running. Skip this iteration.......................")
     else:
         t_start = time.time()
+        logging.info('Started the metadata extraction at: %s', str(datetime.datetime.now()))
         EXTRACTION_RUNNING = True
     
         series_string = subprocess.check_output("find -maxdepth 3 -mindepth 3 -type d", shell=True)
