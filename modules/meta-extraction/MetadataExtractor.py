@@ -182,6 +182,7 @@ def extract_metadata():
         logging.info('Number of series to be processed: %s', len(series))
     
         for series_path in series:
+            processed_series_but_yet_to_delete.append(series_path.decode("utf-8"))                        
             extracted_in_this_iteration += 1
             logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(series)),
                           ' series.')
@@ -191,27 +192,25 @@ def extract_metadata():
                               ' series.')
 
             # get and store series-level information
-            if series_path not in processed_series_but_yet_to_delete and series_path not in processed_and_deleted_series:
-                try:
-                    processed_series_but_yet_to_delete.append(series_path.decode("utf-8"))                        
-                    first_instance = series_path.decode("utf-8") + "/" + os.listdir(series_path.decode("utf-8"))[0]
-                    ds = pydicom.dcmread(first_instance, force=True)
-                    for index, features in enumerate(features_lists):
-                        try:
-                            kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
-                            doc = get_dict_fields(dict(kv), features)
-                            # insert to a Mongo DB collection
-                            doc = {k: 'NaN' if not v else v for k, v in doc.items()}
-                            DB[str(feature_files[index])].insert_one(doc)
-                            logging.debug('Added the series to the processed list: %s', series_path)
-                        except Exception as e:
-                            logging.debug(e)
-                            logging.debug('The script could not extract the series %s for this feature', series_path.decode("utf-8"))         
-                except Exception as e:
-                    logging.warn(e)
-                    logging.warn('The script could not extract the series %s at all', series_path.decode("utf-8"))
+            try:
+                first_instance = series_path.decode("utf-8") + "/" + os.listdir(series_path.decode("utf-8"))[0]
+                ds = pydicom.dcmread(first_instance, force=True)
+                for index, features in enumerate(features_lists):
+                    try:
+                        kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
+                        doc = get_dict_fields(dict(kv), features)
+                        # insert to a Mongo DB collection
+                        doc = {k: 'NaN' if not v else v for k, v in doc.items()}
+                        DB[str(feature_files[index])].insert_one(doc)
+                        logging.debug('Added the series to the processed list: %s', series_path)
+                    except Exception as e:
+                        logging.debug(e)
+                        logging.debug('The script could not extract the series %s for this feature', series_path.decode("utf-8"))         
+            except Exception as e:
+                logging.warn(e)
+                logging.warn('The script could not extract the series %s at all', series_path.decode("utf-8"))
+                
         logging.info('Metadata Extraction Completed at: %s', str(datetime.datetime.now()))
-
         # Record the total run-time
         logging.info('Total run time: %s %s', (time.time() - t_start)/60, ' minutes!')
         EXTRACTION_RUNNING = False
