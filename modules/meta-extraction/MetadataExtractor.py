@@ -171,7 +171,7 @@ def extract_metadata():
         series_string = subprocess.check_output("find -maxdepth 3 -mindepth 3 -type d", shell=True)
         series = series_string.splitlines()
         logging.info('Number of series: %s', len(series))
-        this_iteration = list(set(series) - (set(processed_series_but_yet_to_delete) + set(processed_and_deleted_series)))
+        this_iteration = list(set(series) - (set(processed_series_but_yet_to_delete) | set(processed_and_deleted_series)))
         logging.info('Number of series to be processed: %s', str(len(this_iteration)))
 
         # remove the series that were processed before
