@@ -176,7 +176,7 @@ def extract_metadata():
 
         # remove the series that were processed before
         for series_path in this_iteration:
-            processed_series_but_yet_to_delete.append(series_path.decode("utf-8"))                        
+            processed_series_but_yet_to_delete.append(series_path)                        
             extracted_in_this_iteration += 1
             logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(this_iteration)),
                           ' series.')
