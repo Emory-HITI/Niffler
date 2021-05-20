@@ -1,0 +1,159 @@
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+.navbar__menu__options {
+  padding-top: 17px;
+  color: black;
+}
+
+.navbar__menu__options a {
+  color: black;
+}
+
+.logo__color {
+  color: #9a2ca0;
+}
+
+.navbar__logo {
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 45px;
+  margin-left: 30px;
+}
+
+.section__header__main {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+  margin-top: 70px;
+  font-size: 45px;
+  font-weight: 700;
+  line-height: 67.5px;
+}
+
+.section__content__main {
+  margin: 0 20px;
+  margin-top: 26px;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 30px;
+  color: #4f5d75;
+}
+
+.section__button__colored {
+  background-color: #9a2ca0;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 30px;
+  border-radius: 100px;
+  color: white;
+  padding: 8px 15px;
+  border: 1px solid #9a2ca0;
+}
+
+.section__button__text {
+  font-weight: 500;
+  color: #4f5d75;
+  font-size: 20px;
+  line-height: 30px;
+  background-color: white;
+  border: none;
+  margin-left: 22px;
+}
+
+.banner__image__center {
+  display: block;
+  margin: 0 auto;
+  padding-top: 100px;
+}
+
+.section__card__outline {
+  width: 309px;
+  border-radius: 20px;
+  box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.1);
+  height: 341px;
+  margin: 0 auto;
+  margin-top: 50px;
+}
+
+.section__card__icon {
+  margin: 27px 32px;
+}
+
+.section__card__header {
+  font-weight: bold;
+  font-size: 25px;
+  line-height: 37px;
+  color: #9a2ca0;
+  margin: 0 32px;
+}
+
+.section__card__content {
+  margin: 12px 33px;
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 27px;
+
+  color: #4f5d75;
+}
+
+.section__card__outline__none {
+  width: 309px;
+  border-radius: 20px;
+  height: 341px;
+  margin: 0 auto;
+  margin-top: 40px;
+}
+
+.section__card__outline__none__header {
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 20px;
+  line-height: 30px;
+  padding-top: 40px;
+  color: #000000;
+}
+
+.section__card__outline__none__content {
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 18px;
+  line-height: 30px;
+  padding-top: 20px;
+  color: #4f5d75;
+}
+
+.footer__background__color {
+  background-color: #9a2ca0;
+  margin-top: 80px;
+}
+
+.footer__desc {
+  margin-top: 20px;
+  color: white;
+  width: 40%;
+}
+
+.footer__content__copyright {
+  font-family: Poppins;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 30px;
+  padding-bottom: 20px;
+  text-align: center;
+  color: #ffffff;
+}

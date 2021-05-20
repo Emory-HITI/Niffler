@@ -1,0 +1,2 @@
+Date #,Date YYYYMMDD,ScannerID,Scanner Utilization %,Patients per scanner,Exams by the scanner,Studies by the scanner,Modality,Series by the Scanner,PatientID,StartTime,EndTime,Duration (Minutes),Number of Studies In the Exam,Number of Series In the Exam,Study Description
+1,19991231,00000,300 %,1,2,4,MR,5,0000000,120000,120001,0.016666666666666,1,10,DUMMY DATA WITH NO CONTRAST
