@@ -167,8 +167,17 @@ def extract_metadata():
         t_start = time.time()
         logging.info('Started the metadata extraction at: %s', str(datetime.datetime.now()))
         EXTRACTION_RUNNING = True
+        FIND_NOT_RUNNING = True
     
-        series_string = subprocess.check_output("find -maxdepth 3 -mindepth 3 -type d", shell=True)
+        # Checks to ensure the clear_storage thread does not cause a missing file exception randomly, when run in parallel.
+        while FIND_NOT_RUNNING:
+            FIND_NOT_RUNNING = False
+            try:
+                series_string = subprocess.check_output("find -maxdepth 3 -mindepth 3 -type d", shell=True)
+            except:
+                FIND_NOT_RUNNING = True
+                time.sleep(10) # sleep for 10 seconds before rerunning the find
+
         series = series_string.splitlines()
         logging.info('Number of series: %s', len(series))
         this_iteration = list(set(series) - (set(processed_series_but_yet_to_delete) | set(processed_and_deleted_series)))
