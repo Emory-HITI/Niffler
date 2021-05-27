@@ -1,4 +1,4 @@
-# Niffler: A DICOM Framework for Machine Learning Pipelines and Processing Workflows.
+# Niffler: A DICOM Framework for Machine Learning and Processing Pipelines.
 
 Niffler is an efficient DICOM Framework for machine learning pipelines and processing workflows on metadata. It facilitates efficient transfer of DICOM images on-demand and real-time from PACS to the research environments, to run processing workflows and machine learning pipelines.
 
@@ -7,7 +7,7 @@ Niffler enables receiving DICOM images real-time as a data stream from PACS as w
 
 # Configure Niffler
 
-Niffler consists of 4 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
+Niffler consists of 5 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
 
 ## Configure PACS
 

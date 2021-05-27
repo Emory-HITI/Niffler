@@ -21,6 +21,10 @@ Receives DICOM images as a stream from a PACS and extracts and stores the metada
 
 Converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner. The extracted metadata is stored in a CSV file, along with the de-identified PNG images. The mapping of PNG files and their respective metadata is stored in a separate CSV file.
 
+## dicom-anonymization
+
+Converts a set of DICOM images into anonymized DICOM images, stripping off the PHI. 
+
 ## app-layer
 
 The app-layer (application layer) consists of specific algorithms. The app-layer/src/main/scripts consists of Javascript scripts such as scanner clock calibration. The app-layer/src/main/java consists of the the scanner utilization computation algorithms developed in Java.

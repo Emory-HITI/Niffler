@@ -135,8 +135,6 @@ def get_dict_fields(bigdict, features):
 def extract():
     os.chdir(STORAGE_FOLDER)
 
-    logging.info('Started the metadata extraction at: %s', str(datetime.datetime.now()))
-
     if len([name for name in os.listdir(".") if os.path.isdir(name)]) == 0:  # Print once if the storage folder is empty.
         logging.debug('There are no patients found. Waiting for new data to arrive.')
 
@@ -167,57 +165,55 @@ def extract_metadata():
         logging.info("Previous Extraction Thread Still Running. Skip this iteration.......................")
     else:
         t_start = time.time()
+        logging.info('Started the metadata extraction at: %s', str(datetime.datetime.now()))
         EXTRACTION_RUNNING = True
+        FIND_NOT_RUNNING = True
     
-        series_string = subprocess.check_output("find -maxdepth 3 -mindepth 3 -type d", shell=True)
+        # Checks to ensure the clear_storage thread does not cause a missing file exception randomly, when run in parallel.
+        while FIND_NOT_RUNNING:
+            FIND_NOT_RUNNING = False
+            try:
+                series_string = subprocess.check_output("find -maxdepth 3 -mindepth 3 -type d", shell=True)
+            except:
+                FIND_NOT_RUNNING = True
+                time.sleep(10) # sleep for 10 seconds before rerunning the find
+
         series = series_string.splitlines()
         logging.info('Number of series: %s', len(series))
-
+        this_iteration = list(set(series) - (set(processed_series_but_yet_to_delete) | set(processed_and_deleted_series)))
+        logging.info('Number of series to be processed: %s', str(len(this_iteration)))
 
         # remove the series that were processed before
-        for temp_id in series:
-            if temp_id.decode("utf-8") in processed_series_but_yet_to_delete or temp_id.decode("utf-8") in processed_and_deleted_series:
-                series.remove(temp_id)
-
-        logging.info('Number of series to be processed: %s', len(series))
-    
-        for series_path in series:
+        for series_path in this_iteration:
+            processed_series_but_yet_to_delete.append(series_path)                        
             extracted_in_this_iteration += 1
-            logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(series)),
+            logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(this_iteration)),
                           ' series.')
 
             if extracted_in_this_iteration % 100 == 0:
-                logging.info('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(series)),
+                logging.info('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(this_iteration)),
                               ' series.')
 
             # get and store series-level information
             try:
                 first_instance = series_path.decode("utf-8") + "/" + os.listdir(series_path.decode("utf-8"))[0]
                 ds = pydicom.dcmread(first_instance, force=True)
-
                 for index, features in enumerate(features_lists):
-                    kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
-                    doc = get_dict_fields(dict(kv), features)
-                    # insert to a Mongo DB collection
-                    doc = {k: 'NaN' if not v else v for k, v in doc.items()}
-                    if series_path not in processed_series_but_yet_to_delete and series_path not in processed_and_deleted_series:
-                        processed_series_but_yet_to_delete.append(series_path.decode("utf-8"))                        
+                    try:
+                        kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
+                        doc = get_dict_fields(dict(kv), features)
+                        # insert to a Mongo DB collection
+                        doc = {k: 'NaN' if not v else v for k, v in doc.items()}
                         DB[str(feature_files[index])].insert_one(doc)
                         logging.debug('Added the series to the processed list: %s', series_path)
-
-            except ConnectionResetError:
-                logging.warn('The connection was reset during the extraction')
-            except IsADirectoryError:
-                logging.debug('The Series full path has an invalid character \\ that prevents extracting metadata')
-            except FileNotFoundError:
-                logging.debug('The file %s is not found', series_path.decode("utf-8"))
-            except IndexError:
-                logging.debug('Index error while attempting to access the Series %s', series_path.decode("utf-8"))
+                    except Exception as e:
+                        logging.debug(e)
+                        logging.debug('The script could not extract the series %s for this feature', series_path.decode("utf-8"))         
             except Exception as e:
                 logging.warn(e)
-                logging.warn('The script could not extract the series %s', series_path.decode("utf-8"))
+                logging.warn('The script could not extract the series %s at all', series_path.decode("utf-8"))
+                
         logging.info('Metadata Extraction Completed at: %s', str(datetime.datetime.now()))
-
         # Record the total run-time
         logging.info('Total run time: %s %s', (time.time() - t_start)/60, ' minutes!')
         EXTRACTION_RUNNING = False
@@ -265,8 +261,6 @@ def update_pickle():
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
     
-    os.chdir(PICKLE_FOLDER)
-
     # Pickle using the highest protocol available.
     with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'wb') as f:
         pickle.dump(processed_series_but_yet_to_delete, f, pickle.HIGHEST_PROTOCOL)
@@ -288,7 +282,6 @@ def run_dcm4che():
     if IS_DCM4CHE_NOT_RUNNING:
         IS_DCM4CHE_NOT_RUNNING = False   
         logging.info('Starting DCM4CHE..')
-        os.chdir(DCM4CHE_BIN)
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > nohup.out &".format(DCM4CHE_BIN, STORAGE_FOLDER, FILE_PATH, QUERY_AET), shell=True)
 
         logging.info('Started DCM4CHE successfully..')
