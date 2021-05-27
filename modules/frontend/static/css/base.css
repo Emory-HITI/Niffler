@@ -1,0 +1,48 @@
+.nav-item {
+    margin: 8px;
+    padding: 12px;
+    background: #2c3e50;
+    box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+}
+
+/* .nav-link {
+    color: #ffffff;
+    font-size: 24px;
+} */
+
+.nav-item a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+.nav-item a:hover {
+    color: aqua;
+}
+
+.nav-item button {
+    color: #ffffff;
+}
+
+.item {
+    padding: 12px;
+    margin: 10px;
+}
+
+.backdrop {
+    /* position: absolute; */
+    background-image: url("../images/img1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 95vh;
+}
+
+.row {
+    padding-top: 10px;
+}
+
+.text {
+    color: white;
+    font-size: 18px;
+}
