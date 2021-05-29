@@ -143,7 +143,11 @@
                         </h1>
                     </center>
                 </div>
-                <form method="POST" enctype="multipart/form-data">
+                <form
+                    method="POST"
+                    enctype="multipart/form-data"
+                    action="/process"
+                >
                     <div class="row">
                         <div
                             class="col-5"
@@ -165,13 +169,19 @@
                                     <div class="text">DICOM Home Folder</div>
                                 </div>
                                 <div class="col">
-                                    <input
+                                    <!-- <input
                                         class="form-control"
                                         type="file"
                                         webkitdirectory
                                         mozdirectory
                                         id="fileImg"
                                         name="DICOMdocument"
+                                    /> -->
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        name="DICOMFolder"
+                                        placeholder="path/to/folder/containing/dcm/images"
                                     />
                                 </div>
                             </div>
@@ -181,13 +191,19 @@
                                     <div class="text">Output Folder</div>
                                 </div>
                                 <div class="col">
-                                    <input
+                                    <!-- <input
                                         type="file"
                                         class="form-control"
                                         webkitdirectory
                                         mozdirectory
                                         id="fileImg"
                                         name="OutputFolder"
+                                    /> -->
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        name="outputFolder"
+                                        placeholder="path/to/output/folder"
                                     />
                                 </div>
                             </div>
@@ -214,6 +230,7 @@
                                     <input
                                         class="form-control"
                                         type="number"
+                                        name="chunks"
                                         placeholder="Recommended 1, for very large 2"
                                     />
                                 </div>
@@ -227,6 +244,7 @@
                                     <input
                                         class="form-control"
                                         type="number"
+                                        name="useProcess"
                                         placeholder="No. of Cores of CPU to use. Default 0 for all"
                                     />
                                 </div>
@@ -240,20 +258,8 @@
                                     <input
                                         class="form-control"
                                         type="text"
+                                        name="level"
                                         placeholder="Default:'patient';Values can be ‘study’ or ‘series’"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">DICOM Home Folder</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="number"
-                                        placeholder="Recommended 1, for very large 2"
                                     />
                                 </div>
                             </div>
@@ -266,6 +272,7 @@
                                     <input
                                         class="form-control"
                                         type="text"
+                                        name="16Bit"
                                         placeholder="True else set False if 8-bit is needed"
                                     />
                                 </div>
@@ -279,6 +286,7 @@
                                     <input
                                         class="form-control"
                                         type="text"
+                                        name="printImages"
                                         placeholder="Default True, can be set to False"
                                     />
                                 </div>
@@ -292,6 +300,7 @@
                                     <input
                                         class="form-control"
                                         type="text"
+                                        name="headers"
                                         placeholder="Default False"
                                     />
                                 </div>
@@ -305,6 +314,7 @@
                                     <input
                                         class="form-control"
                                         type="text"
+                                        name="sendEmail"
                                         placeholder="True if you want to receive email else false"
                                     />
                                 </div>
@@ -318,6 +328,7 @@
                                     <input
                                         class="form-control"
                                         type="email"
+                                        name="email"
                                         placeholder="Enter your Email"
                                     />
                                 </div>
@@ -327,7 +338,7 @@
                                 <div class="row" style="margin-top: 20px">
                                     <div class="col">
                                         <button
-                                            type="button"
+                                            type="reset"
                                             class="btn btn-outline-info"
                                         >
                                             RESET
