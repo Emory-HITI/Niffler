@@ -10,8 +10,8 @@ def index():
 
 config_values = {}
 
-@app.route('/process', methods=['POST'])
-def getValues():
+@app.route('/', methods=['POST'])
+def getPNGValues():
     if request.method =='POST':
         config_values["dcmFolder"] = request.form['DICOMFolder']
         config_values["outputFolder"] = request.form['outputFolder']
@@ -26,7 +26,8 @@ def getValues():
         config_values["email"] = request.form['email']
     print(config_values)
     return config_values
+    return render_template('pngHome.html', values = config_values)
 
 #JUST DO IT!!!
 if __name__=="__main__":
-    app.run( port="9000")
+    app.run(port="9000")
