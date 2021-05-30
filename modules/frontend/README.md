@@ -1,5 +1,4 @@
 # A Frontend Framework for Niffler
-===================================
 
 Here we have created a frontend module for Niffler for ease of acccess of it's modules.
 
