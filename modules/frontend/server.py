@@ -6,6 +6,10 @@ app = Flask(__name__)
 
 @app.route("/", methods=['GET'])
 def index():
+    return render_template('home.html')
+
+@app.route("/png-extraction", methods = ['GET'])
+def PNG_Extraction():
     return render_template('pngHome.html')
 
 config_values = {}
@@ -24,9 +28,14 @@ def getPNGValues():
         config_values["headers"] = request.form['headers']
         config_values["sendEmail"] = request.form['sendEmail']
         config_values["email"] = request.form['email']
-    print(config_values)
-    return config_values
-    return render_template('pngHome.html', values = config_values)
+
+        if(len(config_values) > 0):
+            import sys
+            sys.path.append("../png-extraction/")
+            import ImageExtractor
+            lt = ImageExtractor.initialize_Values(config_values)
+            return render_template('pngHome.html', logs = lt)
+    return render_template('pngHome.html')
 
 #JUST DO IT!!!
 if __name__=="__main__":
