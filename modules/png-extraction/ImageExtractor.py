@@ -88,7 +88,7 @@ def initialize_Values(config_values):
         os.makedirs(failed + "/4")
 
     logging.info("------- Values Initialization DONE -------")
-    final_res = Execute_Main_PNG_Extractor(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
+    final_res = Execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
         failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
     return final_res
 
@@ -142,8 +142,7 @@ def extract_headers(f_list_elem):
     # dicom images should not have more than 300
     if len(kv)>500:
         logging.debug(str(len(kv)) + " dicoms produced by " + ff)
-    # kv.append(('file',chunk[nn])) #adds my custom field with the original filepath
-    kv.append(('file', f_list_elem[1]))
+    kv.append(('file', f_list_elem[1])) #adds my custom field with the original filepath
     kv.append(('has_pix_array',c))   #adds my custom field with if file has image
     if c:
         kv.append(('category','uncategorized')) #adds my custom category field - useful if classifying images before processing
@@ -289,7 +288,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
     }
     
 
-def Execute_Main_PNG_Extractor(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
+def Execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
     failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start):
     fix_mismatch()
     if processes == 0.5:  # use half the cores to avoid  high ram usage
@@ -376,19 +375,6 @@ def Execute_Main_PNG_Extractor(pickle_file, dicom_home, output_directory, print_
                     logging.error(err_msg)
                 else:
                     fm.write(fmap)
-            '''
-            with Pool(core_count) as p:
-                res = p.imap_unordered(extract_images,range(len(filedata)))
-                for out in res:
-                    (fmap,fail_path,err) = out
-                    if err:
-                        count +=1
-                        copyfile(fail_path[0],fail_path[1])
-                        err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
-                        logging.error(err_msg)
-                    else:
-                        fm.write(fmap)
-            '''
         fm.close()
         logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
@@ -447,7 +433,7 @@ def Execute_Main_PNG_Extractor(pickle_file, dicom_home, output_directory, print_
     logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
     logs = []
     logs.append(err)
-    logs.append("DONE")
+    logs.append("The PNG conversion is SUCCESSFUL")
     return logs
 
 
@@ -509,5 +495,5 @@ if __name__ == "__main__":
     if not os.path.exists(failed + "/4"):
         os.makedirs(failed + "/4")
     logging.info("---------------- From the command line ----------------")
-    Execute_Main_PNG_Extractor(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
+    Execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
     failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
