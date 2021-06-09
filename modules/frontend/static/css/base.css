@@ -1,3 +1,8 @@
+body,
+html {
+    height: 100%;
+}
+
 .nav-item {
     margin: 8px;
     padding: 12px;
@@ -30,12 +35,70 @@
     margin: 10px;
 }
 
+/* HomePage Styles */
+
+.homeBackground {
+    background-image: url("../images/home.png");
+    height: 100%;
+    width: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+}
+
+.mainHeading {
+    background-color: rgba(52, 152, 219, 0.6);
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.65);
+    border-radius: 30px;
+    width: 60%;
+    padding: 25px;
+    margin-top: 50px;
+}
+
+.headingText {
+    color: #ffffff;
+}
+
+.links {
+    margin-top: 200px;
+}
+
+.links .row {
+    width: 40%;
+}
+
+.links .buttons {
+    background-color: rgba(0, 0, 0, 0.55);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.links a {
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 25px;
+}
+
+.links a:hover {
+    color: #000000;
+}
+
+.links .buttons:hover {
+    background-color: rgba(52, 152, 219, 1);
+}
+
+/* PNG Extraction Styles */
+
 .backdrop {
     /* position: absolute; */
     background-image: url("../images/img1.png");
+    height: 100%;
+    background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    height: 95vh;
 }
 
 .row {

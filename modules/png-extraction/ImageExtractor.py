@@ -21,62 +21,76 @@ from pydicom import config
 from pydicom import datadict
 from pydicom import values
 
-with open('config.json', 'r') as f:
-    niffler = json.load(f)
+import pathlib
+configs = {}
 
-#Get variables for StoreScp from config.json.
-print_images = niffler['PrintImages']
-print_only_common_headers = niffler['CommonHeadersOnly']
-dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
-output_directory = niffler['OutputDirectory']
-depth = niffler['Depth']
-processes = niffler['UseProcesses'] #how many processes to use.
-flattened_to_level = niffler['FlattenedToLevel']
-email = niffler['YourEmail']
-send_email = niffler['SendEmail']
-no_splits = niffler['SplitIntoChunks']
-is16Bit = niffler['is16Bit']
+def initialize_Values(config_values):
+    global configs
+    configs = config_values
+    # Applying checks for paths
+    
+    p1 = pathlib.PureWindowsPath(configs['dcmFolder'])
+    dicom_home = p1.as_posix() #the folder containing your dicom files
 
-metadata_col_freq_threshold = 0.1
+    p2 = pathlib.PureWindowsPath(configs['outputFolder'])
+    output_directory = p2.as_posix()
 
-png_destination = output_directory + '/extracted-images/'
-failed = output_directory +'/failed-dicom/'
-maps_directory = output_directory + '/maps/'
-meta_directory = output_directory + '/meta/'
+    print_images = configs['printImages']
+    print_only_common_headers = configs['headers']
+    depth = int(configs['depth'])
+    processes = int(configs['useProcess']) #how many processes to use.
+    flattened_to_level = configs['level']
+    email = configs['email']
+    send_email = configs['sendEmail']
+    no_splits = int(configs['chunks'])
+    is16Bit = configs['16Bit']
+    
+    metadata_col_freq_threshold = 0.1
 
-LOG_FILENAME = output_directory + '/ImageExtractor.out'
-pickle_file = output_directory + '/ImageExtractor.pickle'
-# record the start time
-t_start = time.time()
+    png_destination = output_directory + '/extracted-images/'
+    failed = output_directory +'/failed-dicom/'
+    maps_directory = output_directory + '/maps/'
+    meta_directory = output_directory + '/meta/'
 
-if not os.path.exists(output_directory):
-    os.makedirs(output_directory)
+    LOG_FILENAME = output_directory + '/ImageExtractor.out'
+    pickle_file = output_directory + '/ImageExtractor.pickle'
 
-logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+    # record the start time
+    t_start = time.time()
 
-if not os.path.exists(maps_directory):
-    os.makedirs(maps_directory)
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
 
-if not os.path.exists(meta_directory):
-    os.makedirs(meta_directory)
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
 
-if not os.path.exists(png_destination):
-    os.makedirs(png_destination)
+    if not os.path.exists(maps_directory):
+        os.makedirs(maps_directory)
 
-if not os.path.exists(failed):
-    os.makedirs(failed)
+    if not os.path.exists(meta_directory):
+        os.makedirs(meta_directory)
 
-if not os.path.exists(failed + "/1"):
-    os.makedirs(failed + "/1")
+    if not os.path.exists(png_destination):
+        os.makedirs(png_destination)
 
-if not os.path.exists(failed + "/2"):
-    os.makedirs(failed + "/2")
+    if not os.path.exists(failed):
+        os.makedirs(failed)
 
-if not os.path.exists(failed + "/3"):
-    os.makedirs(failed + "/3")
+    if not os.path.exists(failed + "/1"):
+        os.makedirs(failed + "/1")
 
-if not os.path.exists(failed + "/4"):
-    os.makedirs(failed + "/4")
+    if not os.path.exists(failed + "/2"):
+        os.makedirs(failed + "/2")
+
+    if not os.path.exists(failed + "/3"):
+        os.makedirs(failed + "/3")
+
+    if not os.path.exists(failed + "/4"):
+        os.makedirs(failed + "/4")
+
+    logging.info("------- Values Initialization DONE -------")
+    final_res = Execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
+        failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
+    return final_res
 
 #%%Function for getting tuple for field,val pairs
 def get_tuples(plan, outlist = None, key = ""):
@@ -128,7 +142,7 @@ def extract_headers(f_list_elem):
     # dicom images should not have more than 300
     if len(kv)>500:
         logging.debug(str(len(kv)) + " dicoms produced by " + ff)
-    kv.append(('file',chunk[nn])) #adds my custom field with the original filepath
+    kv.append(('file', f_list_elem[1])) #adds my custom field with the original filepath
     kv.append(('has_pix_array',c))   #adds my custom field with if file has image
     if c:
         kv.append(('category','uncategorized')) #adds my custom category field - useful if classifying images before processing
@@ -142,7 +156,7 @@ def extract_headers(f_list_elem):
 # filemapping: dicom to png paths   (as str)
 # fail_path: dicom to failed folder (as tuple)
 # found_err: error code produced when processing
-def extract_images(i):
+def extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit):
     ds = dicom.dcmread(filedata.iloc[i].loc['file'], force=True) #read file in
     found_err=None
     filemapping = ""
@@ -183,7 +197,7 @@ def extract_images(i):
         pngfile = png_destination+folderName+'/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
         dicom_path = filedata.iloc[i].loc['file']
         image_path = png_destination+folderName+'/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
-        if is16Bit: 
+        if (is16Bit == 'True' or is16Bit == 'true'): 
             # write the PNG file as a 16-bit greyscale 
             image_2d = ds.pixel_array.astype(np.double) 
             # # Rescaling grey scale between 0-255
@@ -245,7 +259,7 @@ def fix_mismatch_callback(raw_elem, **kwargs):
     return raw_elem
 
 
-def get_path(depth):
+def get_path(depth, dicom_home):
     directory = dicom_home + '/'
     i = 0
     while i < depth:
@@ -273,81 +287,87 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
         'with_VRs': with_VRs,
     }
     
-fix_mismatch()
-if processes == 0.5:  # use half the cores to avoid  high ram usage
-    core_count = int(os.cpu_count()/2)
-elif processes == 0:  # use all the cores
-    core_count = int(os.cpu_count())
-elif processes < os.cpu_count():  # use the specified number of cores to avoid high ram usage
-    core_count = processes
-else:
-    core_count = int(os.cpu_count())
-#%% get set up to create dataframe
-dirs = os.listdir(dicom_home)
-#gets all dicom files. if editing this code, get filelist into the format of a list of strings,
-#with each string as the file path to a different dicom file.
-file_path = get_path(depth)
 
-if os.path.isfile(pickle_file):
-    f=open(pickle_file,'rb')
-    filelist=pickle.load(f)
-else:
-    filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
-    pickle.dump(filelist,open(pickle_file,'wb'))
-file_chunks = np.array_split(filelist,no_splits)
-logging.info('Number of dicom files: ' + str(len(filelist)))
+def Execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
+    failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start):
+    fix_mismatch()
+    if processes == 0.5:  # use half the cores to avoid  high ram usage
+        core_count = int(os.cpu_count()/2)
+    elif processes == 0:  # use all the cores
+        core_count = int(os.cpu_count())
+    elif processes < os.cpu_count():  # use the specified number of cores to avoid high ram usage
+        core_count = processes
+    else:
+        core_count = int(os.cpu_count())
+    #%% get set up to create dataframe
+    dirs = os.listdir(dicom_home)
+    #gets all dicom files. if editing this code, get filelist into the format of a list of strings,
+    #with each string as the file path to a different dicom file.
+    file_path = get_path(depth, dicom_home)
 
-try:
-    ff = filelist[0] #load first file as a template to look at all
-except IndexError:
-    logging.error("There is no file present in the given folder in " + file_path)
-    sys.exit(1)
+    if os.path.isfile(pickle_file):
+        f=open(pickle_file,'rb')
+        filelist=pickle.load(f)
+    else:
+        filelist=glob.glob(file_path, recursive=True) #this searches the folders at the depth we request and finds all dicoms
+        pickle.dump(filelist,open(pickle_file,'wb'))
+    file_chunks = np.array_split(filelist,no_splits)
+    logging.info('Number of dicom files: ' + str(len(filelist)))
 
-plan = dicom.dcmread(ff, force=True)
-logging.debug('Loaded the first file successfully')
+    try:
+        ff = filelist[0] #load first file as a template to look at all
+    except IndexError:
+        logging.error("There is no file present in the given folder in " + file_path)
+        sys.exit(1)
 
-keys = [(aa) for aa in plan.dir() if (hasattr(plan, aa) and aa!='PixelData')]
-#%%checks for images in fields and prints where they are
-for field in plan.dir():
-    if (hasattr(plan, field) and field!='PixelData'):
-        entry = getattr(plan, field)
-        if type(entry) is bytes:
-            logging.debug(field)
-            logging.debug(str(entry))
-for i,chunk in enumerate(file_chunks):
-    csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
-    mappings ="{}/maps/mapping_{}.csv".format(output_directory,i)
-    fm = open(mappings, "w+")
-    filemapping = 'Original DICOM file location, PNG location \n'
-    fm.write(filemapping)
-    # add a check to see if the metadata has already been extracted
-    #%%step through whole file list, read in file, append fields to future dataframe of all files
-    headerlist = []
-    #start up a multi processing pool
-    #for every item in filelist send data to a subprocess and run extract_headers func
-    #output is then added to headerlist as they are completed (no ordering is done)
-    with Pool(core_count) as p:
-        res= p.imap_unordered(extract_headers,enumerate(chunk))
-        for i,e in enumerate(res):
-            headerlist.append(e)
-    data = pd.DataFrame(headerlist)
-    logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(data.columns)))
-    #%%find common fields
-    #make dataframe containing all fields and all files minus those removed in previous block
-    #%%export csv file of final dataframe
-    export_csv = data.to_csv (csv_destination, index = None, header=True)
-    fields=data.keys()
-    count = 0 #potential painpoint
-    #writting of log handled by main process
-    if print_images:
-        logging.info("Start processing Images")
-        filedata=data
-        total = len(chunk)
-        stamp = time.time()
+    plan = dicom.dcmread(ff, force=True)
+    logging.debug('Loaded the first file successfully')
+
+    keys = [(aa) for aa in plan.dir() if (hasattr(plan, aa) and aa!='PixelData')]
+    #%%checks for images in fields and prints where they are
+    for field in plan.dir():
+        if (hasattr(plan, field) and field!='PixelData'):
+            entry = getattr(plan, field)
+            if type(entry) is bytes:
+                logging.debug(field)
+                logging.debug(str(entry))
+
+    for i,chunk in enumerate(file_chunks):
+        csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
+        mappings ="{}/maps/mapping_{}.csv".format(output_directory,i)
+        fm = open(mappings, "w+")
+        filemapping = 'Original DICOM file location, PNG location \n'
+        fm.write(filemapping)
+        # add a check to see if the metadata has already been extracted
+        #%%step through whole file list, read in file, append fields to future dataframe of all files
+        headerlist = []
+        #start up a multi processing pool
+        #for every item in filelist send data to a subprocess and run extract_headers func
+        #output is then added to headerlist as they are completed (no ordering is done)
         with Pool(core_count) as p:
-            res = p.imap_unordered(extract_images,range(len(filedata)))
-            for out in res:
-                (fmap,fail_path,err) = out
+            res= p.imap_unordered(extract_headers, enumerate(chunk))
+            for i,e in enumerate(res):
+                headerlist.append(e)
+        data = pd.DataFrame(headerlist)
+        logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(data.columns)))
+        #%%find common fields
+        #make dataframe containing all fields and all files minus those removed in previous block
+        #%%export csv file of final dataframe
+        export_csv = data.to_csv(csv_destination, index = None, header=True)
+        fields=data.keys()
+        count = 0 #potential painpoint
+        #writting of log handled by main process
+        if print_images:
+            logging.info("Start processing Images")
+            filedata = data
+            total = len(chunk)
+            stamp = time.time()
+            for i in range(len(filedata)):
+                res = extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit)
+                # (fmap,fail_path,err) = out
+                fmap = res[1]
+                fail_path = res[0]
+                err = res[-1]
                 if err:
                     count +=1
                     copyfile(fail_path[0],fail_path[1])
@@ -355,60 +375,125 @@ for i,chunk in enumerate(file_chunks):
                     logging.error(err_msg)
                 else:
                     fm.write(fmap)
-    fm.close()
-    logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
+        fm.close()
+        logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
 
-logging.info('Generating final metadata file')
+    logging.info('Generating final metadata file')
 
-#identify the 
-col_names = dict()
-all_headers = dict()
+    #identify the 
+    col_names = dict()
+    all_headers = dict()
 
-metas = glob.glob( "{}*.csv".format(meta_directory))
-#for each meta  file identify the columns that are not na's for at least 10% (metadata_col_freq_threshold) of data 
-for meta in metas:
-    m = pd.read_csv(meta,dtype='str')
-    d_len = m.shape[0]
-    for e in m.columns:
-        if np.sum(m[e].isna()) < (1-metadata_col_freq_threshold)*d_len: # Column e is populated in at least 10% of rows (i.e. isNaN in <90% of rows)
-            if e in col_names:
-                col_names[e] += 1
+    metas = glob.glob( "{}*.csv".format(meta_directory))
+    #for each meta  file identify the columns that are not na's for at least 10% (metadata_col_freq_threshold) of data 
+    for meta in metas:
+        m = pd.read_csv(meta,dtype='str')
+        d_len = m.shape[0]
+        for e in m.columns:
+            if np.sum(m[e].isna()) < (1-metadata_col_freq_threshold)*d_len: # Column e is populated in at least 10% of rows (i.e. isNaN in <90% of rows)
+                if e in col_names:
+                    col_names[e] += 1
+                else:
+                    col_names[e] = 1
+            # all_headers keeps track of number of appearances of each header. We later use this count to ensure that the headers we use are present in all metadata files.
+            if e in all_headers:
+                all_headers[e] += 1
             else:
-                col_names[e] = 1
-        # all_headers keeps track of number of appearances of each header. We later use this count to ensure that the headers we use are present in all metadata files.
-        if e in all_headers:
-            all_headers[e] += 1
-        else:
-            all_headers[e] = 1
+                all_headers[e] = 1
 
-loadable_names = list()
-for k in col_names.keys():
-    if k in all_headers and all_headers[k] >= no_splits:  # no_splits == number of batches used 
-        loadable_names.append(k) # use header only if it's present in every metadata file
-		
-#load every metadata file using only valid columns 
-meta_list = list()
-for meta in metas:
-    m = pd.read_csv(meta,dtype='str',usecols=loadable_names)
-    meta_list.append(m)
-merged_meta = pd.concat(meta_list,ignore_index=True)
-merged_meta.to_csv('{}/metadata.csv'.format(output_directory),index=False)
-#getting a single mapping file
-logging.info('Generatign final mapping file')
-mappings = glob.glob("{}/maps/*.csv".format(output_directory))
-map_list = list()
-for mapping in mappings:
-    map_list.append(pd.read_csv(mapping,dtype='str'))
-merged_maps = pd.concat(map_list,ignore_index=True)
-if print_only_common_headers:
-    mask_common_fields = merged_maps.isnull().mean() < 0.1
-    common_fields = set(np.asarray(merged_maps.columns)[mask_common_fields])
-    merged_maps = merged_maps[common_fields]
-merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
+    loadable_names = list()
+    for k in col_names.keys():
+        if k in all_headers and all_headers[k] >= no_splits:  # no_splits == number of batches used 
+            loadable_names.append(k) # use header only if it's present in every metadata file
+            
+    #load every metadata file using only valid columns 
+    meta_list = list()
+    for meta in metas:
+        m = pd.read_csv(meta,dtype='str',usecols=loadable_names)
+        meta_list.append(m)
+    merged_meta = pd.concat(meta_list,ignore_index=True)
+    merged_meta.to_csv('{}/metadata.csv'.format(output_directory),index=False)
+    #getting a single mapping file
+    logging.info('Generatign final mapping file')
+    mappings = glob.glob("{}/maps/*.csv".format(output_directory))
+    map_list = list()
+    for mapping in mappings:
+        map_list.append(pd.read_csv(mapping,dtype='str'))
+    merged_maps = pd.concat(map_list,ignore_index=True)
+    if (print_only_common_headers == 'True' or print_only_common_headers == 'true'):
+        mask_common_fields = merged_maps.isnull().mean() < 0.1
+        common_fields = set(np.asarray(merged_maps.columns)[mask_common_fields])
+        merged_maps = merged_maps[common_fields]
+    merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
+
+    if (send_email == 'True' or send_email == 'true'):
+       subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
+    # Record the total run-time
+    logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+    logs = []
+    logs.append(err)
+    logs.append("The PNG conversion is SUCCESSFUL")
+    return logs
 
 
-if send_email:
-    subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
-# Record the total run-time
-logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+if __name__ == "__main__":
+    with open('config.json', 'r') as f:
+        niffler = json.load(f)
+
+    #Get variables for StoreScp from config.json.
+    print_images = niffler['PrintImages']
+    print_only_common_headers = niffler['CommonHeadersOnly']
+    dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
+    output_directory = niffler['OutputDirectory']
+    depth = niffler['Depth']
+    processes = niffler['UseProcesses'] #how many processes to use.
+    flattened_to_level = niffler['FlattenedToLevel']
+    email = niffler['YourEmail']
+    send_email = niffler['SendEmail']
+    no_splits = niffler['SplitIntoChunks']
+    is16Bit = niffler['is16Bit']
+
+    metadata_col_freq_threshold = 0.1
+
+    png_destination = output_directory + '/extracted-images/'
+    failed = output_directory +'/failed-dicom/'
+    maps_directory = output_directory + '/maps/'
+    meta_directory = output_directory + '/meta/'
+
+    LOG_FILENAME = output_directory + '/ImageExtractor.out'
+    pickle_file = output_directory + '/ImageExtractor.pickle'
+    # record the start time
+    t_start = time.time()
+
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
+
+    if not os.path.exists(maps_directory):
+        os.makedirs(maps_directory)
+
+    if not os.path.exists(meta_directory):
+        os.makedirs(meta_directory)
+
+    if not os.path.exists(png_destination):
+        os.makedirs(png_destination)
+
+    if not os.path.exists(failed):
+        os.makedirs(failed)
+
+    if not os.path.exists(failed + "/1"):
+        os.makedirs(failed + "/1")
+
+    if not os.path.exists(failed + "/2"):
+        os.makedirs(failed + "/2")
+
+    if not os.path.exists(failed + "/3"):
+        os.makedirs(failed + "/3")
+
+    if not os.path.exists(failed + "/4"):
+        os.makedirs(failed + "/4")
+    logging.info("---------------- From the command line ----------------")
+    Execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
+    failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
