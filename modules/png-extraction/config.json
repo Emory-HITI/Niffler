@@ -1,13 +1,13 @@
 {
-    "DICOMHome": "/Users/pradeeban/Downloads",
-    "OutputDirectory": "/Users/pradeeban/Downloads/root",
-    "Depth": 0,
-    "SplitIntoChunks": 1,
-    "PrintImages": true,
-    "CommonHeadersOnly": false,
-    "UseProcesses": 0,
-    "FlattenedToLevel": "patient",
-    "is16Bit": true,
-    "SendEmail": true,
-    "YourEmail": "test@test.test"
+	"DICOMHome": "/Users/pradeeban/Downloads",
+	"OutputDirectory": "/Users/pradeeban/Downloads/root",
+	"Depth": 0,
+	"SplitIntoChunks": 1,
+	"PrintImages": true,
+	"CommonHeadersOnly": false,
+	"UseProcesses": 0,
+	"FlattenedToLevel": "patient",
+	"is16Bit":true,
+	"SendEmail": true,
+	"YourEmail": "test@test.test"
 }

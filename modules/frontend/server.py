@@ -15,7 +15,7 @@ def PNG_Extraction():
 config_values = {}
 
 @app.route('/', methods=['POST'])
-def getPNGValues():
+def extract_png():
     if request.method =='POST':
         config_values["dcmFolder"] = request.form['DICOMFolder']
         config_values["outputFolder"] = request.form['outputFolder']
