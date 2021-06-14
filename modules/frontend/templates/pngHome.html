@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -126,39 +126,44 @@
                     </ul>
                 </div>
             </div>
-        </nav>
-        <div class="backdrop">
-            <div class="container-fluid">
-                <div style="padding-top: 30px">
+        </nav> -->
+{% extends "base.html" %} {% block content %}
+<div class="backdrop">
+    <div class="container-fluid">
+        <div style="padding-top: 30px">
+            <center>
+                <h1 style="color: white; letter-spacing: 2px">
+                    PNG Extraction
+                </h1>
+            </center>
+        </div>
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            action="/png-extraction"
+        >
+            <div class="row">
+                <div
+                    class="col-5"
+                    style="
+                        padding: 20px;
+                        margin-top: 20px;
+                        margin-left: 55px;
+                        background: rgba(255, 255, 255, 0.25);
+                        border-radius: 25px;
+                    "
+                >
                     <center>
-                        <h1 style="color: white; letter-spacing: 2px">
-                            PNG Extraction
-                        </h1>
+                        <h3 style="color: white; letter-spacing: 1px">
+                            Edit Configurations
+                        </h3>
                     </center>
-                </div>
-                <form method="POST" enctype="multipart/form-data" action="/">
                     <div class="row">
-                        <div
-                            class="col-5"
-                            style="
-                                padding: 20px;
-                                margin-top: 20px;
-                                margin-left: 55px;
-                                background: rgba(255, 255, 255, 0.25);
-                                border-radius: 25px;
-                            "
-                        >
-                            <center>
-                                <h3 style="color: white; letter-spacing: 1px">
-                                    Edit Configurations
-                                </h3>
-                            </center>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">DICOM Home Folder</div>
-                                </div>
-                                <div class="col">
-                                    <!-- <input
+                        <div class="col">
+                            <div class="text">DICOM Home Folder</div>
+                        </div>
+                        <div class="col">
+                            <!-- <input
                                         class="form-control"
                                         type="file"
                                         webkitdirectory
@@ -166,21 +171,21 @@
                                         id="fileImg"
                                         name="DICOMdocument"
                                     /> -->
-                                    <input
-                                        class="form-control"
-                                        type="text"
-                                        name="DICOMFolder"
-                                        placeholder="path/to/folder/containing/dcm/images"
-                                    />
-                                </div>
-                            </div>
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="DICOMFolder"
+                                placeholder="path/to/folder/containing/dcm/images"
+                            />
+                        </div>
+                    </div>
 
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Output Folder</div>
-                                </div>
-                                <div class="col">
-                                    <!-- <input
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Output Folder</div>
+                        </div>
+                        <div class="col">
+                            <!-- <input
                                         type="file"
                                         class="form-control"
                                         webkitdirectory
@@ -188,198 +193,192 @@
                                         id="fileImg"
                                         name="OutputFolder"
                                     /> -->
-                                    <input
-                                        class="form-control"
-                                        type="text"
-                                        name="outputFolder"
-                                        placeholder="path/to/output/folder"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Depth</div>
-                                </div>
-                                <div class="col" style="width: 100%">
-                                    <input
-                                        class="form-control"
-                                        type="text"
-                                        name="depth"
-                                        placeholder="E.g. 1 if in DICOMHome/imgs/img1.dcm"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Split into chunks</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="number"
-                                        name="chunks"
-                                        placeholder="Recommended 1, for very large 2"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Use Processes</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="number"
-                                        name="useProcess"
-                                        placeholder="No. of Cores of CPU to use. Default 0 for all"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Flattened To Level</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="text"
-                                        name="level"
-                                        placeholder="Default:'patient';Values can be ‘study’ or ‘series’"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">To 16-bit</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="text"
-                                        name="16Bit"
-                                        placeholder="True else set False if 8-bit is needed"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Print Images</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="text"
-                                        name="printImages"
-                                        placeholder="Default True, can be set to False"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Common Headers Only</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="text"
-                                        name="headers"
-                                        placeholder="Default False"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Send Email</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="text"
-                                        name="sendEmail"
-                                        placeholder="True if you want to receive email else false"
-                                    />
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col">
-                                    <div class="text">Email</div>
-                                </div>
-                                <div class="col">
-                                    <input
-                                        class="form-control"
-                                        type="email"
-                                        name="email"
-                                        placeholder="Enter your Email"
-                                    />
-                                </div>
-                            </div>
-
-                            <center>
-                                <div class="row" style="margin-top: 20px">
-                                    <div class="col">
-                                        <button
-                                            type="reset"
-                                            class="btn btn-outline-info"
-                                        >
-                                            RESET
-                                        </button>
-                                    </div>
-                                    <div class="col">
-                                        <button
-                                            type="submit"
-                                            class="btn btn-warning"
-                                        >
-                                            RUN
-                                        </button>
-                                    </div>
-                                </div>
-                            </center>
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="outputFolder"
+                                placeholder="path/to/output/folder"
+                            />
                         </div>
-                        <div class="col-1"></div>
-                        <div class="col" style="padding-top: 30px">
-                            <div
-                                class="container center"
-                                style="
-                                    background: rgba(0, 0, 0, 0.65);
-                                    border-radius: 30px;
-                                    padding: 25px;
-                                "
-                            >
-                                <center>
-                                    <h1 style="color: white">LOGS</h1>
-                                </center>
-                                <br />
-                                {% if logs %}
-                                <h4 style="color: white">
-                                    Errors: {{ logs[0] }}
-                                </h4>
-                                <h4 style="color: white">
-                                    Status: {{ logs[1] }}
-                                </h4>
-                                <h4 style="color: white">
-                                    Please check your output folder for
-                                    extracted Images !!
-                                </h4>
-                                {% else %}
-                                <h4 style="color: white">
-                                    Run PNG Extraction to check Logs
-                                </h4>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="col-1"></div>
                     </div>
-                </form>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Depth</div>
+                        </div>
+                        <div class="col" style="width: 100%">
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="depth"
+                                placeholder="E.g. 1 if in DICOMHome/imgs/img1.dcm"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Split into chunks</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="number"
+                                name="chunks"
+                                placeholder="Recommended 1, for very large 2"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Use Processes</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="number"
+                                name="useProcess"
+                                placeholder="No. of Cores of CPU to use. Default 0 for all"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Flattened To Level</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="level"
+                                placeholder="Default:'patient';Values can be ‘study’ or ‘series’"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">To 16-bit</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="16Bit"
+                                placeholder="True else set False if 8-bit is needed"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Print Images</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="printImages"
+                                placeholder="Default True, can be set to False"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Common Headers Only</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="headers"
+                                placeholder="Default False"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Send Email</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="sendEmail"
+                                placeholder="True if you want to receive email else false"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="text">Email</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="email"
+                                name="email"
+                                placeholder="Enter your Email"
+                            />
+                        </div>
+                    </div>
+
+                    <center>
+                        <div class="row" style="margin-top: 20px">
+                            <div class="col">
+                                <button
+                                    type="reset"
+                                    class="btn btn-outline-info"
+                                >
+                                    RESET
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-warning">
+                                    RUN
+                                </button>
+                            </div>
+                        </div>
+                    </center>
+                </div>
+                <div class="col-1"></div>
+                <div class="col" style="padding-top: 30px">
+                    <div
+                        class="container center"
+                        style="
+                            background: rgba(0, 0, 0, 0.65);
+                            border-radius: 30px;
+                            padding: 25px;
+                        "
+                    >
+                        <center>
+                            <h1 style="color: white">LOGS</h1>
+                        </center>
+                        <br />
+                        {% if logs %}
+                        <h4 style="color: white">Errors: {{ logs[0] }}</h4>
+                        <h4 style="color: white">Status: {{ logs[1] }}</h4>
+                        <h4 style="color: white">
+                            Please check your output folder for extracted Images
+                            !!
+                        </h4>
+                        {% else %}
+                        <h4 style="color: white">
+                            Run PNG Extraction to check Logs
+                        </h4>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-1"></div>
             </div>
-        </div>
-    </body>
-</html>
+        </form>
+    </div>
+</div>
+{% endblock %}
+<!-- </body>
+</html> -->

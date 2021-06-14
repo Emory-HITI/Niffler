@@ -98,12 +98,13 @@ html {
 /* PNG Extraction Styles */
 
 .backdrop {
-    /* position: absolute; */
     background-image: url("../images/img1.png");
     height: 100%;
+    width: 100%;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    position: absolute;
 }
 
 .row {
@@ -244,11 +245,15 @@ html {
 }
 
 .login-text {
-    text-align: left;
-    padding-left: 0px;
-    color: #a2a4a4;
+    background-color: red;
+    margin: 12px;
+    border-radius: 12px;
+    padding: 10px;
+    color: white;
+    text-align: center;
+    font-size: 22px;
 }
 
 .loginbttm {
-    padding: 0px;
+    padding: 25px;
 }

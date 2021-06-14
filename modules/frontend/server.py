@@ -74,14 +74,14 @@ def logout():
     logout_user()
     return render_template('home.html')
 
-@app.route("/png-extraction", methods = ['GET'])
-@login_required
-def PNG_Extraction():
-    return render_template('pngHome.html')
+# @app.route("/png-extraction", methods = ['GET'])
+# @login_required
+# def PNG_Extraction():
+#     return render_template('pngHome.html')
 
 config_values = {}
 
-@app.route('/', methods=['POST'])
+@app.route('/png-extraction', methods=['GET', 'POST'])
 @login_required
 def extract_png():
     if request.method =='POST':
@@ -105,6 +105,22 @@ def extract_png():
             return render_template('pngHome.html', logs = lt)
     return render_template('pngHome.html')
 
+@app.route('/cold-extraction', methods=['GET', 'POST'])
+@login_required
+def cold_extraction():
+    if request.method =='POST':
+        csv_file = request.files['csvFile']
+
+        import csv
+        import io
+        
+        stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
+        csv_input = csv.reader(stream)
+        # for row in csv_input:
+        #     print(row)
+        
+        return render_template('cold_extraction.html')
+    return render_template('cold_extraction.html')
 #JUST DO IT!!!
 if __name__=="__main__":
     app.run(port="9000")

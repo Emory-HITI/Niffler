@@ -1,0 +1,241 @@
+{% extends "base.html" %} {% block content %}
+<div class="coldExtraction">
+    <div class="backdrop">
+        <div class="container-fluid">
+            <div style="padding-top: 30px">
+                <center>
+                    <h1 style="color: white; letter-spacing: 2px">
+                        Cold Extraction
+                    </h1>
+                </center>
+            </div>
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+                action="/cold-extraction"
+            >
+                <div class="row">
+                    <div
+                        class="col-5"
+                        style="
+                            padding: 20px;
+                            margin-top: 20px;
+                            margin-left: 55px;
+                            background: rgba(255, 255, 255, 0.25);
+                            border-radius: 25px;
+                        "
+                    >
+                        <center>
+                            <h3 style="color: white; letter-spacing: 1px">
+                                Edit Configurations
+                            </h3>
+                        </center>
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Storage Folder</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="StorageFolder"
+                                    placeholder="path/to/storage/folder"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">CSV File</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="file"
+                                    name="csvFile"
+                                    placeholder="Your CSV File"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">File Path</div>
+                            </div>
+                            <div class="col" style="width: 100%">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="file_path"
+                                    placeholder="E.g. {00100020}/{0020000D}/{0020000E}/{00080018}.dcm"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Extraction Type</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="ExtractionType"
+                                    placeholder="E.g. empi_accession"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Accession Index</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    name="AccessionIndex"
+                                    placeholder="If present the CSV column index of AccessionNumber, else 0"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Patient Index</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    name="PatientIndex"
+                                    placeholder="If present the CSV column index of PatientIndex"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Date Index</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    name="DateIndex"
+                                    placeholder="If present the CSV column index of DateIndex"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Date Type</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="DateType"
+                                    placeholder="E.g. StudyDate"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Date Format</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="DateFormat"
+                                    placeholder="E.g. %Y%m%d"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Send Email</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="sendEmail"
+                                    placeholder="True if you want to receive email else false"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">Email</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="email"
+                                    name="email"
+                                    placeholder="Enter your Email"
+                                />
+                            </div>
+                        </div>
+
+                        <center>
+                            <div class="row" style="margin-top: 20px">
+                                <div class="col">
+                                    <button
+                                        type="reset"
+                                        class="btn btn-outline-info"
+                                    >
+                                        RESET
+                                    </button>
+                                </div>
+                                <div class="col">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-warning"
+                                    >
+                                        RUN
+                                    </button>
+                                </div>
+                            </div>
+                        </center>
+                    </div>
+                    <div class="col-1"></div>
+                    <div class="col" style="padding-top: 30px">
+                        <div
+                            class="container center"
+                            style="
+                                background: rgba(0, 0, 0, 0.65);
+                                border-radius: 30px;
+                                padding: 25px;
+                            "
+                        >
+                            <center>
+                                <h1 style="color: white">LOGS</h1>
+                            </center>
+                            <br />
+                            {% if logs %}
+                            <h4 style="color: white">Errors: {{ logs[0] }}</h4>
+                            <h4 style="color: white">Status: {{ logs[1] }}</h4>
+                            <h4 style="color: white">
+                                Please check your output folder !!
+                            </h4>
+                            {% else %}
+                            <h4 style="color: white">
+                                Run Cold Extraction to check Logs
+                            </h4>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-1"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

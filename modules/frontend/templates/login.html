@@ -48,7 +48,7 @@
                             <div class="col-lg-12 loginbttm">
                                 {% with messages = get_flashed_messages() %} {%
                                 if messages %}
-                                <div class="col-lg-6 login-btm login-text">
+                                <div class="col-lg-12 login-btm login-text">
                                     <!-- Error Message -->
                                     {{ messages[0] }}
                                 </div>
@@ -74,6 +74,5 @@
             </div>
         </div>
     </div>
-
     {% endblock %}
 </div>
