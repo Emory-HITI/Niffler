@@ -8,32 +8,28 @@ app = Flask(__name__)
 def index():
     return render_template('home.html')
 
-@app.route("/png-extraction", methods = ['GET'])
-def PNG_Extraction():
-    return render_template('pngHome.html')
 
-config_values = {}
-
-@app.route('/', methods=['POST'])
+@app.route('/png-extraction', methods=['POST', 'GET'])
 def extract_png():
+    config_values = {}
     if request.method =='POST':
-        config_values["dcmFolder"] = request.form['DICOMFolder']
-        config_values["outputFolder"] = request.form['outputFolder']
-        config_values["depth"] = request.form['depth']
-        config_values["chunks"] = request.form['chunks']
-        config_values["useProcess"] = request.form['useProcess']
-        config_values["level"] = request.form['level']
-        config_values["16Bit"] = request.form['16Bit']
-        config_values["printImages"] = request.form['printImages']
-        config_values["headers"] = request.form['headers']
-        config_values["sendEmail"] = request.form['sendEmail']
-        config_values["email"] = request.form['email']
-
+        config_values["DICOMHome"] = request.form['DICOMFolder']
+        config_values["OutputDirectory"] = request.form['outputFolder']
+        config_values["Depth"] = request.form['depth']
+        config_values["SplitIntoChunks"] = request.form['chunks']
+        config_values["UseProcesses"] = request.form['useProcess']
+        config_values["FlattenedToLevel"] = request.form['level']
+        config_values["is16Bit"] = request.form['16Bit']
+        config_values["PrintImages"] = request.form['printImages']
+        config_values["CommonHeadersOnly"] = request.form['headers']
+        config_values["SendEmail"] = request.form['sendEmail']
+        config_values["YourEmail"] = request.form['email']
+        print(config_values)
         if(len(config_values) > 0):
             import sys
             sys.path.append("../png-extraction/")
             import ImageExtractor
-            lt = ImageExtractor.initialize_Values(config_values)
+            lt = ImageExtractor.initialize_config_and_execute(config_values)
             return render_template('pngHome.html', logs = lt)
     return render_template('pngHome.html')
 
