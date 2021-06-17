@@ -384,18 +384,23 @@ def Execute(pickle_file, dicom_home, output_directory, print_images, print_only_
     #identify the 
     col_names = dict()
     all_headers = dict()
+    total_length = 0
 
     metas = glob.glob( "{}*.csv".format(meta_directory))
     #for each meta  file identify the columns that are not na's for at least 10% (metadata_col_freq_threshold) of data 
     for meta in metas:
         m = pd.read_csv(meta,dtype='str')
         d_len = m.shape[0]
+        total_length += d_len
+
         for e in m.columns:
-            if np.sum(m[e].isna()) < (1-metadata_col_freq_threshold)*d_len: # Column e is populated in at least 10% of rows (i.e. isNaN in <90% of rows)
-                if e in col_names:
-                    col_names[e] += 1
-                else:
-                    col_names[e] = 1
+            col_pop = d_len - np.sum(m[e].isna()) # number of populated rows for this column in this metadata file
+
+            if e in col_names:
+                col_names[e] += col_pop
+            else:
+                col_names[e] = col_pop
+            
             # all_headers keeps track of number of appearances of each header. We later use this count to ensure that the headers we use are present in all metadata files.
             if e in all_headers:
                 all_headers[e] += 1
@@ -405,7 +410,8 @@ def Execute(pickle_file, dicom_home, output_directory, print_images, print_only_
     loadable_names = list()
     for k in col_names.keys():
         if k in all_headers and all_headers[k] >= no_splits:  # no_splits == number of batches used 
-            loadable_names.append(k) # use header only if it's present in every metadata file
+            if col_names[k] >= metadata_col_freq_threshold*total_length:
+                loadable_names.append(k) # use header only if it's present in every metadata file
             
     #load every metadata file using only valid columns 
     meta_list = list()
