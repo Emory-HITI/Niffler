@@ -437,6 +437,7 @@ def Execute(pickle_file, dicom_home, output_directory, print_images, print_only_
        subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion has been complete" {0}'.format(email), shell=True)
     # Record the total run-time
     logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
+    logging.shutdown() # Closing logging file after extraction is done !!
     logs = []
     logs.append(err)
     logs.append("The PNG conversion is SUCCESSFUL")

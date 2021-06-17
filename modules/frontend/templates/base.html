@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -12,7 +12,7 @@
             crossorigin="anonymous"
         />
         <script
-            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
             integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG"
             crossorigin="anonymous"
         ></script>
@@ -115,53 +115,30 @@
                         "
                     >
                         <li class="nav-item">
-                            <a href="#">Cold Extraction</a>
+                            <a href="/cold-extraction">On-demand Extraction</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#">Meta Extraction</a>
+                            <a href="#">Real-time Extraction</a>
                         </li>
                         <li class="nav-item">
                             <a href="/png-extraction">PNG Extraction</a>
                         </li>
+                        {% if not current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/signup">Signup</a>
+                        </li>
+                        {% endif %} {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="/logout">Logout</a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
-        </nav> -->
-{% extends "base.html" %} {% block content %}
-<div class="homeBackground">
-    <center>
-        <div class="mainHeading">
-            <div class="headingText">
-                <h1 style="color: white">NIFFLER</h1>
-                <br />
-                <h3 style="color: white">
-                    A DICOM Framework for Machine Learning Pipelines and
-                    Processing Workflows
-                </h3>
-            </div>
-        </div>
-
-        <div class="links">
-            <div class="row">
-                <div class="col">
-                    <div class="buttons">
-                        <a
-                            href="https://github.com/Emory-HITI/Niffler#install-niffler"
-                            ><div class="Buttontext">Install Niffler</div></a
-                        >
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="buttons">
-                        <a href="https://github.com/Emory-HITI/Niffler"
-                            ><div class="Buttontext">Github Code</div></a
-                        >
-                    </div>
-                </div>
-            </div>
-        </div>
-    </center>
-</div>
-{% endblock %}
-<!-- </body>
-</html> -->
+        </nav>
+        <div>{% block content %} {% endblock %}</div>
+    </body>
+</html>

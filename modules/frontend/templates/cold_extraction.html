@@ -1,0 +1,431 @@
+{% extends "base.html" %} {% block content %}
+<div class="coldExtraction">
+    <div class="backdrop">
+        <div class="container-fluid">
+            <div style="padding-top: 30px">
+                <center>
+                    <h1 style="color: white; letter-spacing: 2px">
+                        On-demand Extraction
+                    </h1>
+                </center>
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $('[data-toggle="tooltip"]').tooltip();
+                });
+            </script>
+            <form
+                method="POST"
+                enctype="multipart/form-data"
+                action="/cold-extraction"
+            >
+                <div class="row">
+                    <div
+                        class="col-5"
+                        style="
+                            padding: 20px;
+                            margin-top: 20px;
+                            margin-left: 55px;
+                            background: rgba(255, 255, 255, 0.25);
+                            border-radius: 25px;
+                        "
+                    >
+                        <center>
+                            <h3 style="color: white; letter-spacing: 1px">
+                                Edit Configurations
+                            </h3>
+                        </center>
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="/opt/storage/. . . ."
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Storage Folder</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="StorageFolder"
+                                    placeholder="path/to/storage/folder"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="text">CSV File</div>
+                            </div>
+                            <div class="col">
+                                <!-- Will the CSV file be present in the local system or server ?? -->
+                                <input
+                                    class="form-control"
+                                    type="file"
+                                    name="csvFile"
+                                    placeholder="Your CSV File"
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="File path hierarchy"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">File Path*</div>
+                            </div>
+                            <div class="col" style="width: 100%">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="file_path"
+                                    value="{00100020}/{0020000D}/{0020000E}/{00080018}.dcm"
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Currently supported options: empi, empi_accession ,empi_date, accession "
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Extraction Type</div>
+                            </div>
+                            <div class="col">
+                                <!-- <input
+                                    class="form-control"
+                                    type="text"
+                                    name="ExtractionType"
+                                    placeholder="E.g. empi_accession"
+                                /> -->
+                                <select
+                                    class="form-select"
+                                    aria-label="Default select example"
+                                    name="ExtractionType"
+                                >
+                                    <option selected value="empi">EMPI</option>
+                                    <option value="empi_accession">
+                                        EMPI_Accession
+                                    </option>
+                                    <option value="accession">Accession</option>
+                                    <option value="empi_date">EMPI_Date</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="If present the CSV column index of AccessionNumber, else leave as it is"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Accession Index</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    min="0"
+                                    value="1"
+                                    name="AccessionIndex"
+                                    placeholder="If present the CSV column index of AccessionNumber, else 0"
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="If present the CSV column index of PatientIndex else leave as it is"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Patient Index</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    min="0"
+                                    value="0"
+                                    name="PatientIndex"
+                                    placeholder="If present the CSV column index of PatientIndex"
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="If present the CSV column index of DateIndex else leave as it is"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Date Index</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="number"
+                                    min="0"
+                                    value="1"
+                                    name="DateIndex"
+                                    placeholder="If present the CSV column index of DateIndex"
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="DateType can range from AcquisitionDate, StudyDate, etc. Replace Accordingly. For extractions without a Date, leave this entry unmodified"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Date Type</div>
+                            </div>
+                            <div class="col">
+                                <!-- <input
+                                    class="form-control"
+                                    type="text"
+                                    name="DateType"
+                                    placeholder="E.g. StudyDate"
+                                /> -->
+                                <select
+                                    class="form-select"
+                                    aria-label="Default select example"
+                                    name="DateType"
+                                >
+                                    <option selected value="StudyDate">
+                                        StudyDate
+                                    </option>
+                                    <option value="AcquisitionDate">
+                                        AcquisitionDate
+                                    </option>
+                                    <option value="SeriesDate">
+                                        SeriesDate
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Default:'%Y%m%d', Change if you wish any other format"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Date Format</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="DateFormat"
+                                    placeholder="E.g. %Y%m%d"
+                                    value="%Y%m%d"
+                                />
+                            </div>
+                        </div>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="True if you want to receive email else false"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Send Email</div>
+                            </div>
+                            <div class="col">
+                                <!-- <input
+                                class="form-control"
+                                type="text"
+                                name="sendEmail"
+                                placeholder="True if you want to receive email else false"
+                            /> -->
+                                <select
+                                    class="form-select"
+                                    aria-label="Default select example"
+                                    name="sendEmail"
+                                    onchange="yesnoCheck(this);"
+                                    required
+                                >
+                                    <option selected value="">Select</option>
+                                    <option value="True">True</option>
+                                    <option value="False">False</option>
+                                </select>
+                            </div>
+                        </div>
+                        <script>
+                            function yesnoCheck(that) {
+                                if (that.value == "True") {
+                                    document.getElementById(
+                                        "ifYes"
+                                    ).style.display = "flex";
+                                } else {
+                                    document.getElementById(
+                                        "ifYes"
+                                    ).style.display = "none";
+                                }
+                            }
+                        </script>
+
+                        <div class="row" id="ifYes" style="display: none">
+                            <div class="col">
+                                <div class="text">Email</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="email"
+                                    name="email"
+                                    placeholder="Enter your Email"
+                                />
+                            </div>
+                        </div>
+
+                        <center>
+                            <div class="row" style="margin-top: 20px">
+                                <div class="col">
+                                    <button
+                                        type="reset"
+                                        class="btn btn-outline-info"
+                                    >
+                                        RESET
+                                    </button>
+                                </div>
+                                <div class="col">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-warning"
+                                    >
+                                        RUN
+                                    </button>
+                                </div>
+                            </div>
+                        </center>
+                    </div>
+                    <div class="col-1"></div>
+                    <div class="col" style="padding-top: 30px">
+                        <div
+                            class="container center"
+                            style="
+                                background: rgba(0, 0, 0, 0.65);
+                                border-radius: 30px;
+                                padding: 25px;
+                            "
+                        >
+                            <center>
+                                <h1 style="color: white">LOGS</h1>
+                            </center>
+                            <br />
+                            {% if logs %}
+                            <h4 style="color: white">Errors: {{ logs[0] }}</h4>
+                            <h4 style="color: white">Status: {{ logs[1] }}</h4>
+                            <h4 style="color: white">
+                                Please check your storage folder !!
+                            </h4>
+                            {% else %}
+                            <h4 style="color: white">
+                                Run On-demand Extraction to check Logs
+                            </h4>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-1"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

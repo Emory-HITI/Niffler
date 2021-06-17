@@ -1,0 +1,78 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="login_background">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-2"></div>
+            <div class="col-lg-6 col-md-8 login-box">
+                <div class="col-lg-12 login-title">LOGIN</div>
+                <div class="col-lg-12 login-form">
+                    <div class="col-lg-12 login-form">
+                        <form method="POST" action="/login">
+                            <div class="form-group">
+                                <label class="form-control-label">EMAIL</label>
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    name="email"
+                                    autofocus
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-control-label"
+                                    >PASSWORD</label
+                                >
+                                <input
+                                    type="password"
+                                    class="form-control"
+                                    name="password"
+                                />
+                            </div>
+
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    value=""
+                                    id="flexCheckDefault"
+                                />
+                                <label
+                                    class="form-check-label"
+                                    for="flexCheckDefault"
+                                    style="color: white"
+                                >
+                                    Remember me
+                                </label>
+                            </div>
+
+                            <div class="col-lg-12 loginbttm">
+                                {% with messages = get_flashed_messages() %} {%
+                                if messages %}
+                                <div class="col-lg-12 login-btm login-text">
+                                    <!-- Error Message -->
+                                    {{ messages[0] }}
+                                </div>
+                                {% endif %} {% endwith %}
+                                <div class="col-lg-12 login-btm login-button">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-outline-primary"
+                                        style="
+                                            color: white;
+                                            border-radius: 12px;
+                                            padding: 10px;
+                                        "
+                                    >
+                                        LOGIN
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-2"></div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</div>
