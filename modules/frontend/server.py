@@ -24,7 +24,7 @@ def extract_png():
         config_values["CommonHeadersOnly"] = request.form['headers']
         config_values["SendEmail"] = request.form['sendEmail']
         config_values["YourEmail"] = request.form['email']
-        print(config_values)
+
         if(len(config_values) > 0):
             import sys
             sys.path.append("../png-extraction/")

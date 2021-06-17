@@ -1,0 +1,13 @@
+requests
+pymongo
+schedule
+pydicom
+pynetdicom
+image
+numpy
+pandas
+pillow
+pypng
+pytest
+pytest-mock
+pytest-cov
