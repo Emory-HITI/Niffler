@@ -6,3 +6,9 @@ target/
 **/*.csv
 __pycache__
 **/*.pyc 
+htmlcov
+.coverage
+coverage.xml
+/tests/data/tmp
+/tests/data/**/*.dcm
+!/tests/data/**/no-img.dcm
