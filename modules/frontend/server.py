@@ -110,16 +110,14 @@ def extract_png():
 def cold_extraction():
     if request.method =='POST':
         csv_file = request.files['csvFile']
+        if (csv_file):
+            import sys
+            import io
 
-        import csv
-        import io
-        
-        stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
-        csv_input = csv.reader(stream)
-        # for row in csv_input:
-        #     print(row)
-        
-        return render_template('cold_extraction.html')
+            stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
+            sys.path.append("../cold-extraction/")
+            import ColdDataRetriever
+            x = ColdDataRetriever.read_csv(stream)
     return render_template('cold_extraction.html')
 #JUST DO IT!!!
 if __name__=="__main__":
