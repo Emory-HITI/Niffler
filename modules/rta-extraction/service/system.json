@@ -2,8 +2,9 @@
 	"LabsFilePath": "/Users/ananthreddy/Documents/emory_projects/json_parsing/labs/",
 	"MedsFilePath": "/Users/ananthreddy/Documents/emory_projects/json_parsing/meds/",
 	"OrdersFilePath": "/Users/ananthreddy/Documents/emory_projects/json_parsing/orders/",
-	"LabsDataClearFrequency": 30,
-	"MedsDataClearFrequency": 30,
-	"OrdersDataClearFrequency": 30,
+	"LabsDataExtractionFrequency": 30,
+	"MedsDataExtractionFrequency": 30,
+	"OrdersDataExtractionFrequency": 30,
+	
 	"MongoURI": "mongodb://localhost:27017"
 }
