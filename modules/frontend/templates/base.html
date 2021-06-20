@@ -127,10 +127,12 @@
                         <li class="nav-item">
                             <a href="/login">Login</a>
                         </li>
+                        {% if isAdmin %}
                         <li class="nav-item">
                             <a href="/signup">Signup</a>
                         </li>
-                        {% endif %} {% if current_user.is_authenticated %}
+                        {% endif %} {% endif %} {% if
+                        current_user.is_authenticated %}
                         <li class="nav-item">
                             <a href="/logout">Logout</a>
                         </li>
