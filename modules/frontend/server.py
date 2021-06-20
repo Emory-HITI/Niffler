@@ -1,5 +1,6 @@
 from flask import Flask, flash, request, redirect, url_for, render_template, send_file
 import os
+import sys
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
@@ -7,7 +8,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from __init__ import app, db
+from __init__ import app, db, isAdmin, checkAdmin
 from models import User
 
 PEOPLE_FOLDER = os.path.join('static','styles')
@@ -23,7 +24,7 @@ def load_user(user_id):
 
 @app.route("/", methods=['GET'])
 def index():
-    return render_template('home.html')
+    return render_template('home.html', isAdmin = isAdmin)
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -43,9 +44,10 @@ def login():
         # if the above check passes, then we know the user has the right credentials
         login_user(user, remember=remember)
         return render_template('home.html')
-    return render_template('login.html')
+    return render_template('login.html', isAdmin = isAdmin)
 
 @app.route('/signup', methods=['GET','POST'])
+@checkAdmin
 def signup():
     if request.method =='POST':
         email = request.form.get('email')
@@ -64,15 +66,15 @@ def signup():
         # add the new user to the database
         db.session.add(new_user)
         db.session.commit()
-        return render_template('login.html')
+        return render_template('login.html', isAdmin = isAdmin)
 
-    return render_template('signup.html')
+    return render_template('signup.html', isAdmin = isAdmin)
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return render_template('home.html')
+    return render_template('home.html', isAdmin = isAdmin)
 
 # @app.route("/png-extraction", methods = ['GET'])
 # @login_required

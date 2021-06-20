@@ -8,9 +8,17 @@ This module is using **Flask** as an engine to run all the frontend.
 ## Steps for running Frontend Module
 
 1. Run server.py file by navigating into frontend directory and running:
-`python server.py` or `python3 server.py`
+`python server.py` or `python3 server.py` (user level access)
 
 2. Then navigate to `localhost:9000` to view your Niffler modules.
+
+## Admin level access
+
+1. Run server.py file by navigating into frontend directory and running:
+`python server.py --admin` or `python3 server.py --admin` (admin level access)
+
+2. The admin access enables only admins to create new users.
+
 
 
 *Currently PNG extraction Frontend is developed and it can take values from frontend and can be passed into backend*
