@@ -363,11 +363,7 @@ def Execute(pickle_file, dicom_home, output_directory, print_images, print_only_
             total = len(chunk)
             stamp = time.time()
             for i in range(len(filedata)):
-                res = extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit)
-                # (fmap,fail_path,err) = out
-                fmap = res[1]
-                fail_path = res[0]
-                err = res[-1]
+                (fmap,fail_path,err) = extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit)
                 if err:
                     count +=1
                     copyfile(fail_path[0],fail_path[1])
