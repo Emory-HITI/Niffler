@@ -180,4 +180,4 @@ def cold_extraction():
     return render_template('cold_extraction.html', files_list = files_present_in_server)
 #JUST DO IT!!!
 if __name__=="__main__":
-    app.run(port="9000")
+    app.run(host="0.0.0.0",port="9000")
