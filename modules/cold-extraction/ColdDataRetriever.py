@@ -15,24 +15,15 @@ import argparse
 
 from collections import defaultdict
 
-# MAKING ALL VARIABLES GLOBAL !!
-# Add logging.shutdown() upon graceful completion
-
-# def read_csv(csv_file):
-#     upload_folder = '../frontend/uploads/csv/' + csv_file # Change the storage folder path
-#     print("--------- READING CSV FILE ---------")
-#     with open(upload_folder, newline='') as f:
-#         reader = csv.reader(f)
-#         next(f)
-#         for row in reader:
-#             print(row)
-
 def initialize_Values(valuesDict):
     global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
     global storage_folder, file_path, csv_file, extraction_type, accession_index, patient_index, date_index, date_type, date_format, email, send_email
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global accessions, patients, dates, niffler_log, resume
+    global accessions, patients, dates, niffler_log, resume, upload_folder
 
+    upload_folder = './csv/'
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
     storage_folder = valuesDict['storage_folder']
     file_path = valuesDict['file_path']
     csv_file = valuesDict['CsvFile']
@@ -121,7 +112,6 @@ def check_kill_process():
 def initialize():
     global niffler_processes
     global storescp_processes
-    print(niffler_processes, storescp_processes, MAX_PROCESSES)
     for line in os.popen("ps ax | grep " + qbniffler_str + " | grep -v grep"):
         niffler_processes += 1
     for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
@@ -131,11 +121,11 @@ def initialize():
 
     if niffler_processes > MAX_PROCESSES:
         logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction attempt was not successful this time. Please wait until those complete and re-run your query.".format(datetime.datetime.now(), MAX_PROCESSES))
-        #sys.exit(0)
+        sys.exit(0)
 
     if storescp_processes >= niffler_processes:
         logging.info('Killing the idling storescp processes')       
-        #check_kill_process()
+        check_kill_process()
 
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(datetime.datetime.now()))
 
@@ -143,8 +133,9 @@ def initialize():
 
 
 def read_csv():
-    upload_folder = '../frontend/uploads/csv/' + csv_file # Change the storage folder path
-    with open(upload_folder, newline='') as f:
+    global upload_folder
+    upload_file = upload_folder + csv_file # Change the storage folder path
+    with open(upload_file, newline='') as f:
         reader = csv.reader(f)
         next(f)
         for row in reader:
@@ -175,7 +166,6 @@ def read_csv():
 # Run the retrieval only once, when the extraction script starts, and keep it running in a separate thread.
 def run_retrieval():
     global IS_EXTRACTION_NOT_RUNNING
-    print("In run_retrieval:", IS_EXTRACTION_NOT_RUNNING)
     if IS_EXTRACTION_NOT_RUNNING:
         IS_EXTRACTION_NOT_RUNNING = False   
         logging.info('Starting the extractions...')
@@ -277,7 +267,6 @@ def retrieve():
 
 # Write the pickle file periodically to track the progress and persist it to the filesystem
 def update_pickle():
-    print("In update_pickle")
     global extracted_ones
     # Pickle using the highest protocol available.
     with open(csv_file +'.pickle', 'wb') as f:
@@ -290,7 +279,6 @@ def run_threaded(job_func):
     job_thread.start()
     
 def run_cold_extraction():
-    print("In run_cold_extraction")
     read_csv()
     # The thread scheduling
     schedule.every(1).minutes.do(run_threaded, run_retrieval)    
@@ -310,7 +298,11 @@ if __name__ == "__main__":
     global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
     global storage_folder, file_path, csv_file, extraction_type, accession_index, patient_index, date_index, date_type, date_format, email, send_email
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global accessions, patients, dates, niffler_log, resume
+    global accessions, patients, dates, niffler_log, resume, upload_folder
+
+    upload_folder = './csv/'
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
 
     config = defaultdict(lambda: None)
     # Read Default config.json file

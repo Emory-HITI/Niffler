@@ -13,7 +13,7 @@ from __init__ import app, db, isAdmin, checkAdmin
 from models import User
 
 PEOPLE_FOLDER = os.path.join('static','styles')
-UPLOAD_FOLDER = './uploads/csv' # Need to change this to a particular server path
+UPLOAD_FOLDER = '../cold-extraction/csv' # Need to change this to a particular server path
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # app = Flask(__name__)
 
@@ -116,18 +116,13 @@ def extract_png():
 @app.route('/cold-extraction', methods=['GET', 'POST'])
 @login_required
 def cold_extraction():
-    
     csv_folder = UPLOAD_FOLDER
+    if not os.path.exists(csv_folder):
+        os.makedirs(csv_folder)
     files_present_in_server = os.listdir(csv_folder)
 
     cold_extraction_values = {}
     if request.method =='POST':
-        # f1 = request.form['csvFile']
-        # import pathlib
-        # p1 = pathlib.PureWindowsPath(f1)
-        # f2 = p1.as_posix() # csv_file path
-        # cold_extraction_values['csv_file'] = f2
-
         f1 = request.files['csvFile_choose']
         f2 = request.form['csvFile_name']
         if(f1):
@@ -167,16 +162,13 @@ def cold_extraction():
         cold_extraction_values['date_format'] = date_format
         cold_extraction_values['send_email'] = request.form['sendEmail']
         cold_extraction_values['email'] = request.form['email']
-        print(cold_extraction_values)
 
         import sys
         import io
-        # stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
         sys.path.append("../cold-extraction/")
         import ColdDataRetriever
         x = ColdDataRetriever.initialize_Values(cold_extraction_values)
         return render_template('cold_extraction.html')
-        # x = ColdDataRetriever.read_csv(cold_extraction_values)
     return render_template('cold_extraction.html', files_list = files_present_in_server)
 #JUST DO IT!!!
 if __name__=="__main__":
