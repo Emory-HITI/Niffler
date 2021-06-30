@@ -4,6 +4,7 @@ import sys
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
+from werkzeug.utils import secure_filename
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -12,6 +13,8 @@ from __init__ import app, db, isAdmin, checkAdmin
 from models import User
 
 PEOPLE_FOLDER = os.path.join('static','styles')
+UPLOAD_FOLDER = './uploads/csv' # Need to change this to a particular server path
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # app = Flask(__name__)
 
 login_manager = LoginManager(app)
@@ -24,7 +27,7 @@ def load_user(user_id):
 
 @app.route("/", methods=['GET'])
 def index():
-    return render_template('home.html', isAdmin = isAdmin)
+    return render_template('Home.html', isAdmin = isAdmin)
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -43,7 +46,7 @@ def login():
 
         # if the above check passes, then we know the user has the right credentials
         login_user(user, remember=remember)
-        return render_template('home.html')
+        return render_template('Home.html')
     return render_template('login.html', isAdmin = isAdmin)
 
 @app.route('/signup', methods=['GET','POST'])
@@ -74,31 +77,34 @@ def signup():
 @login_required
 def logout():
     logout_user()
-    return render_template('home.html', isAdmin = isAdmin)
-
-# @app.route("/png-extraction", methods = ['GET'])
-# @login_required
-# def PNG_Extraction():
-#     return render_template('pngHome.html')
-
-config_values = {}
+    return render_template('Home.html', isAdmin = isAdmin)
 
 @app.route('/png-extraction', methods=['GET', 'POST'])
 @login_required
 def extract_png():
+    config_values = {}
     if request.method =='POST':
+        depth = request.form['depth']
+        if(depth == '' or len(depth) == 0):
+            depth = '0'
+        chunks = request.form['chunks']
+        if(chunks == '' or len(chunks) == 0):
+            chunks = '1'
+        useProcess = request.form['useProcess']
+        if(useProcess == '' or len(useProcess) == 0):
+            useProcess = '0'
+
         config_values["dcmFolder"] = request.form['DICOMFolder']
         config_values["outputFolder"] = request.form['outputFolder']
-        config_values["depth"] = request.form['depth']
-        config_values["chunks"] = request.form['chunks']
-        config_values["useProcess"] = request.form['useProcess']
+        config_values["depth"] = depth
+        config_values["chunks"] = chunks
+        config_values["useProcess"] = useProcess
         config_values["level"] = request.form['level']
         config_values["16Bit"] = request.form['16Bit']
         config_values["printImages"] = request.form['printImages']
         config_values["headers"] = request.form['headers']
         config_values["sendEmail"] = request.form['sendEmail']
         config_values["email"] = request.form['email']
-
         if(len(config_values) > 0):
             import sys
             sys.path.append("../png-extraction/")
@@ -110,17 +116,68 @@ def extract_png():
 @app.route('/cold-extraction', methods=['GET', 'POST'])
 @login_required
 def cold_extraction():
-    if request.method =='POST':
-        csv_file = request.files['csvFile']
-        if (csv_file):
-            import sys
-            import io
+    
+    csv_folder = UPLOAD_FOLDER
+    files_present_in_server = os.listdir(csv_folder)
 
-            stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
-            sys.path.append("../cold-extraction/")
-            import ColdDataRetriever
-            x = ColdDataRetriever.read_csv(stream)
-    return render_template('cold_extraction.html')
+    cold_extraction_values = {}
+    if request.method =='POST':
+        # f1 = request.form['csvFile']
+        # import pathlib
+        # p1 = pathlib.PureWindowsPath(f1)
+        # f2 = p1.as_posix() # csv_file path
+        # cold_extraction_values['csv_file'] = f2
+
+        f1 = request.files['csvFile_choose']
+        f2 = request.form['csvFile_name']
+        if(f1):
+            filename = secure_filename(f1.filename)
+            f1.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+            cold_extraction_values['CsvFile'] = filename
+        else:
+            cold_extraction_values['CsvFile'] = f2
+            
+        NifflerSystem = request.form['NifflerSystem']
+        if(NifflerSystem == '' or len(NifflerSystem) == 0):
+            NifflerSystem = 'system.json'
+        file_path = request.form['file_path']
+        if(file_path == '' or len(file_path) == 0):
+            file_path = '{00100020}/{0020000D}/{0020000E}/{00080018}.dcm'
+        accession_index = request.form['AccessionIndex']
+        if(accession_index == '' or len(accession_index) == 0):
+            accession_index = '1'
+        patient_index = request.form['PatientIndex']
+        if(patient_index == '' or len(patient_index) == 0):
+            patient_index = '0'
+        date_index = request.form['DateIndex']
+        if(date_index == '' or len(date_index) == 0):
+            date_index = '1'
+        date_format = request.form['DateFormat']
+        if(date_format == '' or len(date_format) == 0):
+            date_format = '%Y%m%d'
+
+        cold_extraction_values['NifflerSystem'] = NifflerSystem
+        cold_extraction_values['storage_folder'] = request.form['StorageFolder']
+        cold_extraction_values['file_path'] = file_path
+        cold_extraction_values['extraction_type'] = request.form['ExtractionType']
+        cold_extraction_values['accession_index'] = accession_index
+        cold_extraction_values['patient_index'] = patient_index
+        cold_extraction_values['date_index'] = date_index
+        cold_extraction_values['date_type'] = request.form['DateType']
+        cold_extraction_values['date_format'] = date_format
+        cold_extraction_values['send_email'] = request.form['sendEmail']
+        cold_extraction_values['email'] = request.form['email']
+        print(cold_extraction_values)
+
+        import sys
+        import io
+        # stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
+        sys.path.append("../cold-extraction/")
+        import ColdDataRetriever
+        x = ColdDataRetriever.initialize_Values(cold_extraction_values)
+        return render_template('cold_extraction.html')
+        # x = ColdDataRetriever.read_csv(cold_extraction_values)
+    return render_template('cold_extraction.html', files_list = files_present_in_server)
 #JUST DO IT!!!
 if __name__=="__main__":
     app.run(port="9000")

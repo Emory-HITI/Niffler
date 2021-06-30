@@ -35,6 +35,36 @@
                                 Edit Configurations
                             </h3>
                         </center>
+
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Default: system.json"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Niffler System*</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="NifflerSystem"
+                                    value="system.json"
+                                    placeholder="system.json"
+                                />
+                            </div>
+                        </div>
+
                         <div
                             class="row"
                             style="justify-content: center; align-items: center"
@@ -51,7 +81,7 @@
                                 </button>
                             </div>
                             <div class="col-5">
-                                <div class="text">Storage Folder</div>
+                                <div class="text">Storage Folder*</div>
                             </div>
                             <div class="col">
                                 <input
@@ -63,20 +93,39 @@
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col">
-                                <div class="text">CSV File</div>
+                        <!-- <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Niffler/cold-extraction/csv/your-file.csv"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">CSV File*</div>
                             </div>
                             <div class="col">
-                                <!-- Will the CSV file be present in the local system or server ?? -->
                                 <input
                                     class="form-control"
                                     type="file"
                                     name="csvFile"
                                     placeholder="Your CSV File"
                                 />
+                                 <input
+                                    class="form-control"
+                                    type="text"
+                                    name="csvFile"
+                                    placeholder="Your csv file path"
+                                /> 
                             </div>
-                        </div>
+                        </div> -->
 
                         <div
                             class="row"
@@ -94,7 +143,7 @@
                                 </button>
                             </div>
                             <div class="col-5">
-                                <div class="text">File Path*</div>
+                                <div class="text">File Path</div>
                             </div>
                             <div class="col" style="width: 100%">
                                 <input
@@ -102,6 +151,7 @@
                                     type="text"
                                     name="file_path"
                                     value="{00100020}/{0020000D}/{0020000E}/{00080018}.dcm"
+                                    style="font-size: 15px"
                                 />
                             </div>
                         </div>
@@ -338,11 +388,12 @@
                                     aria-label="Default select example"
                                     name="sendEmail"
                                     onchange="yesnoCheck(this);"
-                                    required
                                 >
-                                    <option selected value="">Select</option>
+                                    <!-- <option selected value="">Select</option> -->
                                     <option value="True">True</option>
-                                    <option value="False">False</option>
+                                    <option selected value="False">
+                                        False
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -373,7 +424,42 @@
                                 />
                             </div>
                         </div>
-
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Niffler/cold-extraction/csv/your-file.csv"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">CSV File*</div>
+                            </div>
+                            <div class="col">
+                                <input
+                                    class="form-control"
+                                    type="file"
+                                    name="csvFile_choose"
+                                    placeholder="Your CSV File"
+                                />
+                                <center>
+                                    <h4 style="color: white">OR</h4>
+                                </center>
+                                <input
+                                    class="form-control"
+                                    type="text"
+                                    name="csvFile_name"
+                                    placeholder="Your csv file path"
+                                />
+                            </div>
+                        </div>
                         <center>
                             <div class="row" style="margin-top: 20px">
                                 <div class="col">
@@ -405,7 +491,7 @@
                                 padding: 25px;
                             "
                         >
-                            <center>
+                            <!-- <center>
                                 <h1 style="color: white">LOGS</h1>
                             </center>
                             <br />
@@ -419,7 +505,22 @@
                             <h4 style="color: white">
                                 Run On-demand Extraction to check Logs
                             </h4>
+                            {% endif %} -->
+                            <center>
+                                <h2 style="color: white">
+                                    FILES PRESENT ON SERVER
+                                </h2>
+                            </center>
+                            <br />
+                            {% if files_list %} {% for files in files_list %}
+                            <h4 style="color: white">→ {{ files }}</h4>
+                            {% endfor %} {% else %}
+                            <h4 style="color: white">
+                                No files present on server currently !!<br />
+                                Please upload files from your system
+                            </h4>
                             {% endif %}
+                            <br />
                         </div>
                     </div>
                     <div class="col-1"></div>
