@@ -521,6 +521,13 @@
                             </h4>
                             {% endif %}
                             <br />
+                            {% if logs %}
+                            <h4 style="color: white">Errors: {{ logs[0] }}</h4>
+                            {% else %}
+                            <h4 style="color: white">
+                                Run On-demand Extraction to check Logs
+                            </h4>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="col-1"></div>

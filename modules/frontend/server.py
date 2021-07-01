@@ -168,7 +168,7 @@ def cold_extraction():
         sys.path.append("../cold-extraction/")
         import ColdDataRetriever
         x = ColdDataRetriever.initialize_Values(cold_extraction_values)
-        return render_template('cold_extraction.html')
+        return render_template('cold_extraction.html', logs = x, files_list = files_present_in_server)
     return render_template('cold_extraction.html', files_list = files_present_in_server)
 #JUST DO IT!!!
 if __name__=="__main__":
