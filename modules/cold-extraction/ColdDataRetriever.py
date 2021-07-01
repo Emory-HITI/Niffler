@@ -19,13 +19,8 @@ def initialize_Values(valuesDict):
     global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
     global storage_folder, file_path, csv_file, extraction_type, accession_index, patient_index, date_index, date_type, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global accessions, patients, dates, niffler_log, resume, upload_folder
+    global accessions, patients, dates, niffler_log, resume
 
-    logs = [] # For showing logs on frontend if any error occurs
-
-    upload_folder = '../cold-extraction/csv/' # This is a check for frontend only,it won't conflict when program is run from terminal
-    if not os.path.exists(upload_folder):
-        os.makedirs(upload_folder)
     storage_folder = valuesDict['storage_folder']
     file_path = valuesDict['file_path']
     csv_file = valuesDict['CsvFile']
@@ -38,21 +33,11 @@ def initialize_Values(valuesDict):
     email = valuesDict['email']
     send_email = bool(valuesDict['send_email'])
     system_json = valuesDict['NifflerSystem']
-    
-    csv_file = upload_folder + csv_file
 
     # Reads the system_json file.
-    # This is a check as if user enters wrong json then the frontend would notify user
-    system_json_file = '../cold-extraction/' + system_json
-    try:
-        with open(system_json_file, 'r') as f:
-            niffler = json.load(f)
-    except:
-        err = "Error could not load given " + system_json + " file !!"
-        logs.append(err)
-        logging.shutdown()
-        return logs
-
+    with open(system_json, 'r') as f:
+        niffler = json.load(f)
+ 
     # Get constants from system.json
     DCM4CHE_BIN = niffler['DCM4CHEBin']
     SRC_AET = niffler['SrcAet']
@@ -101,7 +86,6 @@ def initialize_Values(valuesDict):
     # record the start time
     t_start = time.time()
     run_cold_extraction()
-    return logs
 
 # Check and kill the StoreScp processes.
 def check_kill_process():

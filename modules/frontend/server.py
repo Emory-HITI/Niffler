@@ -15,6 +15,9 @@ from models import User
 PEOPLE_FOLDER = os.path.join('static','styles')
 UPLOAD_FOLDER = '../cold-extraction/csv' # Need to change this to a particular server path
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+COLD_UPLOAD_FOLDER = '../cold-extraction/' # Need to change this to a particular server path
+app.config['COLD_UPLOAD_FOLDER'] = COLD_UPLOAD_FOLDER
 # app = Flask(__name__)
 
 login_manager = LoginManager(app)
@@ -116,6 +119,7 @@ def extract_png():
 @app.route('/cold-extraction', methods=['GET', 'POST'])
 @login_required
 def cold_extraction():
+    logs = []
     csv_folder = UPLOAD_FOLDER
     if not os.path.exists(csv_folder):
         os.makedirs(csv_folder)
@@ -128,9 +132,9 @@ def cold_extraction():
         if(f1):
             filename = secure_filename(f1.filename)
             f1.save(os.path.join(app.config['UPLOAD_FOLDER'],filename))
-            cold_extraction_values['CsvFile'] = filename
+            cold_extraction_values['CsvFile'] = os.path.join(app.config['UPLOAD_FOLDER'],filename)
         else:
-            cold_extraction_values['CsvFile'] = f2
+            cold_extraction_values['CsvFile'] = os.path.join(app.config['UPLOAD_FOLDER'],f2)
             
         NifflerSystem = request.form['NifflerSystem']
         if(NifflerSystem == '' or len(NifflerSystem) == 0):
@@ -151,24 +155,37 @@ def cold_extraction():
         if(date_format == '' or len(date_format) == 0):
             date_format = '%Y%m%d'
 
-        cold_extraction_values['NifflerSystem'] = NifflerSystem
-        cold_extraction_values['storage_folder'] = request.form['StorageFolder']
-        cold_extraction_values['file_path'] = file_path
-        cold_extraction_values['extraction_type'] = request.form['ExtractionType']
-        cold_extraction_values['accession_index'] = accession_index
-        cold_extraction_values['patient_index'] = patient_index
-        cold_extraction_values['date_index'] = date_index
-        cold_extraction_values['date_type'] = request.form['DateType']
-        cold_extraction_values['date_format'] = date_format
-        cold_extraction_values['send_email'] = request.form['sendEmail']
-        cold_extraction_values['email'] = request.form['email']
+        NifflerSystem_File = COLD_UPLOAD_FOLDER + NifflerSystem
+        checkfile = True
+        try:
+            with open(NifflerSystem_File, 'r') as f:
+                checkfile = True
+        except:
+            err = "Error could not load given " + NifflerSystem + " file !!"
+            logs.append(err)
+            checkfile = False
 
-        import sys
-        import io
-        sys.path.append("../cold-extraction/")
-        import ColdDataRetriever
-        x = ColdDataRetriever.initialize_Values(cold_extraction_values)
-        return render_template('cold_extraction.html', logs = x, files_list = files_present_in_server)
+        if checkfile:
+            cold_extraction_values['NifflerSystem'] = NifflerSystem_File
+            cold_extraction_values['storage_folder'] = request.form['StorageFolder']
+            cold_extraction_values['file_path'] = file_path
+            cold_extraction_values['extraction_type'] = request.form['ExtractionType']
+            cold_extraction_values['accession_index'] = accession_index
+            cold_extraction_values['patient_index'] = patient_index
+            cold_extraction_values['date_index'] = date_index
+            cold_extraction_values['date_type'] = request.form['DateType']
+            cold_extraction_values['date_format'] = date_format
+            cold_extraction_values['send_email'] = request.form['sendEmail']
+            cold_extraction_values['email'] = request.form['email']
+
+            import sys
+            import io
+            sys.path.append("../cold-extraction/")
+            import ColdDataRetriever
+            x = ColdDataRetriever.initialize_Values(cold_extraction_values)
+            return render_template('cold_extraction.html', logs = logs, files_list = files_present_in_server)
+        else:
+            return render_template('cold_extraction.html', logs = logs, files_list = files_present_in_server)
     return render_template('cold_extraction.html', files_list = files_present_in_server)
 #JUST DO IT!!!
 if __name__=="__main__":
