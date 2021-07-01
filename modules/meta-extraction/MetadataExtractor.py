@@ -28,59 +28,22 @@ import pandas as pd
 import json
 
 
-with open('service/system.json', 'r') as f:
-    niffler = json.load(f)
-
-# Get constants from system.json
-DCM4CHE_BIN = niffler['DCM4CHEBin']
-STORAGE_FOLDER = niffler['StorageFolder']
-FILE_PATH = niffler['FilePath']
-QUERY_AET = niffler['QueryAet']
-
-# Global Constants: Configurations and folder locations
-EXTRACTION_RUNNING = False
-IS_DCM4CHE_NOT_RUNNING = True
-logging.basicConfig(level=logging.INFO)
-
-FEATURES_FOLDER = os.getcwd() + "/conf/"
-PICKLE_FOLDER = os.getcwd() + "/pickles/"
-
-
-# Variables to track progress between iterations.
-processed_series_but_yet_to_delete = list()
-processed_and_deleted_series = list()            
-
-
-# Get features of a txt file
-features_lists = list()
-feature_files = list()
-
-# All processed series is saved between iterations as pickle files.
-try:
-    with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'rb') as f:
-        processed_series_but_yet_to_delete = pickle.load(f)
-except:
-    logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_series_but_yet_to_delete")
-
-try:
-    with open(PICKLE_FOLDER + 'processed_and_deleted_series.pickle', 'rb') as f:
-        processed_and_deleted_series = pickle.load(f)
-except:
-    logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_and_deleted_series")
-
-# Read the txt file which includes the features, then extract them
-os.chdir(FEATURES_FOLDER)
-txt_files = glob.glob('*.txt')
-logging.info('Number of files consisting of the features to extract: %s', str(len(txt_files)))
-
-for file in txt_files:
-    filename, file_extension = os.path.splitext(file)
-    text_file = open(file, "r")
-    feature_list = text_file.read().split('\n')
-    del feature_list[-1]
-    features_lists.append(feature_list)
-    feature_files.append(filename)
-
+# Define Global Vars 
+# (Initialization outside of __main__ needed for mocking in unit tests)
+# These are overwritten in __main__
+DCM4CHE_BIN = None
+STORAGE_FOLDER = None
+FILE_PATH = None
+QUERY_AET = None
+EXTRACTION_RUNNING = None
+IS_DCM4CHE_NOT_RUNNING = None
+FEATURES_FOLDER = None
+PICKLE_FOLDER = None
+DB = None
+processed_series_but_yet_to_delete = None
+processed_and_deleted_series = None
+features_lists = None
+feature_files = None
 
 # Function for getting tuple for field, val pairs for this file
 # plan is instance of dicom class, the data for single mammo file
@@ -133,6 +96,7 @@ def get_dict_fields(bigdict, features):
 
 # The core method of extracting metadata
 def extract():
+    global STORAGE_FOLDER
     os.chdir(STORAGE_FOLDER)
 
     if len([name for name in os.listdir(".") if os.path.isdir(name)]) == 0:  # Print once if the storage folder is empty.
@@ -156,6 +120,7 @@ def extract_metadata():
     global EXTRACTION_RUNNING
     global features_lists
     global feature_files
+    global DB
 
     extracted_in_this_iteration = 0
     first_inst_of_series = list()
@@ -221,10 +186,11 @@ def extract_metadata():
 
 # Delete the processed DICOM objects from the storage.
 def clear_storage():
-    os.chdir(STORAGE_FOLDER)
+    global STORAGE_FOLDER
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
 
+    os.chdir(STORAGE_FOLDER)
     deleted_in_this_iteration = 0
 
     logging.info('Clean up process initiated at series level at: %s', str(datetime.datetime.now()))
@@ -260,7 +226,8 @@ def clear_storage():
 def update_pickle():
     global processed_series_but_yet_to_delete
     global processed_and_deleted_series
-    
+    global PICKLE_FOLDER
+
     # Pickle using the highest protocol available.
     with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'wb') as f:
         pickle.dump(processed_series_but_yet_to_delete, f, pickle.HIGHEST_PROTOCOL)
@@ -272,6 +239,7 @@ def update_pickle():
 
 # Measure storage folder disk space utilization
 def measure_diskutil():
+    global STORAGE_FOLDER    
     total, used, free = shutil.disk_usage(STORAGE_FOLDER)
     logging.info("Disk space used by the Storage Folder: %d GB" % (used // (2**30)))
 
@@ -279,6 +247,10 @@ def measure_diskutil():
 # Run DCM4CHE only once, when the extraction script starts, and keep it running in a separate thread.
 def run_dcm4che():
     global IS_DCM4CHE_NOT_RUNNING
+    global STORAGE_FOLDER
+    global FILE_PATH
+    global QUERY_AET
+    
     if IS_DCM4CHE_NOT_RUNNING:
         IS_DCM4CHE_NOT_RUNNING = False   
         logging.info('Starting DCM4CHE..')
@@ -291,31 +263,87 @@ def run_threaded(job_func):
     job_thread.start()
 
 
-logging.info('The execution started at: %s', str(datetime.datetime.now()))
+if __name__ == "__main__":
 
-logging.debug('Debug logs enabled.')
+    with open('service/system.json', 'r') as f:
+        niffler = json.load(f)
+    
+    # Set Niffler Config.
+    DCM4CHE_BIN = niffler['DCM4CHEBin']
+    STORAGE_FOLDER = niffler['StorageFolder']
+    FILE_PATH = niffler['FilePath']
+    QUERY_AET = niffler['QueryAet']
 
-# Create connections for communicating with Mongo DB server, to store metadata
-try:
-    if os.environ['MONGO_URI'] != "":
-        mongo_uri = 'mongodb://' + os.environ['MONGO_URI']
-    else:
+    
+    # Global Constants: Configurations and folder locations
+    EXTRACTION_RUNNING = False
+    IS_DCM4CHE_NOT_RUNNING = True
+    logging.basicConfig(level=logging.INFO)
+
+    FEATURES_FOLDER = os.getcwd() + "/conf/"
+    PICKLE_FOLDER = os.getcwd() + "/pickles/"
+
+
+    # Variables to track progress between iterations.
+    processed_series_but_yet_to_delete = list()
+    processed_and_deleted_series = list()            
+
+
+    # Get features of a txt file
+    features_lists = list()
+    feature_files = list()
+
+    # All processed series is saved between iterations as pickle files.
+    try:
+        with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'rb') as f:
+            processed_series_but_yet_to_delete = pickle.load(f)
+    except:
+        logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_series_but_yet_to_delete")
+
+    try:
+        with open(PICKLE_FOLDER + 'processed_and_deleted_series.pickle', 'rb') as f:
+            processed_and_deleted_series = pickle.load(f)
+    except:
+        logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_and_deleted_series")
+
+    # Read the txt file which includes the features, then extract them
+    os.chdir(FEATURES_FOLDER)
+    txt_files = glob.glob('*.txt')
+    logging.info('Number of files consisting of the features to extract: %s', str(len(txt_files)))
+
+    for file in txt_files:
+        filename, file_extension = os.path.splitext(file)
+        text_file = open(file, "r")
+        feature_list = text_file.read().split('\n')
+        del feature_list[-1]
+        features_lists.append(feature_list)
+        feature_files.append(filename)
+
+    logging.info('The execution started at: %s', str(datetime.datetime.now()))
+
+    logging.debug('Debug logs enabled.')
+
+    # Create connections for communicating with Mongo DB server, to store metadata
+    try:
+        if os.environ['MONGO_URI'] != "":
+            mongo_uri = 'mongodb://' + os.environ['MONGO_URI']
+        else:
+            mongo_uri = 'mongodb://' + sys.argv[1]
+    except KeyError:
         mongo_uri = 'mongodb://' + sys.argv[1]
-except KeyError:
-    mongo_uri = 'mongodb://' + sys.argv[1]
 
-client = pymongo.MongoClient(mongo_uri)
-DB = client.ScannersInfo
+    client = pymongo.MongoClient(mongo_uri)
+    DB = client.ScannersInfo
 
 
-# The thread scheduling
-schedule.every(5).minutes.do(run_threaded, run_dcm4che)
-schedule.every(1).hours.do(run_threaded, measure_diskutil)
-schedule.every(1).day.at("23:59").do(run_threaded, clear_storage)
-schedule.every(20).minutes.do(run_threaded, update_pickle)
-schedule.every(10).minutes.do(run_threaded, extract)
+    # The thread scheduling
+    schedule.every(5).minutes.do(run_threaded, run_dcm4che)
+    schedule.every(1).hours.do(run_threaded, measure_diskutil)
+    schedule.every(1).day.at("23:59").do(run_threaded, clear_storage)
+    schedule.every(20).minutes.do(run_threaded, update_pickle)
+    schedule.every(10).minutes.do(run_threaded, extract)
 
-# Keep running in a loop.
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+    # Keep running in a loop.
+    while True:
+        schedule.run_pending()
+        time.sleep(1)

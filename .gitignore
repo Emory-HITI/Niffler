@@ -11,4 +11,5 @@ htmlcov
 coverage.xml
 /tests/data/tmp
 /tests/data/**/*.dcm
+/tests/data/**/*.pickle
 !/tests/data/**/no-img.dcm
