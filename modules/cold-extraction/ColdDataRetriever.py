@@ -19,7 +19,7 @@ def initialize_Values(valuesDict):
     global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
     global storage_folder, file_path, csv_file, extraction_type, accession_index, patient_index, date_index, date_type, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global accessions, patients, dates, niffler_log, resume
+    global accessions, patients, dates, niffler_log, resume, length
 
     storage_folder = valuesDict['storage_folder']
     file_path = valuesDict['file_path']
@@ -130,6 +130,7 @@ def initialize():
 
 
 def read_csv():
+    global length
     with open(csv_file, newline='') as f:
         reader = csv.reader(f)
         next(f)
@@ -170,6 +171,7 @@ def run_retrieval():
 
 # The core DICOM on-demand retrieve process.
 def retrieve():
+    global length
     # For the cases that have the typical EMPI and Accession values together.
     if (extraction_type == 'empi_accession'):
         # Create our Identifier (query) dataset
@@ -293,7 +295,7 @@ if __name__ == "__main__":
     global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
     global storage_folder, file_path, csv_file, extraction_type, accession_index, patient_index, date_index, date_type, date_format, email, send_email
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global accessions, patients, dates, niffler_log, resume
+    global accessions, patients, dates, niffler_log, resume, length
 
     config = defaultdict(lambda: None)
     # Read Default config.json file
