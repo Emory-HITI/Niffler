@@ -10,9 +10,15 @@ pip install -r requirements-dev.txt
 
 Add the test data in `<repo-home>/tests/data/<module-name>/input` for respective tests.
 
-### PNG Extraction Data Setup
+### PNG Extraction Test Data Setup
 
 Test data in `<repo-home>/tests/data/png-extraction/input`.
+
+For unit tests, add a valid dcm file, with name `test-img.dcm`.
+
+### Meta Extraction Test Data Setup
+
+Test data in `<repo-home>/tests/data/meta-extraction/input`.
 
 For unit tests, add a valid dcm file, with name `test-img.dcm`.
 
@@ -31,4 +37,3 @@ pytest ./tests --cov=./modules --cov-report=html
 ```
 
 and open the `<repo-home>/htmlcov/index.html`
-
