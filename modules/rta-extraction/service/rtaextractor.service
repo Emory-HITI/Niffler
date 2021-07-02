@@ -1,0 +1,13 @@
+[Unit]
+Description=rtaextractor service
+Requires=mongod.service
+After=network.target
+
+[Service]
+Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
+Type=simple
+ExecStart=/opt/localdrive/Niffler/modules/rta-extraction/service/rtaextractor.sh
+TimeoutStartSec=360
+
+[Install]
+WantedBy=default.target
