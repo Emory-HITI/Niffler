@@ -22,7 +22,6 @@ import requests
 import schedule
 import time
 import datetime
-import datetime
 import threading
 import logging
 import pickle
@@ -115,7 +114,6 @@ def clean_labs_collection():
 
     cut_off_time = datetime.now() - timedelta(days=1)
     cut_off_date = cut_off_time.date()
-    print (cut_off_date)
     for item in items_collection:
         lab_datetime = datetime.strptime(item['lab_date'][:-1], '%Y-%m-%dT%H:%M:%S')
         lab_datetime = lab_datetime.date()
@@ -133,7 +131,6 @@ def clean_meds_collection():
 
     cut_off_time = datetime.now() - timedelta(days=1)
     cut_off_date = cut_off_time.date()
-    print (cut_off_date)
     for item in items_collection:
         meds_datetime = datetime.strptime(item['update_dt_tm'][:-1], '%Y-%m-%dT%H:%M:%S')
         meds_datetime = meds_datetime.date()
@@ -151,7 +148,6 @@ def clean_orders_collection():
 
     cut_off_time = datetime.now() - timedelta(days=1)
     cut_off_date = cut_off_time.date()
-    print (cut_off_date)
     for item in items_collection:
         orders_datetime = datetime.strptime(item['requested_dt_tm'][:-1], '%Y-%m-%dT%H:%M:%S')
         orders_datetime = orders_datetime.date()
@@ -188,7 +184,7 @@ def extract_labs_data(labs_user_query=None):
 
     labs_df = pd.DataFrame(list_dict)
     labs_df = labs_df[required_columns]
-    print (labs_df.head())
+    return (labs_df.head())
 
 def extract_meds_data(meds_user_query):
     meds_collection = db.meds_json
@@ -207,7 +203,7 @@ def extract_meds_data(meds_user_query):
 
     meds_df = pd.DataFrame(list_dict)
     meds_df = meds_df[required_columns]
-    print (meds_df.head())
+    return (meds_df.head())
 
 def extract_orders_data(orders_user_query):
     orders_collection = db.orders_json
@@ -226,6 +222,6 @@ def extract_orders_data(orders_user_query):
 
     orders_df = pd.DataFrame(list_dict)
     orders_df = orders_df[required_columns]
-    print (orders_df.head())
+    return (orders_df.head())
 
 extract_labs_data(labs_user_query=['empi', 'lab', 'result_val'])
