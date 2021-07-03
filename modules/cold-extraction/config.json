@@ -6,7 +6,7 @@
 	"NumberOfQueryAttributes": 1,
 	"FirstAttr": "PatientID",
 	"FirstIndex": 0,
-	"SecondAttr": "Accession",
+	"SecondAttr": "AccessionNumber",
 	"SecondIndex": 1,
 	"ThirdAttr": "StudyDate",
 	"ThirdIndex": 2,

@@ -204,7 +204,30 @@ def run_retrieval():
 # The core DICOM on-demand retrieve process.
 def retrieve():
     global length, t_start
-    # For the cases that have the typical EMPI and Accession values together.
+
+    # Cases where only one attribute is considered.
+    if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
+        # For the cases that extract entirely based on the EMPI - Patient-level extraction.
+        if first_attr.lower() == "patientid" or first_attr.lower() == "empi":
+            for pid in range(0, len(firsts)):
+                patientID = firsts[pid]
+                sleep_for_nightly_mode()
+                if (not resume) or (resume and (patientID not in extracted_ones)):
+                    subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
+                        DCM4CHE_BIN, SRC_AET, QUERY_AET, patientID, DEST_AET), shell=True)
+                    extracted_ones.append(patientID)
+        # For the cases that extract based on a single property other than  EMPI/PatientID. Goes to study level.
+        # Example: Extractions based on just AccessionNumber of AcquisitionDate.
+        else:
+            for pid in range(0, length):
+                sleep_for_nightly_mode()
+                first = firsts[pid]
+                subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -r PatientID  -r StudyInstanceUID -x "
+                                "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
+                    DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first), shell=True)
+                extract_empi_study()
+
+    # For the typical case that has the PatientID and AccessionNumber values together.
     if extraction_type == 'empi_accession':
         # Create our Identifier (query) dataset
         for pid in range(0, len(patients)):
@@ -218,16 +241,6 @@ def retrieve():
                                 shell=True)
                 extracted_ones.append(temp_id)
 
-    # For the cases that have the EMPI.
-    elif extraction_type == 'empi':
-        # Create our Identifier (query) dataset
-        for pid in range(0, len(patients)):
-            PatientID = patients[pid]
-            sleep_for_nightly_mode()
-            if (not resume) or (resume and (PatientID not in extracted_ones)):
-                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
-                    DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, DEST_AET), shell=True)
-                extracted_ones.append(PatientID)
 
     # For the cases that does not have the typical EMPI and Accession values together.
     elif extraction_type == 'empi_date' or extraction_type == 'accession':
@@ -240,37 +253,9 @@ def retrieve():
                 subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x "
                                 "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
                     DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, date_type, Date), shell=True)
-            elif extraction_type == 'accession':
-                Accession = accessions[pid]
-                subprocess.call("{0}/findscu -c {1} -b {2} -m AccessionNumber={3} -r PatientID  -r StudyInstanceUID -x "
-                                "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
-                    DCM4CHE_BIN, SRC_AET, QUERY_AET, Accession), shell=True)
 
-            try:
-                # Processing the Intermediate CSV file with EMPI and StudyIDs
-                with open('intermediate1.csv', newline='') as g: # DCM4CHE appends 1.
-                    reader2 = csv.reader(g)
-                    # Array of studies
-                    patients2 = []
-                    studies2 = []
-                    for row2 in reader2:
-                        patients2.append(row2[1])
-                        studies2.append(row2[0])
- 
-                # Create our Identifier (query) dataset
-                for pid2 in range(0, len(patients2)):
-                    Study = studies2[pid2]
-                    Patient = patients2[pid2]
-                    temp_id = Patient + SEPARATOR + Study
-                    if (not resume) or (resume and (temp_id not in extracted_ones)):
-                        subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m "
-                                        "StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
-                                                                                 Patient, Study, DEST_AET), shell=True)
-                        extracted_ones.append(temp_id)
-                        
-            except IOError:
-                logging.info("No EMPI, StudyInstanceUID found for the current entry. Skipping this line, and moving "
-                             "to the next")
+
+            extract_empi_study()
 
     # Kill the running storescp process of Niffler.
     check_kill_process() 
@@ -284,6 +269,34 @@ def retrieve():
 
     # Extraction has successfully completed.
     os.kill(os.getpid(), signal.SIGINT)
+
+
+def extract_empi_study():
+    try:
+        # Processing the Intermediate CSV file with EMPI and StudyIDs
+        with open('intermediate1.csv', newline='') as g:  # DCM4CHE appends 1.
+            reader2 = csv.reader(g)
+            # Array of studies
+            patients2 = []
+            studies2 = []
+            for row2 in reader2:
+                patients2.append(row2[1])
+                studies2.append(row2[0])
+
+        # Create our Identifier (query) dataset
+        for pid2 in range(0, len(patients2)):
+            Study = studies2[pid2]
+            Patient = patients2[pid2]
+            temp_id = Patient + SEPARATOR + Study
+            if (not resume) or (resume and (temp_id not in extracted_ones)):
+                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m "
+                                "StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
+                                                                         Patient, Study, DEST_AET), shell=True)
+                extracted_ones.append(temp_id)
+
+    except IOError:
+        logging.info("No EMPI, StudyInstanceUID found for the current entry. Skipping this line, and moving "
+                     "to the next")
 
 
 def sleep_for_nightly_mode():
