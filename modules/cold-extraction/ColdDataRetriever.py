@@ -223,7 +223,8 @@ def retrieve():
                     # sleep for 5 minutes
                     time.sleep(300)
             if (not resume) or (resume and (PatientID not in extracted_ones)):
-                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, DEST_AET), shell=True)
+                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
+                    DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, DEST_AET), shell=True)
                 extracted_ones.append(PatientID)
 
     # For the cases that does not have the typical EMPI and Accession values together.
@@ -233,7 +234,9 @@ def retrieve():
             if NIGHTLY_ONLY:
                 if datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
                     # log once while sleeping
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
+                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
+                                 "start within 30 minutes after that. It will then pause at the end hour {1}".format(
+                        START_HOUR, END_HOUR))
                 while datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
                     #sleep for 5 minutes
                     time.sleep(300)
