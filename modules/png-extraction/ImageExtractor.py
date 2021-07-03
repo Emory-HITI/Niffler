@@ -24,26 +24,26 @@ from pydicom import values
 import pathlib
 configs = {}
 
-def initialize_Values(config_values):
+def initialize_config_and_execute(config_values):
     global configs
     configs = config_values
     # Applying checks for paths
     
-    p1 = pathlib.PureWindowsPath(configs['dcmFolder'])
+    p1 = pathlib.PurePath(configs['DICOMHome'])
     dicom_home = p1.as_posix() #the folder containing your dicom files
 
-    p2 = pathlib.PureWindowsPath(configs['outputFolder'])
+    p2 = pathlib.PurePath(configs['OutputDirectory'])
     output_directory = p2.as_posix()
 
-    print_images = configs['printImages']
-    print_only_common_headers = configs['headers']
-    depth = int(configs['depth'])
-    processes = int(configs['useProcess']) #how many processes to use.
-    flattened_to_level = configs['level']
-    email = configs['email']
-    send_email = configs['sendEmail']
-    no_splits = int(configs['chunks'])
-    is16Bit = configs['16Bit']
+    print_images = configs['PrintImages']
+    print_only_common_headers = configs['CommonHeadersOnly']
+    depth = int(configs['Depth'])
+    processes = int(configs['UseProcesses']) #how many processes to use.
+    flattened_to_level = configs['FlattenedToLevel']
+    email = configs['YourEmail']
+    send_email = configs['SendEmail']
+    no_splits = int(configs['SplitIntoChunks'])
+    is16Bit = configs['is16Bit']
     
     metadata_col_freq_threshold = 0.1
 
@@ -290,6 +290,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
 
 def Execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
     failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start):
+    err = None
     fix_mismatch()
     if processes == 0.5:  # use half the cores to avoid  high ram usage
         core_count = int(os.cpu_count()/2)
@@ -444,59 +445,4 @@ if __name__ == "__main__":
     with open('config.json', 'r') as f:
         niffler = json.load(f)
 
-    #Get variables for StoreScp from config.json.
-    print_images = niffler['PrintImages']
-    print_only_common_headers = niffler['CommonHeadersOnly']
-    dicom_home = niffler['DICOMHome'] #the folder containing your dicom files
-    output_directory = niffler['OutputDirectory']
-    depth = niffler['Depth']
-    processes = niffler['UseProcesses'] #how many processes to use.
-    flattened_to_level = niffler['FlattenedToLevel']
-    email = niffler['YourEmail']
-    send_email = niffler['SendEmail']
-    no_splits = niffler['SplitIntoChunks']
-    is16Bit = niffler['is16Bit']
-
-    metadata_col_freq_threshold = 0.1
-
-    png_destination = output_directory + '/extracted-images/'
-    failed = output_directory +'/failed-dicom/'
-    maps_directory = output_directory + '/maps/'
-    meta_directory = output_directory + '/meta/'
-
-    LOG_FILENAME = output_directory + '/ImageExtractor.out'
-    pickle_file = output_directory + '/ImageExtractor.pickle'
-    # record the start time
-    t_start = time.time()
-
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-
-    logging.basicConfig(filename=LOG_FILENAME, level=logging.DEBUG)
-
-    if not os.path.exists(maps_directory):
-        os.makedirs(maps_directory)
-
-    if not os.path.exists(meta_directory):
-        os.makedirs(meta_directory)
-
-    if not os.path.exists(png_destination):
-        os.makedirs(png_destination)
-
-    if not os.path.exists(failed):
-        os.makedirs(failed)
-
-    if not os.path.exists(failed + "/1"):
-        os.makedirs(failed + "/1")
-
-    if not os.path.exists(failed + "/2"):
-        os.makedirs(failed + "/2")
-
-    if not os.path.exists(failed + "/3"):
-        os.makedirs(failed + "/3")
-
-    if not os.path.exists(failed + "/4"):
-        os.makedirs(failed + "/4")
-    logging.info("---------------- From the command line ----------------")
-    Execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth, processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination, 
-    failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
+    initialize_config_and_execute(niffler)

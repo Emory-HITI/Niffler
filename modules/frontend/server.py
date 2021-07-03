@@ -97,22 +97,22 @@ def extract_png():
         if(useProcess == '' or len(useProcess) == 0):
             useProcess = '0'
 
-        config_values["dcmFolder"] = request.form['DICOMFolder']
-        config_values["outputFolder"] = request.form['outputFolder']
-        config_values["depth"] = depth
-        config_values["chunks"] = chunks
-        config_values["useProcess"] = useProcess
-        config_values["level"] = request.form['level']
-        config_values["16Bit"] = request.form['16Bit']
-        config_values["printImages"] = request.form['printImages']
-        config_values["headers"] = request.form['headers']
-        config_values["sendEmail"] = request.form['sendEmail']
-        config_values["email"] = request.form['email']
+        config_values["DICOMHome"] = request.form['DICOMFolder']
+        config_values["OutputDirectory"] = request.form['outputFolder']
+        config_values["Depth"] = request.form['depth']
+        config_values["SplitIntoChunks"] = request.form['chunks']
+        config_values["UseProcesses"] = request.form['useProcess']
+        config_values["FlattenedToLevel"] = request.form['level']
+        config_values["is16Bit"] = request.form['16Bit']
+        config_values["PrintImages"] = request.form['printImages']
+        config_values["CommonHeadersOnly"] = request.form['headers']
+        config_values["SendEmail"] = request.form['sendEmail']
+        config_values["YourEmail"] = request.form['email']
         if(len(config_values) > 0):
             import sys
             sys.path.append("../png-extraction/")
             import ImageExtractor
-            lt = ImageExtractor.initialize_Values(config_values)
+            lt = ImageExtractor.initialize_config_and_execute(config_values)
             return render_template('pngHome.html', logs = lt)
     return render_template('pngHome.html')
 
