@@ -6,8 +6,10 @@
 	"ExtractionType": "empi_accession",
 	"AccessionIndex": 1,
 	"PatientIndex": 0,
-	"DateIndex": 1,
-	"DateType": "StudyDate",
+	"FirstAnyType": "EMPI",
+	"SecondAnyType": "StudyDate",
+	"FirstAnyIndex": 0,
+	"SecondAnyIndex": 1,
 	"DateFormat": "%Y%m%d",
 	"SendEmail": true,
 	"YourEmail": "test@test.test"

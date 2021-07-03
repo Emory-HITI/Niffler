@@ -45,24 +45,24 @@ First, place the csv file adhering to the correct formats in a folder (by defaul
 
 * Please include a header for the csv, such as "EMPI,Accession", as otherwise the first line will be ignored.
 
-* Usual fields that Niffler supports by default: EMPI, AccessionNumber, AccessionNumber and EMPI, EMPI and a date (indicate whether StudyDate or AcquisitionDate). 
+* Usual fields that Niffler supports by default: EMPI, EMPI and AccessionNumber, and AccessionNumber.
+  The "any" and "any_any" modes also support any query based on one or two DICOM header attributes as well.
 
 The format examples:
 ```
 [1]
+EMPI
+AAAAA
+AAAAA
+AAAAA
+
+[2]
 EMPI,Accession
 AAAAA,BBBBBYYBBBBB
 AAAAA,BBBBBYYBBBBB
 AAAAA,BBBBBYYBBBBB
 
-[2]
-EMPI, Study Date
-AAAAA,20180723
-AAAAA,20180724
-AAAAA,20180725
-
-Make sure the accession's year is in the YY format.
-
+* Make sure the accession's year is in the YY format.
 
 [3]
 Accession
@@ -70,12 +70,18 @@ BBBBBYYBBBBB
 BBBBBYYBBBBB
 BBBBBYYBBBBB
 
-
 [4]
-EMPI
+Any
 AAAAA
 AAAAA
 AAAAA
+
+[5]
+Any,Any
+AAAAA,BBBBBYYBBBBB
+AAAAA,BBBBBYYBBBBB
+AAAAA,BBBBBYYBBBBB
+
 ```
 
 ## Configuring Extraction Profile with config.json.
@@ -95,15 +101,19 @@ Example: `python3 ./ColdDataRetriever.py --ExtractionType accession --AccessionI
 
 * *CsvFile*: Enter the correct csv file name with a relative path to the current folder or a full path. The default value given assumes the CSV file to be in a "csv" folder in the current folder.
 
-* *ExtractionType*: Currently supported options, empi (extractions based on EMPI), empi_accession (extractions based on EMPI and AccessionNumber), accession (extractions based solely on AccessionNumber), empi_date (extractions based on EMPI and a date such as StudyDate or AcquisitionDate).
+* *ExtractionType*: Currently supported options, empi (extractions based on EMPI), empi_accession (extractions based on EMPI and AccessionNumber), accession (extractions based solely on AccessionNumber), any (extractions based on any random DICOM header), any_any (extractions based on any random DICOM header).
 
 * *AccessionIndex*: Set the CSV column index of AccessionNumber for extractions with Accessions (with or without EMPI provided). Entry count starts with 0. For extractions other than types of accession and empi_accession, leave this entry unmodified.
 
 * *PatientIndex*: Set the CSV column index of EMPI for extractions with (EMPI and an accession) or (EMPI and a date). For extractions without EMPI, leave this entry unmodified.
 
-* *DateIndex*: Set the CSV column index of Date (StudyDate, AcquisitionDate, ..) for extractions with EMPI and a date. For extractions without a Date, leave this entry unmodified.
+* *FirstAnyType*: AnyType can range from StudyDescription, AcquisitionDate, StudyDate, etc. Replace Accordingly. For empi, empi_accession, and accession modes, leave this entry unmodified.
 
-* *DateType*: DateType can range from AcquisitionDate, StudyDate, etc. Replace Accordingly. For extractions without a Date, leave this entry unmodified.
+* *SecondAnyType*: Same as above. This is considered only for any_any mode. For "any" mode and all the other modes, this is ignored.
+
+* *FirstAnyIndex*: Set the CSV column index of the DICOM header type (StudyDate, AcquisitionDate, Modality, StudyDescription, ...) for extractions with one or two any DICOM header extractions (any and any_any modes). For EMPI based or EMPI and Accession based extractions, leave this entry unmodified.
+
+* *SecondAnyIndex*: Set the CSV column index of the second DICOM header type for any_any mode (StudyDate, AcquisitionDate, Modality, StudyDescription, ...) for extractions with one or two any DICOM header extractions. For EMPI based or EMPI and Accession based extractions, leave this entry unmodified.
 
 * *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. For extractions without a Date, leave this entry unmodified.
 
