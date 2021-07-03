@@ -21,7 +21,7 @@ def initialize_config_and_execute(valuesDict):
         first_attr, second_attr, third_attr, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
         NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global accessions, patients, dates, niffler_log, resume, length
+    global accessions, patients, dates, niffler_log, resume, length, t_start
 
     storage_folder = valuesDict['StorageFolder']
     file_path = valuesDict['FilePath']
@@ -183,7 +183,7 @@ def run_retrieval():
 
 # The core DICOM on-demand retrieve process.
 def retrieve():
-    global length
+    global length, t_start
     # For the cases that have the typical EMPI and Accession values together.
     if (extraction_type == 'empi_accession'):
         # Create our Identifier (query) dataset
