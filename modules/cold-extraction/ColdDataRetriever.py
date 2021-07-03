@@ -211,15 +211,7 @@ def retrieve():
             Accession = accessions[pid]
             PatientID = patients[pid]
             temp_id = PatientID + SEPARATOR + Accession
-            if NIGHTLY_ONLY:
-                if END_HOUR <= datetime.datetime.now().hour < START_HOUR:
-                    # log once while sleeping
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
-                                 "start within 30 minutes after that. It will then pause at the end hour {1}".format(
-                        START_HOUR, END_HOUR))
-                while END_HOUR <= datetime.datetime.now().hour < START_HOUR:
-                    # sleep for 5 minutes
-                    time.sleep(300)
+            sleep_for_nightly_mode()
             if (not resume) or (resume and (temp_id not in extracted_ones)):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} "
                                 "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET),
@@ -231,15 +223,7 @@ def retrieve():
         # Create our Identifier (query) dataset
         for pid in range(0, len(patients)):
             PatientID = patients[pid]
-            if NIGHTLY_ONLY:
-                if END_HOUR <= datetime.datetime.now().hour < START_HOUR:
-                    # log once while sleeping
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
-                                 "start within 30 minutes after that. It will then pause at the end hour {1}".format(
-                        START_HOUR, END_HOUR))
-                while END_HOUR <= datetime.datetime.now().hour < START_HOUR:
-                    # sleep for 5 minutes
-                    time.sleep(300)
+            sleep_for_nightly_mode()
             if (not resume) or (resume and (PatientID not in extracted_ones)):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
                     DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, DEST_AET), shell=True)
@@ -249,15 +233,7 @@ def retrieve():
     elif extraction_type == 'empi_date' or extraction_type == 'accession':
         # Create our Identifier (query) dataset
         for pid in range(0, length):
-            if NIGHTLY_ONLY:
-                if END_HOUR <= datetime.datetime.now().hour < START_HOUR:
-                    # log once while sleeping
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
-                                 "start within 30 minutes after that. It will then pause at the end hour {1}".format(
-                        START_HOUR, END_HOUR))
-                while END_HOUR <= datetime.datetime.now().hour < START_HOUR:
-                    # sleep for 5 minutes
-                    time.sleep(300)
+            sleep_for_nightly_mode()
             if extraction_type == 'empi_date':
                 Date = dates[pid]
                 PatientID = patients[pid]
@@ -308,6 +284,18 @@ def retrieve():
 
     # Extraction has successfully completed.
     os.kill(os.getpid(), signal.SIGINT)
+
+
+def sleep_for_nightly_mode():
+    if NIGHTLY_ONLY:
+        if END_HOUR <= datetime.datetime.now().hour < START_HOUR:
+            # log once while sleeping
+            logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
+                         "start within 30 minutes after that. It will then pause at the end hour {1}".format(
+                START_HOUR, END_HOUR))
+        while END_HOUR <= datetime.datetime.now().hour < START_HOUR:
+            # sleep for 5 minutes
+            time.sleep(300)
 
 
 # Write the pickle file periodically to track the progress and persist it to the filesystem
