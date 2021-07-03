@@ -205,18 +205,18 @@ def run_retrieval():
 def retrieve():
     global length, t_start
 
-    # Cases where only one attribute is considered.
+    # Cases where only one DICOM keyword is considered as an attribute.
     if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
         # For the cases that extract entirely based on the EMPI - Patient-level extraction.
         if first_attr.lower() == "patientid" or first_attr.lower() == "empi":
-            for pid in range(0, len(firsts)):
-                patientID = firsts[pid]
+            for pid in range(0, length):
                 sleep_for_nightly_mode()
+                patientID = firsts[pid]
                 if (not resume) or (resume and (patientID not in extracted_ones)):
                     subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
                         DCM4CHE_BIN, SRC_AET, QUERY_AET, patientID, DEST_AET), shell=True)
                     extracted_ones.append(patientID)
-        # For the cases that extract based on a single property other than  EMPI/PatientID. Goes to study level.
+        # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
         # Example: Extractions based on just AccessionNumber of AcquisitionDate.
         else:
             for pid in range(0, length):
@@ -227,34 +227,72 @@ def retrieve():
                     DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first), shell=True)
                 extract_empi_study()
 
-    # For the typical case that has the PatientID and AccessionNumber values together.
-    if extraction_type == 'empi_accession':
-        # Create our Identifier (query) dataset
-        for pid in range(0, len(patients)):
-            Accession = accessions[pid]
-            PatientID = patients[pid]
-            temp_id = PatientID + SEPARATOR + Accession
-            sleep_for_nightly_mode()
-            if (not resume) or (resume and (temp_id not in extracted_ones)):
-                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} "
-                                "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET),
+
+    # Cases where only two DICOM keywords are considered as attributes.
+    elif number_of_query_attributes == 2:
+        empi_accession_mode = False
+        empi_study_mode = False
+        patients = []
+        accessions = []
+        studies = []
+        # For the typical case that has the PatientID and AccessionNumber values together.
+        if ((first_attr.lower() == "patientid" or first_attr.lower() == "empi") and
+            (second_attr.lower() == "accession" or first_attr.lower() == "accessionnumber")):
+            empi_accession_mode = True
+            patients = firsts
+            accessions = seconds
+        elif ((first_attr.lower() == "accession" or first_attr.lower() == "accessionnumber") and
+            (second_attr.lower() == "patientid" or first_attr.lower() == "empi")):
+            empi_accession_mode = True
+            patients = seconds
+            accessions = firsts
+        # For the typical case that has the PatientID and AccessionNumber values together.
+        elif ((first_attr.lower() == "patientid" or first_attr.lower() == "empi") and
+                (second_attr.lower() == "study" or first_attr.lower() == "studyinstanceuid")):
+            empi_accession_mode = True
+            patients = firsts
+            studies = seconds
+        elif ((first_attr.lower() == "study" or first_attr.lower() == "studyinstanceuid") and
+              (second_attr.lower() == "patientid" or first_attr.lower() == "empi")):
+            empi_study_mode = True
+            patients = seconds
+            studies = firsts
+
+        if empi_accession_mode:
+            for pid in range(0, length):
+                sleep_for_nightly_mode()
+                accession = accessions[pid]
+                patientID = patients[pid]
+                temp_id = patientID + SEPARATOR + accession
+                if (not resume) or (resume and (temp_id not in extracted_ones)):
+                    subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} "
+                                "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patientID, accession, DEST_AET),
                                 shell=True)
-                extracted_ones.append(temp_id)
+                    extracted_ones.append(temp_id)
 
+        elif empi_study_mode:
+            for pid in range(0, length):
+                sleep_for_nightly_mode()
+                study = studies[pid]
+                patientID = patients[pid]
+                temp_id = patientID + SEPARATOR + study
+                if (not resume) or (resume and (temp_id not in extracted_ones)):
+                    subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} "
+                                    "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patientID, study,
+                                                        DEST_AET),
+                                    shell=True)
+                    extracted_ones.append(temp_id)
 
-    # For the cases that does not have the typical EMPI and Accession values together.
-    elif extraction_type == 'empi_date' or extraction_type == 'accession':
-        # Create our Identifier (query) dataset
-        for pid in range(0, length):
-            sleep_for_nightly_mode()
-            if extraction_type == 'empi_date':
-                Date = dates[pid]
-                PatientID = patients[pid]
-                subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x "
+        # For the cases that does not have the typical EMPI and Accession values together.
+        # Any, Any mode. Example: empi and a date
+        else:
+            for pid in range(0, length):
+                sleep_for_nightly_mode()
+                first = firsts[pid]
+                second = seconds[pid]
+                subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6}  -r StudyInstanceUID -x "
                                 "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
-                    DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, date_type, Date), shell=True)
-
-
+                                 DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first, second_attr, second), shell=True)
             extract_empi_study()
 
     # Kill the running storescp process of Niffler.
