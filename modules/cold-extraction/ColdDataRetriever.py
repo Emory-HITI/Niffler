@@ -216,8 +216,9 @@ def retrieve():
                     subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
                         DCM4CHE_BIN, SRC_AET, QUERY_AET, patientID, DEST_AET), shell=True)
                     extracted_ones.append(patientID)
+
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
-        # Example: Extractions based on just AccessionNumber of AcquisitionDate.
+        # "Any" mode. Example: Extractions based on just AccessionNumber of AcquisitionDate.
         else:
             for pid in range(0, length):
                 sleep_for_nightly_mode()
@@ -226,7 +227,6 @@ def retrieve():
                                 "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
                     DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first), shell=True)
                 extract_empi_study()
-
 
     # Cases where only two DICOM keywords are considered as attributes.
     elif number_of_query_attributes == 2:
@@ -284,7 +284,7 @@ def retrieve():
                     extracted_ones.append(temp_id)
 
         # For the cases that does not have the typical EMPI and Accession values together.
-        # Any, Any mode. Example: empi and a date
+        # "Any, Any" mode. Example: empi and a date
         else:
             for pid in range(0, length):
                 sleep_for_nightly_mode()
@@ -293,6 +293,18 @@ def retrieve():
                 subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6}  -r StudyInstanceUID -x "
                                 "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
                                  DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first, second_attr, second), shell=True)
+                extract_empi_study()
+
+    # Cases where there DICOM keywords are considered as attributes. "Any, Any, Any" mode
+    elif number_of_query_attributes == 3:
+        for pid in range(0, length):
+            sleep_for_nightly_mode()
+            first = firsts[pid]
+            second = seconds[pid]
+            third = thirds[pid]
+            subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6} -m {7}={8}  -r StudyInstanceUID -x "
+                            "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
+                DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first, second_attr, second, third_attr, third), shell=True)
             extract_empi_study()
 
     # Kill the running storescp process of Niffler.
@@ -323,13 +335,13 @@ def extract_empi_study():
 
         # Create our Identifier (query) dataset
         for pid2 in range(0, len(patients2)):
-            Study = studies2[pid2]
-            Patient = patients2[pid2]
-            temp_id = Patient + SEPARATOR + Study
+            study = studies2[pid2]
+            patient = patients2[pid2]
+            temp_id = patient + SEPARATOR + study
             if (not resume) or (resume and (temp_id not in extracted_ones)):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m "
                                 "StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
-                                                                         Patient, Study, DEST_AET), shell=True)
+                                                                         patient, study, DEST_AET), shell=True)
                 extracted_ones.append(temp_id)
 
     except IOError:
