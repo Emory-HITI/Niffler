@@ -118,9 +118,9 @@ def check_kill_process():
 def initialize():
     global niffler_processes
     global storescp_processes
-    for line in os.popen("ps ax | grep " + qbniffler_str + " | grep -v grep"):
+    for _ in os.popen("ps ax | grep " + qbniffler_str + " | grep -v grep"):
         niffler_processes += 1
-    for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
+    for _ in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
         storescp_processes += 1
 
     logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes,
