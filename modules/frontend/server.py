@@ -167,16 +167,16 @@ def cold_extraction():
 
         if checkfile:
             cold_extraction_values['NifflerSystem'] = NifflerSystem_File
-            cold_extraction_values['storage_folder'] = request.form['StorageFolder']
-            cold_extraction_values['file_path'] = file_path
-            cold_extraction_values['extraction_type'] = request.form['ExtractionType']
-            cold_extraction_values['accession_index'] = accession_index
-            cold_extraction_values['patient_index'] = patient_index
-            cold_extraction_values['date_index'] = date_index
-            cold_extraction_values['date_type'] = request.form['DateType']
-            cold_extraction_values['date_format'] = date_format
-            cold_extraction_values['send_email'] = request.form['sendEmail']
-            cold_extraction_values['email'] = request.form['email']
+            cold_extraction_values['StorageFolder'] = request.form['StorageFolder']
+            cold_extraction_values['FilePath'] = file_path
+            cold_extraction_values['ExtractionType'] = request.form['ExtractionType']
+            cold_extraction_values['AccessionIndex'] = accession_index
+            cold_extraction_values['PatientIndex'] = patient_index
+            cold_extraction_values['DateIndex'] = date_index
+            cold_extraction_values['DateType'] = request.form['DateType']
+            cold_extraction_values['DateFormat'] = date_format
+            cold_extraction_values['SendEmail'] = request.form['sendEmail']
+            cold_extraction_values['YourEmail'] = request.form['email']
 
             import sys
             import io
