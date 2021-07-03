@@ -17,18 +17,22 @@ from collections import defaultdict
 
 def initialize_config_and_execute(valuesDict):
     global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
-    global storage_folder, file_path, csv_file, extraction_type, accession_index, patient_index, date_index, date_type, date_format, email, send_email, system_json
-    global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
+    global storage_folder, file_path, csv_file, number_of_query_attributes, first_index, second_index, third_index, \
+        first_attr, second_attr, third_attr, date_format, email, send_email, system_json
+    global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
+        NIFFLER_ID, MAX_PROCESSES, SEPARATOR
     global accessions, patients, dates, niffler_log, resume, length
 
     storage_folder = valuesDict['StorageFolder']
     file_path = valuesDict['FilePath']
     csv_file = valuesDict['CsvFile']
-    extraction_type = valuesDict['ExtractionType']
-    accession_index = int(valuesDict['AccessionIndex'])
-    patient_index = int(valuesDict['PatientIndex'])
-    date_index = int(valuesDict['DateIndex'])
-    date_type = valuesDict['DateType']
+    number_of_query_attributes = int(valuesDict['NumberOfQueryAttributes'])
+    first_index = int(valuesDict['FirstIndex'])
+    second_index = int(valuesDict['SecondIndex'])
+    third_index = int(valuesDict['ThirdIndex'])
+    first_attr = valuesDict['FirstAttr']
+    second_attr = valuesDict['SecondAttr']
+    third_attr = valuesDict['ThirdAttr']
     date_format = valuesDict['DateFormat']
     email = valuesDict['YourEmail']
     send_email = bool(valuesDict['SendEmail'])
@@ -81,7 +85,8 @@ def initialize_config_and_execute(valuesDict):
             # Since we have successfully located a pickle file, it indicates that this is a resume.
             resume = True
     except:
-        logging.info("No existing pickle file found. Therefore, initialized with empty value to track the progress to {0}.pickle.".format(csv_file))
+        logging.info("No existing pickle file found. Therefore, initialized with empty value to track the progress to "
+                     "{0}.pickle.".format(csv_file))
 
     # record the start time
     t_start = time.time()
@@ -92,16 +97,19 @@ def check_kill_process():
     for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
         fields = line.split()
         pid = fields[0]
-        logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Terminating the completed storescp process.".format(datetime.datetime.now(), storage_folder))
+        logging.info("[EXTRACTION COMPLETE] {0}: Niffler Extraction to {1} Completes. Terminating the completed "
+                     "storescp process.".format(datetime.datetime.now(), storage_folder))
         try:
             os.kill(int(pid), signal.SIGKILL)
         except PermissionError:
-            logging.warning("The previous user's StoreScp process has become an orphan. It is roaming around freely, like a zombie. Please kill it first")
+            logging.warning("The previous user's StoreScp process has become an orphan. It is roaming around freely, "
+                            "like a zombie. Please kill it first")
             logging.warning("From your terminal run the below commands.")
             logging.warning("First find the pid of the storescp:- sudo ps -xa | grep storescp")
             logging.warning("Then kill that above process with:- sudo kill -9 PID-FROM-THE-PREVIOUS-STEP")
             logging.warning("Once killed, restart Niffler as before.")
-            logging.error("Your current Niffler process terminates now. You or someone with sudo privilege must kill the idling storescp process first...")
+            logging.error("Your current Niffler process terminates now. You or someone with sudo privilege must kill "
+                          "the idling storescp process first...")
             sys.exit(1)                
 
 
@@ -114,10 +122,13 @@ def initialize():
     for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
         storescp_processes += 1
 
-    logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes, storescp_processes))
+    logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes,
+                                                                                               storescp_processes))
 
     if niffler_processes > MAX_PROCESSES:
-        logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction attempt was not successful this time. Please wait until those complete and re-run your query.".format(datetime.datetime.now(), MAX_PROCESSES))
+        logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction "
+                      "attempt was not successful this time. Please wait until those complete and re-run your"
+                      " query.".format(datetime.datetime.now(), MAX_PROCESSES))
         sys.exit(0)
 
     if storescp_processes >= niffler_processes:
@@ -126,7 +137,8 @@ def initialize():
 
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(datetime.datetime.now()))
 
-    subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
+    subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
+        DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
 
 def read_csv():
@@ -309,14 +321,24 @@ if __name__ == "__main__":
                     help="StoreSCP config: FilePath, Refer configuring config.json in Readme.md.")
     ap.add_argument("--CsvFile", default=config['CsvFile'],
                     help="Path to CSV file for extraction. Refer Readme.md.")
-    ap.add_argument("--ExtractionType", default=config['ExtractionType'],
-                    help="One of the supported extraction type for Cold Data extraction. Refer Readme.md.")
-    ap.add_argument("--AccessionIndex", default=config['AccessionIndex'], type=int,
-                    help="Set the CSV column index of AccessionNumber for extractions with Accessions.")
-    ap.add_argument("--PatientIndex", default=config['PatientIndex'], type=int,
-                    help="Set the CSV column index of EMPI for extractions with EMPI and an accession or EMPI and a date.")
-    ap.add_argument("--DateIndex", default=config['DateIndex'], type=int,
-                    help="Set the CSV column index of Date(StudyDate, AcquisitionDate) for extractions with EMPI and a date.")
+    ap.add_argument("--NumberOfQueryAttributes", default=config['NumberOfQueryAttributes'], type=int,
+                    help="How many DICOM Attributes do you want to filter with for your retrieval. Refer Readme.md.")
+    ap.add_argument("--FirstAttr", default=config['FirstAttr'],
+                    help="What is the first attribute you like to query with. Refer Readme.md.")
+    ap.add_argument("--FirstIndex", default=config['FirstIndex'], type=int,
+                    help="Set the CSV column index of the first query attribute.")
+    ap.add_argument("--SecondAttr", default=config['SecondAttr'],
+                    help="What is the second attribute you like to query with. Refer Readme.md. "
+                         "Required only if the number of query attributes are 2 or 3")
+    ap.add_argument("--SecondIndex", default=config['SecondIndex'], type=int,
+                    help="Set the CSV column index of second query attribute. "
+                         "Required only if the number of query attributes are 2 or 3")
+    ap.add_argument("--ThirdAttr", default=config['ThirdAttr'],
+                    help="What is the third attribute you like to query with. Refer Readme.md. "
+                         "Required only if the number of query attributes is 3")
+    ap.add_argument("--ThirdIndex", default=config['ThirdIndex'], type=int,
+                    help="Set the CSV column index of third index query attribute. "
+                         "Required only if the number of query attributes is 3")
     ap.add_argument("--DateType", default=config['DateType'],
                     help="DateType can range from AcquisitionDate, StudyDate, etc. Refer Readme.md.")
     ap.add_argument("--DateFormat", default=config['DateFormat'],
