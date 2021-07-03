@@ -92,6 +92,7 @@ def initialize_config_and_execute(valuesDict):
     t_start = time.time()
     run_cold_extraction()
 
+
 # Check and kill the StoreScp processes.
 def check_kill_process():
     for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
@@ -270,7 +271,7 @@ def retrieve():
     # Record the total run-time
     logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
 
-    #Extraction has successfully completed.
+    # Extraction has successfully completed.
     os.kill(os.getpid(), signal.SIGINT)
 
 
@@ -286,7 +287,8 @@ def update_pickle():
 def run_threaded(job_func):
     job_thread = threading.Thread(target=job_func)
     job_thread.start()
-    
+
+
 def run_cold_extraction():
     read_csv()
     # The thread scheduling
@@ -302,6 +304,7 @@ def run_cold_extraction():
             check_kill_process()
             logging.shutdown()
             sys.exit(0)
+
 
 if __name__ == "__main__":
     config = defaultdict(lambda: None)
