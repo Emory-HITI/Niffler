@@ -21,17 +21,17 @@ def initialize_config_and_execute(valuesDict):
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
     global accessions, patients, dates, niffler_log, resume, length
 
-    storage_folder = valuesDict['storage_folder']
-    file_path = valuesDict['file_path']
+    storage_folder = valuesDict['StorageFolder']
+    file_path = valuesDict['FilePath']
     csv_file = valuesDict['CsvFile']
-    extraction_type = valuesDict['extraction_type']
-    accession_index = int(valuesDict['accession_index'])
-    patient_index = int(valuesDict['patient_index'])
-    date_index = int(valuesDict['date_index'])
-    date_type = valuesDict['date_type']
-    date_format = valuesDict['date_format']
-    email = valuesDict['email']
-    send_email = bool(valuesDict['send_email'])
+    extraction_type = valuesDict['ExtractionType']
+    accession_index = int(valuesDict['AccessionIndex'])
+    patient_index = int(valuesDict['PatientIndex'])
+    date_index = int(valuesDict['DateIndex'])
+    date_type = valuesDict['DateType']
+    date_format = valuesDict['DateFormat']
+    email = valuesDict['YourEmail']
+    send_email = bool(valuesDict['SendEmail'])
     system_json = valuesDict['NifflerSystem']
 
     # Reads the system_json file.
@@ -292,11 +292,6 @@ def run_cold_extraction():
             sys.exit(0)
 
 if __name__ == "__main__":
-    global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
-    global storage_folder, file_path, csv_file, extraction_type, accession_index, patient_index, date_index, date_type, date_format, email, send_email
-    global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global accessions, patients, dates, niffler_log, resume, length
-
     config = defaultdict(lambda: None)
     # Read Default config.json file
     with open('config.json', 'r') as f:
@@ -333,71 +328,7 @@ if __name__ == "__main__":
 
     args = vars(ap.parse_args())
 
-    #Get variables for StoreScp from config.json.
-    storage_folder = args['StorageFolder']
-    file_path = args['FilePath']
-
-    # Get variables for the each on-demand extraction from config.json
-    csv_file = args['CsvFile']
-    extraction_type = args['ExtractionType']
-    accession_index = args['AccessionIndex']
-    patient_index = args['PatientIndex']
-    date_index = args['DateIndex']
-    date_type = args['DateType']
-    date_format = args['DateFormat']
-    email = args['YourEmail']
-    send_email = args['SendEmail']
-
-    # Reads the system_json file.
-    system_json = args['NifflerSystem']
-
-    with open(system_json, 'r') as f:
-        niffler = json.load(f)
-
-    # Get constants from system.json
-    DCM4CHE_BIN = niffler['DCM4CHEBin']
-    SRC_AET = niffler['SrcAet']
-    QUERY_AET = niffler['QueryAet']
-    DEST_AET = niffler['DestAet']
-    NIGHTLY_ONLY = niffler['NightlyOnly']
-    START_HOUR = niffler['StartHour']
-    END_HOUR = niffler['EndHour']
-    IS_EXTRACTION_NOT_RUNNING = True
-    NIFFLER_ID = niffler['NifflerID']
-    MAX_PROCESSES = niffler['MaxNifflerProcesses']
-
-    SEPARATOR = ','
-
-    accessions = []
-    patients = []
-    dates = []
-
-    storescp_processes = 0
-    niffler_processes = 0
-
-    nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
-    qbniffler_str = 'ColdDataRetriever'
-
-    niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
-
-    logging.basicConfig(filename=niffler_log,level=logging.INFO)
-    logging.getLogger('schedule').setLevel(logging.WARNING)
-
-    # Variables to track progress between iterations.
-    extracted_ones = list()
-
-    # By default, assume that this is a fresh extraction.
-    resume = False
-
-    # All extracted files from the csv file are saved in a respective .pickle file.
-    try:
-        with open(csv_file +'.pickle', 'rb') as f:
-            extracted_ones = pickle.load(f)
-            # Since we have successfully located a pickle file, it indicates that this is a resume.
-            resume = True
-    except:
-        logging.info("No existing pickle file found. Therefore, initialized with empty value to track the progress to {0}.pickle.".format(csv_file))
-
-    # record the start time
-    t_start = time.time()
-    run_cold_extraction()
+    if(len(args) > 0):
+        initialize_config_and_execute(args)
+    else:
+        initialize_config_and_execute(config)
