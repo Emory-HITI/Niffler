@@ -1,0 +1,463 @@
+{% extends "base.html" %} {% block content %}
+<div class="backdrop">
+    <div class="container-fluid">
+        <div style="padding-top: 30px">
+            <center>
+                <h1 style="color: white; letter-spacing: 2px">
+                    PNG Extraction
+                </h1>
+            </center>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+        </script>
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+            action="/png-extraction"
+        >
+            <div class="row">
+                <div
+                    class="col-5"
+                    style="
+                        padding: 20px;
+                        margin-top: 20px;
+                        margin-left: 55px;
+                        background: rgba(255, 255, 255, 0.25);
+                        border-radius: 25px;
+                    "
+                >
+                    <center>
+                        <h3 style="color: white; letter-spacing: 1px">
+                            Edit Configurations
+                        </h3>
+                    </center>
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="/opt/data/. . . ."
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">DICOM Home Folder*</div>
+                        </div>
+
+                        <div class="col">
+                            <!-- <input
+                                        class="form-control"
+                                        type="file"
+                                        webkitdirectory
+                                        mozdirectory
+                                        id="fileImg"
+                                        name="DICOMdocument"
+                                    /> -->
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="DICOMFolder"
+                                placeholder="path/to/folder/containing/dcm/images"
+                            />
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="/opt/output/. . . ."
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">Output Folder*</div>
+                        </div>
+                        <div class="col">
+                            <!-- <input
+                                        type="file"
+                                        class="form-control"
+                                        webkitdirectory
+                                        mozdirectory
+                                        id="fileImg"
+                                        name="OutputFolder"
+                                    /> -->
+                            <input
+                                class="form-control"
+                                type="text"
+                                name="outputFolder"
+                                placeholder="path/to/output/folder"
+                            />
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="E.g. 1 if in DICOMHome/imgs/img1.dcm"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">Depth</div>
+                        </div>
+                        <div class="col" style="width: 100%">
+                            <input
+                                class="form-control"
+                                type="number"
+                                name="depth"
+                                value="0"
+                                min="0"
+                                placeholder="E.g. 1 if in DICOMHome/imgs/img1.dcm"
+                            />
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Recommended 1, for very large 2"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">Split into chunks</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="number"
+                                name="chunks"
+                                value="1"
+                                min="1"
+                                placeholder="Recommended 1, for very large 2"
+                            />
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="No. of Cores of CPU to use. Default 0 for all"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">Use Processes</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="number"
+                                name="useProcess"
+                                step="1"
+                                min="0"
+                                value="0"
+                                placeholder="No. of Cores of CPU to use. Default 0 for all"
+                            />
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Default:'patient';Values can be ‘study’ or ‘series’"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">Flattened To Level</div>
+                        </div>
+                        <div class="col">
+                            <!-- <input
+                                class="form-control"
+                                type="text"
+                                name="level"
+                                placeholder="Default:'patient';Values can be ‘study’ or ‘series’"
+                            /> -->
+                            <select
+                                class="form-select"
+                                aria-label="Default select example"
+                                name="level"
+                            >
+                                <option selected value="patient">
+                                    Patient
+                                </option>
+                                <option value="study">Study</option>
+                                <option value="series">Series</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="True else set False if 8-bit is needed"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">To 16-bit</div>
+                        </div>
+                        <div class="col">
+                            <!-- <input
+                                class="form-control"
+                                type="text"
+                                name="16Bit"
+                                placeholder="True else set False if 8-bit is needed"
+                            /> -->
+                            <select
+                                class="form-select"
+                                aria-label="Default select example"
+                                name="16Bit"
+                            >
+                                <option selected value="True">True</option>
+                                <option value="False">False</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Default True, can be set to False"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">Print Images</div>
+                        </div>
+                        <div class="col">
+                            <!-- <input
+                                class="form-control"
+                                type="text"
+                                name="printImages"
+                                placeholder="Default True, can be set to False"
+                            /> -->
+                            <select
+                                class="form-select"
+                                aria-label="Default select example"
+                                name="printImages"
+                            >
+                                <option selected value="True">True</option>
+                                <option value="False">False</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="Default False"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">Common Headers Only</div>
+                        </div>
+                        <div class="col">
+                            <!-- <input
+                                class="form-control"
+                                type="text"
+                                name="headers"
+                                placeholder="Default False"
+                            /> -->
+                            <select
+                                class="form-select"
+                                aria-label="Default select example"
+                                name="headers"
+                            >
+                                <option selected value="False">False</option>
+                                <option value="True">True</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div
+                        class="row"
+                        style="justify-content: center; align-items: center"
+                    >
+                        <div class="col-1">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="True if you want to receive email else false"
+                            >
+                                ?
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <div class="text">Send Email</div>
+                        </div>
+                        <div class="col">
+                            <!-- <input
+                                class="form-control"
+                                type="text"
+                                name="sendEmail"
+                                placeholder="True if you want to receive email else false"
+                            /> -->
+                            <select
+                                class="form-select"
+                                aria-label="Default select example"
+                                name="sendEmail"
+                                onchange="yesnoCheck(this);"
+                                required
+                            >
+                                <!-- <option selected value="">Select</option> -->
+                                <option value="True">True</option>
+                                <option selected value="False">False</option>
+                            </select>
+                        </div>
+                    </div>
+                    <script>
+                        function yesnoCheck(that) {
+                            if (that.value == "True") {
+                                document.getElementById("ifYes").style.display =
+                                    "flex";
+                            } else {
+                                document.getElementById("ifYes").style.display =
+                                    "none";
+                            }
+                        }
+                    </script>
+
+                    <div class="row" id="ifYes" style="display: none">
+                        <div class="col">
+                            <div class="text">Email</div>
+                        </div>
+                        <div class="col">
+                            <input
+                                class="form-control"
+                                type="email"
+                                name="email"
+                                placeholder="Enter your Email"
+                            />
+                        </div>
+                    </div>
+
+                    <center>
+                        <div class="row" style="margin-top: 20px">
+                            <div class="col">
+                                <button
+                                    type="reset"
+                                    class="btn btn-outline-info"
+                                >
+                                    RESET
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-warning">
+                                    RUN
+                                </button>
+                            </div>
+                        </div>
+                    </center>
+                </div>
+                <div class="col-1"></div>
+                <div class="col" style="padding-top: 30px">
+                    <div
+                        class="container center"
+                        style="
+                            background: rgba(0, 0, 0, 0.65);
+                            border-radius: 30px;
+                            padding: 25px;
+                        "
+                    >
+                        <center>
+                            <h1 style="color: white">LOGS</h1>
+                        </center>
+                        <br />
+                        {% if logs %}
+                        <h4 style="color: white">Errors: {{ logs[0] }}</h4>
+                        <h4 style="color: white">Status: {{ logs[1] }}</h4>
+                        <h4 style="color: white">
+                            Please check your output folder for extracted Images
+                            !!
+                        </h4>
+                        {% else %}
+                        <h4 style="color: white">
+                            Run PNG Extraction to check Logs
+                        </h4>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-1"></div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

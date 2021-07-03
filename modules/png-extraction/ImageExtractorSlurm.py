@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-This code creates a dataframe of dicom headers based on dicom files in a filepath.
-This code also extracts the images within those dicoms if requested. see section 'print images'
-pip3 install image numpy pandas pydicom pillow pypng
-Make sure to have empty extracted-images, failed-dicom/1, failed-dicom/2, failed-dicom/3 folders 
-ready in the root folder.
-"""
 import time 
 import pdb 
 import numpy as np
