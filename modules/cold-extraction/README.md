@@ -45,8 +45,7 @@ First, place the csv file adhering to the correct formats in a folder (by defaul
 
 * Please include a header for the csv, such as "EMPI,Accession", as otherwise the first line will be ignored.
 
-* Usual fields that Niffler supports by default: EMPI, EMPI and AccessionNumber, and AccessionNumber.
-  The "any" and "any_any" modes also support any query based on one or two DICOM header attributes as well.
+* Niffler can support up to 3 attributes in queries.
 
 The format examples:
 ```
@@ -65,22 +64,11 @@ AAAAA,BBBBBYYBBBBB
 * Make sure the accession's year is in the YY format.
 
 [3]
-Accession
-BBBBBYYBBBBB
-BBBBBYYBBBBB
-BBBBBYYBBBBB
+EMPI,Accession,StudyDate
+AAAAA,BBBBBYYBBBBB,CCCCCC
+AAAAA,BBBBBYYBBBBB,CCCCCC 
+AAAAA,BBBBBYYBBBBB,CCCCCC
 
-[4]
-Any
-AAAAA
-AAAAA
-AAAAA
-
-[5]
-Any,Any
-AAAAA,BBBBBYYBBBBB
-AAAAA,BBBBBYYBBBBB
-AAAAA,BBBBBYYBBBBB
 
 ```
 
@@ -91,7 +79,7 @@ Find the config.json file in the folder and modify accordingly.
 config.json entries are to be set *for each* Niffler on-demand DICOM extractions.
 
 All the following config entries can be passed as command line arguments. Prepend "--" to each key and pass as arguments in cli. By default, the values from `config.json` will be used. <br/>
-Example: `python3 ./ColdDataRetriever.py --ExtractionType accession --AccessionIndex 0`
+Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr PatientID --FirstIndex 0`
 
 * *NifflerSystem*: By default, system.json. Provide a custom json file with Niffler system information, if you have any.
 
@@ -101,21 +89,21 @@ Example: `python3 ./ColdDataRetriever.py --ExtractionType accession --AccessionI
 
 * *CsvFile*: Enter the correct csv file name with a relative path to the current folder or a full path. The default value given assumes the CSV file to be in a "csv" folder in the current folder.
 
-* *ExtractionType*: Currently supported options, empi (extractions based on EMPI), empi_accession (extractions based on EMPI and AccessionNumber), accession (extractions based solely on AccessionNumber), any (extractions based on any random DICOM header), any_any (extractions based on any random DICOM header).
+* *NumberOfQueryAttributes*: Can be 1, 2, or 3. By default, 2.
 
-* *AccessionIndex*: Set the CSV column index of AccessionNumber for extractions with Accessions (with or without EMPI provided). Entry count starts with 0. For extractions other than types of accession and empi_accession, leave this entry unmodified.
+* *FirstAttr*: Which should be the first attribute. By default, "PatientID".
 
-* *PatientIndex*: Set the CSV column index of EMPI for extractions with (EMPI and an accession) or (EMPI and a date). For extractions without EMPI, leave this entry unmodified.
+* *FirstIndex*: Set the CSV column index of first Attribute. By default, 0. Note the index starts at 0.
 
-* *FirstAnyType*: AnyType can range from StudyDescription, AcquisitionDate, StudyDate, etc. Replace Accordingly. For empi, empi_accession, and accession modes, leave this entry unmodified.
+* *SecondAttr*: Which should be the second attribute. By default, "Accession". This field is ignored when NumberOfQueryAttributes is 1.
 
-* *SecondAnyType*: Same as above. This is considered only for any_any mode. For "any" mode and all the other modes, this is ignored.
+* *SecondIndex*: Set the CSV column index of second Attribute. By default, 1. This field is ignored when NumberOfQueryAttributes is 1.
 
-* *FirstAnyIndex*: Set the CSV column index of the DICOM header type (StudyDate, AcquisitionDate, Modality, StudyDescription, ...) for extractions with one or two any DICOM header extractions (any and any_any modes). For EMPI based or EMPI and Accession based extractions, leave this entry unmodified.
+* *ThirdAttr*: Which should be the third attribute. By default, "StudyDate". This field is ignored when NumberOfQueryAttributes is 1 or 2.
 
-* *SecondAnyIndex*: Set the CSV column index of the second DICOM header type for any_any mode (StudyDate, AcquisitionDate, Modality, StudyDescription, ...) for extractions with one or two any DICOM header extractions. For EMPI based or EMPI and Accession based extractions, leave this entry unmodified.
+* *ThirdIndex*: Set the CSV column index of third Attribute. By default, 2. This field is ignored when NumberOfQueryAttributes is 1 or 2.
 
-* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. For extractions without a Date, leave this entry unmodified.
+* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. This field is ignored for extractions without a Date. Leave this entry unmodified for such cases. The default is %Y%m%d and works for most cases.
 
 * *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
 
@@ -127,7 +115,7 @@ Example: `python3 ./ColdDataRetriever.py --ExtractionType accession --AccessionI
 $ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 
 # With Command Line Arguments
-$ nohup python3 ColdDataRetriever.py --SendEmail false --ExtractionType accession --AccessionIndex 0 --CsvFile "csv/accession.csv"> UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+$ nohup python3 ColdDataRetriever.py --SendEmail false --NumberOfQueryAttributes 1 --FirstAttr accession --FirstIndex 0 --CsvFile "csv/accession.csv"> UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 ```
 Check that the extraction is going smooth, by,
 ```
@@ -162,9 +150,9 @@ A pickle file tracks the progress. The pickle file is created by appending ".pic
 ```
 <8c>^X1234, 000056789<94>
 ```
-For "empi_accession" extractions, each entry above is empi, accession. For "empi" extractions, each entry above is empi.
+For "empi_accession" extractions, each entry above is empi,accession. For "empi" extractions, each entry above is empi.
 
-For "accession", "any", and "any_any" extractions, each entry above will be empi, study. The reason is we have to _translate_ "accession", "any", and "any_any" into empi_study for C-MOVE queries.
+For other combinations of extractions, each entry above will be empi, study. The reason is we have to _translate_ these headers into empi_study for C-MOVE queries.
 
 
 ## Troubleshooting
