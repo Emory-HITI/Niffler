@@ -8,6 +8,8 @@
 	"FirstIndex": 0,
 	"SecondType": "Accession",
 	"SecondIndex": 1,
+	"ThirdType": "StudyDate",
+	"ThirdIndex": 2,
 	"DateFormat": "%Y%m%d",
 	"SendEmail": true,
 	"YourEmail": "test@test.test"
