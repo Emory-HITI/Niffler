@@ -162,9 +162,9 @@ A pickle file tracks the progress. The pickle file is created by appending ".pic
 ```
 <8c>^X1234, 000056789<94>
 ```
-For "empi_accession" extractions, each entry above is empi, accession.
+For "empi_accession" extractions, each entry above is empi, accession. For "empi" extractions, each entry above is empi.
 
-For "empi_date" and "accession" extractions, each entry above will be empi, study. The reason is we have to _translate_ "empi_date" and "accession" into empi_study for C-MOVE queries.
+For "accession", "any", and "any_any" extractions, each entry above will be empi, study. The reason is we have to _translate_ "accession", "any", and "any_any" into empi_study for C-MOVE queries.
 
 
 ## Troubleshooting
