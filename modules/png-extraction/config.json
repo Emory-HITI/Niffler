@@ -1,6 +1,6 @@
 {
-	"DICOMHome": "/Users/pradeeban/Downloads",
-	"OutputDirectory": "/Users/pradeeban/Downloads/root",
+	"DICOMHome": "/opt/data/new-study",
+	"OutputDirectory": "/opt/data/new-study/root",
 	"Depth": 0,
 	"SplitIntoChunks": 1,
 	"PrintImages": true,

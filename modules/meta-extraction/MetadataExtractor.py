@@ -83,7 +83,8 @@ def get_tuples(plan, features, outlist = None, key = ""):
                     else:
                         key_ = ""
                         logging.debug("key and aa are empty")
-                    outlist.append((key_, value1))  # appends name, value pair for this file. these are later concatenated to the dataframe
+                    outlist.append((key_, value1))
+                    # appends name, value pair for this file. these are later concatenated to the dataframe
             except KeyError as e:
                 logging.debug("The value is empty, %s", e)
     return outlist
@@ -99,10 +100,12 @@ def extract():
     global STORAGE_FOLDER
     os.chdir(STORAGE_FOLDER)
 
-    if len([name for name in os.listdir(".") if os.path.isdir(name)]) == 0:  # Print once if the storage folder is empty.
+    if len([name for name in os.listdir(".") if os.path.isdir(name)]) == 0:
+        # Print once if the storage folder is empty.
         logging.debug('There are no patients found. Waiting for new data to arrive.')
 
-    while len([name for name in os.listdir(".") if os.path.isdir(name)]) == 0:  # Check whether the storage folder is still empty.
+    while len([name for name in os.listdir(".") if os.path.isdir(name)]) == 0:
+        # Check whether the storage folder is still empty.
         time.sleep(10)  # sleep for 10 seconds before repeating the check.
 
     logging.debug('Number of patients: %s', len([name for name in os.listdir(STORAGE_FOLDER)]))
@@ -134,7 +137,8 @@ def extract_metadata():
         EXTRACTION_RUNNING = True
         FIND_NOT_RUNNING = True
     
-        # Checks to ensure the clear_storage thread does not cause a missing file exception randomly, when run in parallel.
+        # Checks to ensure the clear_storage thread does not cause a missing file exception randomly,
+        # when run in parallel.
         while FIND_NOT_RUNNING:
             FIND_NOT_RUNNING = False
             try:
@@ -145,19 +149,20 @@ def extract_metadata():
 
         series = series_string.splitlines()
         logging.info('Number of series: %s', len(series))
-        this_iteration = list(set(series) - (set(processed_series_but_yet_to_delete) | set(processed_and_deleted_series)))
+        this_iteration = list(set(series) - (set(processed_series_but_yet_to_delete) |
+                                             set(processed_and_deleted_series)))
         logging.info('Number of series to be processed: %s', str(len(this_iteration)))
 
         # remove the series that were processed before
         for series_path in this_iteration:
             processed_series_but_yet_to_delete.append(series_path)                        
             extracted_in_this_iteration += 1
-            logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(this_iteration)),
-                          ' series.')
+            logging.debug('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ',
+                          str(len(this_iteration)), ' series.')
 
             if extracted_in_this_iteration % 100 == 0:
-                logging.info('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ', str(len(this_iteration)),
-                              ' series.')
+                logging.info('Extracted: %s %s %s %s', str(extracted_in_this_iteration), ' out of ',
+                             str(len(this_iteration)), ' series.')
 
             # get and store series-level information
             try:
@@ -165,7 +170,8 @@ def extract_metadata():
                 ds = pydicom.dcmread(first_instance, force=True)
                 for index, features in enumerate(features_lists):
                     try:
-                        kv = get_tuples(ds, features)  # gets tuple for field,val pairs for this file. function defined above
+                        kv = get_tuples(ds, features)
+                        # gets tuple for field,val pairs for this file. function defined above
                         doc = get_dict_fields(dict(kv), features)
                         # insert to a Mongo DB collection
                         doc = {k: 'NaN' if not v else v for k, v in doc.items()}
@@ -173,7 +179,8 @@ def extract_metadata():
                         logging.debug('Added the series to the processed list: %s', series_path)
                     except Exception as e:
                         logging.debug(e)
-                        logging.debug('The script could not extract the series %s for this feature', series_path.decode("utf-8"))         
+                        logging.debug('The script could not extract the series %s for this feature',
+                                      series_path.decode("utf-8"))
             except Exception as e:
                 logging.warn(e)
                 logging.warn('The script could not extract the series %s at all', series_path.decode("utf-8"))
@@ -211,7 +218,9 @@ def clear_storage():
                           str(len(processed_series_but_yet_to_delete)), ' remaining extraction completed series.')
     
         except FileNotFoundError:
-            logging.debug('The series of id %s was not found. Hence, not deleted in this iteration. Probably it was already deleted in a previous iteration without being tracked or by an external process', del_series)
+            logging.debug('The series of id %s was not found. Hence, not deleted in this iteration. Probably it was '
+                          'already deleted in a previous iteration without being tracked or by an external process',
+                          del_series)
         except ConnectionResetError:
             logging.debug('The connection was reset during the deletion')
         except OSError:
@@ -254,7 +263,8 @@ def run_dcm4che():
     if IS_DCM4CHE_NOT_RUNNING:
         IS_DCM4CHE_NOT_RUNNING = False   
         logging.info('Starting DCM4CHE..')
-        subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > nohup.out &".format(DCM4CHE_BIN, STORAGE_FOLDER, FILE_PATH, QUERY_AET), shell=True)
+        subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > nohup.out &".
+                        format(DCM4CHE_BIN, STORAGE_FOLDER, FILE_PATH, QUERY_AET), shell=True)
 
         logging.info('Started DCM4CHE successfully..')
 
@@ -273,7 +283,6 @@ if __name__ == "__main__":
     STORAGE_FOLDER = niffler['StorageFolder']
     FILE_PATH = niffler['FilePath']
     QUERY_AET = niffler['QueryAet']
-
     
     # Global Constants: Configurations and folder locations
     EXTRACTION_RUNNING = False
@@ -283,11 +292,9 @@ if __name__ == "__main__":
     FEATURES_FOLDER = os.getcwd() + "/conf/"
     PICKLE_FOLDER = os.getcwd() + "/pickles/"
 
-
     # Variables to track progress between iterations.
     processed_series_but_yet_to_delete = list()
     processed_and_deleted_series = list()            
-
 
     # Get features of a txt file
     features_lists = list()
@@ -298,13 +305,15 @@ if __name__ == "__main__":
         with open(PICKLE_FOLDER + 'processed_series_but_yet_to_delete.pickle', 'rb') as f:
             processed_series_but_yet_to_delete = pickle.load(f)
     except:
-        logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_series_but_yet_to_delete")
+        logging.info("Unable to load a valid pickle file. Initialized with empty value for "
+                     "processed_series_but_yet_to_delete")
 
     try:
         with open(PICKLE_FOLDER + 'processed_and_deleted_series.pickle', 'rb') as f:
             processed_and_deleted_series = pickle.load(f)
     except:
-        logging.info("Unable to load a valid pickle file. Initialized with empty value for processed_and_deleted_series")
+        logging.info("Unable to load a valid pickle file. Initialized with empty value for "
+                     "processed_and_deleted_series")
 
     # Read the txt file which includes the features, then extract them
     os.chdir(FEATURES_FOLDER)
@@ -334,7 +343,6 @@ if __name__ == "__main__":
 
     client = pymongo.MongoClient(mongo_uri)
     DB = client.ScannersInfo
-
 
     # The thread scheduling
     schedule.every(5).minutes.do(run_threaded, run_dcm4che)
