@@ -68,7 +68,7 @@ def initialize_config_and_execute(valuesDict):
 
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
-    logging.basicConfig(filename=niffler_log,level=logging.INFO)
+    logging.basicConfig(filename=niffler_log, level=logging.INFO)
     logging.getLogger('schedule').setLevel(logging.WARNING)
 
     # Variables to track progress between iterations.
@@ -80,7 +80,7 @@ def initialize_config_and_execute(valuesDict):
 
     # All extracted files from the csv file are saved in a respective .pickle file.
     try:
-        with open(csv_file +'.pickle', 'rb') as f:
+        with open(csv_file + '.pickle', 'rb') as f:
             extracted_ones = pickle.load(f)
             # Since we have successfully located a pickle file, it indicates that this is a resume.
             resume = True
@@ -136,7 +136,8 @@ def initialize():
         logging.info('Killing the idling storescp processes')       
         check_kill_process()
 
-    logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(datetime.datetime.now()))
+    logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
+        datetime.datetime.now()))
 
     subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
         DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
@@ -149,7 +150,7 @@ def read_csv():
         next(f)
         for row in reader:
             row = [x.strip() for x in row]
-            if (extraction_type == 'empi_date'):
+            if extraction_type == 'empi_date':
                 if not ((row[patient_index] == "") or (row[date_index] == "")):
                     patients.append(row[patient_index])
                     temp_date = row[date_index]
@@ -157,15 +158,15 @@ def read_csv():
                     date_str = dt_stamp.strftime('%Y%m%d')
                     dates.append(date_str)
                     length = len(patients)
-            elif (extraction_type == 'empi'):
-                if not ((row[patient_index] == "")):
+            elif extraction_type == 'empi':
+                if not (row[patient_index] == ""):
                     patients.append(row[patient_index])
                     length = len(patients)
-            elif (extraction_type == 'accession'):
-                if not ((row[accession_index] == "")):
+            elif extraction_type == 'accession':
+                if not (row[accession_index] == ""):
                     accessions.append(row[accession_index])
                     length = len(accessions)
-            elif (extraction_type == 'empi_accession'):
+            elif extraction_type == 'empi_accession':
                 if not ((row[patient_index] == "") or (row[accession_index] == "")):
                     patients.append(row[patient_index])
                     accessions.append(row[accession_index])
@@ -186,61 +187,71 @@ def run_retrieval():
 def retrieve():
     global length, t_start
     # For the cases that have the typical EMPI and Accession values together.
-    if (extraction_type == 'empi_accession'):
+    if extraction_type == 'empi_accession':
         # Create our Identifier (query) dataset
         for pid in range(0, len(patients)):
             Accession = accessions[pid]
             PatientID = patients[pid]
             temp_id = PatientID + SEPARATOR + Accession
             if NIGHTLY_ONLY:
-                if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
+                if datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
                     # log once while sleeping
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-                while (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
+                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
+                                 "start within 30 minutes after that. It will then pause at the end hour {1}".format(
+                        START_HOUR, END_HOUR))
+                while datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
                     #sleep for 5 minutes
                     time.sleep(300)
-            if ((not resume) or (resume and (temp_id not in extracted_ones))):
-                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET), shell=True)
+            if (not resume) or (resume and (temp_id not in extracted_ones)):
+                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} "
+                                "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, Accession, DEST_AET),
+                                shell=True)
                 extracted_ones.append(temp_id)
 
     # For the cases that have the EMPI.
-    elif (extraction_type == 'empi'):
+    elif extraction_type == 'empi':
         # Create our Identifier (query) dataset
         for pid in range(0, len(patients)):
             PatientID = patients[pid]
             if NIGHTLY_ONLY:
-                if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
+                if datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
                     # log once while sleeping
-                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-                while (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
+                    logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
+                                 "start within 30 minutes after that. It will then pause at the end hour {1}".format(
+                        START_HOUR, END_HOUR))
+                while datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
                     # sleep for 5 minutes
                     time.sleep(300)
-            if ((not resume) or (resume and (PatientID not in extracted_ones))):
+            if (not resume) or (resume and (PatientID not in extracted_ones)):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, DEST_AET), shell=True)
                 extracted_ones.append(PatientID)
 
     # For the cases that does not have the typical EMPI and Accession values together.
-    elif (extraction_type == 'empi_date' or extraction_type == 'accession'):
+    elif extraction_type == 'empi_date' or extraction_type == 'accession':
         # Create our Identifier (query) dataset
         for pid in range(0, length):
             if NIGHTLY_ONLY:
-                if (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
+                if datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
                     # log once while sleeping
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and start within 30 minutes after that. It will then pause at the end hour {1}".format(START_HOUR, END_HOUR))
-                while (datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR):
+                while datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
                     #sleep for 5 minutes
                     time.sleep(300)
-            if (extraction_type == 'empi_date'):
+            if extraction_type == 'empi_date':
                 Date = dates[pid]
                 PatientID = patients[pid]
-                subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, date_type, Date), shell=True)
-            elif (extraction_type == 'accession'):
+                subprocess.call("{0}/findscu -c {1} -b {2} -m PatientID={3} -m {4}={5}  -r StudyInstanceUID -x "
+                                "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
+                    DCM4CHE_BIN, SRC_AET, QUERY_AET, PatientID, date_type, Date), shell=True)
+            elif extraction_type == 'accession':
                 Accession = accessions[pid]
-                subprocess.call("{0}/findscu -c {1} -b {2} -m AccessionNumber={3} -r PatientID  -r StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Accession), shell=True)
+                subprocess.call("{0}/findscu -c {1} -b {2} -m AccessionNumber={3} -r PatientID  -r StudyInstanceUID -x "
+                                "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
+                    DCM4CHE_BIN, SRC_AET, QUERY_AET, Accession), shell=True)
 
             try:
-                #Processing the Intermediate CSV file with EMPI and StudyIDs
-                with open('intermediate1.csv', newline='') as g: #DCM4CHE appends 1.
+                # Processing the Intermediate CSV file with EMPI and StudyIDs
+                with open('intermediate1.csv', newline='') as g: # DCM4CHE appends 1.
                     reader2 = csv.reader(g)
                     # Array of studies
                     patients2 = []
@@ -254,19 +265,22 @@ def retrieve():
                     Study = studies2[pid2]
                     Patient = patients2[pid2]
                     temp_id = Patient + SEPARATOR + Study
-                    if ((not resume) or (resume and (temp_id not in extracted_ones))):
-                        subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, Patient, Study, DEST_AET), shell=True)
+                    if (not resume) or (resume and (temp_id not in extracted_ones)):
+                        subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m "
+                                        "StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
+                                                                                 Patient, Study, DEST_AET), shell=True)
                         extracted_ones.append(temp_id)
                         
             except IOError:
-                logging.info("No EMPI, StudyInstanceUID found for the current entry. Skipping this line, and moving to the next")
-
+                logging.info("No EMPI, StudyInstanceUID found for the current entry. Skipping this line, and moving "
+                             "to the next")
 
     # Kill the running storescp process of QbNiffler.
     check_kill_process() 
 
     if send_email:
-        subprocess.call('echo "Niffler has successfully completed the DICOM retrieval" | mail -s "The DICOM retrieval has been complete" {0}'.format(email), shell=True)
+        subprocess.call('echo "Niffler has successfully completed the DICOM retrieval" | mail -s "The DICOM retrieval '
+                        'has been complete" {0}'.format(email), shell=True)
 
     # Record the total run-time
     logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
@@ -295,7 +309,7 @@ def run_cold_extraction():
     schedule.every(1).minutes.do(run_threaded, run_retrieval)    
     schedule.every(10).minutes.do(run_threaded, update_pickle)
 
-    # # Keep running in a loop.
+    # Keep running in a loop.
     while True:
         try:
             schedule.run_pending()
@@ -353,7 +367,7 @@ if __name__ == "__main__":
 
     args = vars(ap.parse_args())
 
-    if(len(args) > 0):
+    if len(args) > 0:
         initialize_config_and_execute(args)
     else:
         initialize_config_and_execute(config)
