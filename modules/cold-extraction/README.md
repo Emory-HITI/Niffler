@@ -43,20 +43,20 @@ First, place the csv file adhering to the correct formats in a folder (by defaul
 
 * Please make sure to use EMPI and not MRN or Institution-specific patient identifiers.
 
-* Please include a header for the csv, such as "EMPI,Accession", as otherwise the first line will be ignored.
+* Please include a header for the csv, such as "PatientID,AccessionNumber", as otherwise the first line will be ignored.
 
 * Niffler can support up to 3 attributes in queries.
 
 The format examples:
 ```
 [1]
-EMPI
+PatientID
 AAAAA
 AAAAA
 AAAAA
 
 [2]
-EMPI,Accession
+PatientID,AccessionNumber
 AAAAA,BBBBBYYBBBBB
 AAAAA,BBBBBYYBBBBB
 AAAAA,BBBBBYYBBBBB
@@ -64,7 +64,7 @@ AAAAA,BBBBBYYBBBBB
 * Make sure the accession's year is in the YY format.
 
 [3]
-EMPI,Accession,StudyDate
+PatientID,AccessionNumber,StudyDate
 AAAAA,BBBBBYYBBBBB,CCCCCC
 AAAAA,BBBBBYYBBBBB,CCCCCC 
 AAAAA,BBBBBYYBBBBB,CCCCCC
