@@ -290,7 +290,7 @@ def retrieve():
                 sleep_for_nightly_mode()
                 first = firsts[pid]
                 second = seconds[pid]
-                subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6}  -r StudyInstanceUID -x "
+                subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6} -r PatientID -r StudyInstanceUID -x "
                                 "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
                                  DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first, second_attr, second), shell=True)
                 extract_empi_study()
@@ -302,8 +302,8 @@ def retrieve():
             first = firsts[pid]
             second = seconds[pid]
             third = thirds[pid]
-            subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6} -m {7}={8}  -r StudyInstanceUID -x "
-                            "stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
+            subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6} -m {7}={8} -r PatientID -r "
+                            "StudyInstanceUID -x stid.csv.xsl --out-cat --out-file intermediate.csv --out-dir .".format(
                 DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first, second_attr, second, third_attr, third), shell=True)
             extract_empi_study()
 
