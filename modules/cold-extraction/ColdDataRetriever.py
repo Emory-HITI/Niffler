@@ -21,17 +21,17 @@ def initialize_config_and_execute(valuesDict):
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
     global accessions, patients, dates, niffler_log, resume, length
 
-    storage_folder = valuesDict['storage_folder']
-    file_path = valuesDict['file_path']
+    storage_folder = valuesDict['StorageFolder']
+    file_path = valuesDict['FilePath']
     csv_file = valuesDict['CsvFile']
-    extraction_type = valuesDict['extraction_type']
-    accession_index = int(valuesDict['accession_index'])
-    patient_index = int(valuesDict['patient_index'])
-    date_index = int(valuesDict['date_index'])
-    date_type = valuesDict['date_type']
-    date_format = valuesDict['date_format']
-    email = valuesDict['email']
-    send_email = bool(valuesDict['send_email'])
+    extraction_type = valuesDict['ExtractionType']
+    accession_index = int(valuesDict['AccessionIndex'])
+    patient_index = int(valuesDict['PatientIndex'])
+    date_index = int(valuesDict['DateIndex'])
+    date_type = valuesDict['DateType']
+    date_format = valuesDict['DateFormat']
+    email = valuesDict['YourEmail']
+    send_email = bool(valuesDict['SendEmail'])
     system_json = valuesDict['NifflerSystem']
 
     # Reads the system_json file.
