@@ -89,7 +89,7 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 
 * *CsvFile*: Enter the correct csv file name with a relative path to the current folder or a full path. The default value given assumes the CSV file to be in a "csv" folder in the current folder.
 
-* *NumberOfQueryAttributes*: Can be 1, 2, or 3. By default, 2.
+* *NumberOfQueryAttributes*: Can be 1, 2, or 3. By default, 1.
 
 * *FirstAttr*: Which should be the first attribute. By default, "PatientID".
 
@@ -103,7 +103,7 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 
 * *ThirdIndex*: Set the CSV column index of third Attribute. By default, 2. This field is ignored when NumberOfQueryAttributes is 1 or 2.
 
-* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. This field is ignored for extractions that do not use a Date as one of their extraction attributes (StudyDate, AcquisitionDate, SeriesDate, ...). Leave this entry unmodified for such cases. The default is %Y%m%d and works for most cases.
+* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. This field is ignored for extractions that do not use a Date as one of their extraction attributes. Currently supported date types are: StudyDate, AcquisitionDate, and SeriesDate. Leave this entry unmodified for such cases. The default is %Y%m%d and works for most cases.
 
 * *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
 

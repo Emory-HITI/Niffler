@@ -17,12 +17,12 @@ from collections import defaultdict
 
 
 def initialize_config_and_execute(valuesDict):
-    global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
+    global storescp_processes, niffler_processes, nifflerscp_str, niffler_str
     global storage_folder, file_path, csv_file, number_of_query_attributes, first_index, second_index, third_index, \
         first_attr, second_attr, third_attr, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
         NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global accessions, patients, dates, niffler_log, resume, length, t_start
+    global firsts, seconds, thirds, niffler_log, resume, length, t_start
 
     storage_folder = valuesDict['StorageFolder']
     file_path = valuesDict['FilePath']
@@ -57,15 +57,15 @@ def initialize_config_and_execute(valuesDict):
 
     SEPARATOR = ','
 
-    accessions = []
-    patients = []
-    dates = []
+    firsts = []
+    seconds = []
+    thirds = []
 
     storescp_processes = 0
     niffler_processes = 0
 
     nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
-    qbniffler_str = 'ColdDataRetriever'
+    niffler_str = 'ColdDataRetriever'
 
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
@@ -119,7 +119,7 @@ def check_kill_process():
 def initialize():
     global niffler_processes
     global storescp_processes
-    for _ in os.popen("ps ax | grep " + qbniffler_str + " | grep -v grep"):
+    for _ in os.popen("ps ax | grep " + niffler_str + " | grep -v grep"):
         niffler_processes += 1
     for _ in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
         storescp_processes += 1
@@ -149,29 +149,46 @@ def read_csv():
     with open(csv_file, newline='') as f:
         reader = csv.reader(f)
         next(f)
+
+        if number_of_query_attributes > 3 or number_of_query_attributes < 1:
+            logging.info('Entered an invalid NumberOfQueryAttributes. Currently supported values, 1, 2, or 3. '
+                         'Defaulting to 1 for this extraction')
+
         for row in reader:
             row = [x.strip() for x in row]
-            if extraction_type == 'empi_date':
-                if not ((row[patient_index] == "") or (row[date_index] == "")):
-                    patients.append(row[patient_index])
-                    temp_date = row[date_index]
-                    dt_stamp = datetime.datetime.strptime(temp_date, date_format)
-                    date_str = dt_stamp.strftime('%Y%m%d')
-                    dates.append(date_str)
-                    length = len(patients)
-            elif extraction_type == 'empi':
-                if not (row[patient_index] == ""):
-                    patients.append(row[patient_index])
-                    length = len(patients)
-            elif extraction_type == 'accession':
-                if not (row[accession_index] == ""):
-                    accessions.append(row[accession_index])
-                    length = len(accessions)
-            elif extraction_type == 'empi_accession':
-                if not ((row[patient_index] == "") or (row[accession_index] == "")):
-                    patients.append(row[patient_index])
-                    accessions.append(row[accession_index])
-                    length = len(accessions)
+
+            if not (row[first_index] == ""):
+                if first_attr == "StudyDate" or first_attr == "AcquisitionDate" or first_attr == "SeriesDate":
+                    date_str = convert_to_date_format(row[first_index])
+                    firsts.append(date_str)
+                else:
+                    firsts.append(row[first_index])
+
+            if number_of_query_attributes == 2 or number_of_query_attributes == 3:
+                if not (row[first_index] == "" or row[second_index] == ""):
+                    if second_attr == "StudyDate" or second_attr == "AcquisitionDate" or second_attr == "SeriesDate":
+                        date_str = convert_to_date_format(row[second_index])
+                        seconds.append(date_str)
+                    else:
+                        seconds.append(row[second_index])
+
+            if number_of_query_attributes == 3:
+                if not (row[first_index] == "" or row[second_index] == "" or row[third_index] == ""):
+                    if third_attr == "StudyDate" or third_attr == "AcquisitionDate" or third_attr == "SeriesDate":
+                        date_str = convert_to_date_format(row[third_index])
+                        thirds.append(date_str)
+                    else:
+                        thirds.append(row[third_index])
+
+        length = max(len(firsts), len(seconds), len(thirds))
+        logging.info("Issuing retrieval queries for the {0} number of entries in the csv file".format(length))
+
+
+def convert_to_date_format(string_val):
+    temp_date = string_val
+    dt_stamp = datetime.datetime.strptime(temp_date, date_format)
+    date_str = dt_stamp.strftime('%Y%m%d')
+    return date_str
 
 
 # Run the retrieval only once, when the extraction script starts, and keep it running in a separate thread.
@@ -279,7 +296,7 @@ def retrieve():
                 logging.info("No EMPI, StudyInstanceUID found for the current entry. Skipping this line, and moving "
                              "to the next")
 
-    # Kill the running storescp process of QbNiffler.
+    # Kill the running storescp process of Niffler.
     check_kill_process() 
 
     if send_email:
@@ -343,7 +360,7 @@ if __name__ == "__main__":
     ap.add_argument("--CsvFile", default=config['CsvFile'],
                     help="Path to CSV file for extraction. Refer Readme.md.")
     ap.add_argument("--NumberOfQueryAttributes", default=config['NumberOfQueryAttributes'], type=int,
-                    help="How many DICOM Attributes do you want to filter with for your retrieval. Refer Readme.md.")
+                    help="How many DICOM Attributes do you want to filter with for your retrieval. Default is 1.")
     ap.add_argument("--FirstAttr", default=config['FirstAttr'],
                     help="What is the first attribute you like to query with. Refer Readme.md.")
     ap.add_argument("--FirstIndex", default=config['FirstIndex'], type=int,
