@@ -15,6 +15,7 @@ import argparse
 
 from collections import defaultdict
 
+
 def initialize_config_and_execute(valuesDict):
     global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
     global storage_folder, file_path, csv_file, number_of_query_attributes, first_index, second_index, third_index, \
@@ -194,13 +195,13 @@ def retrieve():
             PatientID = patients[pid]
             temp_id = PatientID + SEPARATOR + Accession
             if NIGHTLY_ONLY:
-                if datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
+                if END_HOUR <= datetime.datetime.now().hour < START_HOUR:
                     # log once while sleeping
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
                                  "start within 30 minutes after that. It will then pause at the end hour {1}".format(
                         START_HOUR, END_HOUR))
-                while datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
-                    #sleep for 5 minutes
+                while END_HOUR <= datetime.datetime.now().hour < START_HOUR:
+                    # sleep for 5 minutes
                     time.sleep(300)
             if (not resume) or (resume and (temp_id not in extracted_ones)):
                 subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} "
@@ -214,12 +215,12 @@ def retrieve():
         for pid in range(0, len(patients)):
             PatientID = patients[pid]
             if NIGHTLY_ONLY:
-                if datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
+                if END_HOUR <= datetime.datetime.now().hour < START_HOUR:
                     # log once while sleeping
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
                                  "start within 30 minutes after that. It will then pause at the end hour {1}".format(
                         START_HOUR, END_HOUR))
-                while datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
+                while END_HOUR <= datetime.datetime.now().hour < START_HOUR:
                     # sleep for 5 minutes
                     time.sleep(300)
             if (not resume) or (resume and (PatientID not in extracted_ones)):
@@ -232,13 +233,13 @@ def retrieve():
         # Create our Identifier (query) dataset
         for pid in range(0, length):
             if NIGHTLY_ONLY:
-                if datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
+                if END_HOUR <= datetime.datetime.now().hour < START_HOUR:
                     # log once while sleeping
                     logging.info("Nightly mode. Niffler schedules the extraction to resume at start hour {0} and "
                                  "start within 30 minutes after that. It will then pause at the end hour {1}".format(
                         START_HOUR, END_HOUR))
-                while datetime.datetime.now().hour >= END_HOUR and datetime.datetime.now().hour < START_HOUR:
-                    #sleep for 5 minutes
+                while END_HOUR <= datetime.datetime.now().hour < START_HOUR:
+                    # sleep for 5 minutes
                     time.sleep(300)
             if extraction_type == 'empi_date':
                 Date = dates[pid]
