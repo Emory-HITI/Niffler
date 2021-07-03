@@ -182,7 +182,7 @@ def cold_extraction():
             import io
             sys.path.append("../cold-extraction/")
             import ColdDataRetriever
-            x = ColdDataRetriever.initialize_Values(cold_extraction_values)
+            x = ColdDataRetriever.initialize_config_and_execute(cold_extraction_values)
             return render_template('cold_extraction.html', logs = logs, files_list = files_present_in_server)
         else:
             return render_template('cold_extraction.html', logs = logs, files_list = files_present_in_server)

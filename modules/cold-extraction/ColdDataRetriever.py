@@ -15,7 +15,7 @@ import argparse
 
 from collections import defaultdict
 
-def initialize_Values(valuesDict):
+def initialize_config_and_execute(valuesDict):
     global storescp_processes, niffler_processes, nifflerscp_str, qbniffler_str
     global storage_folder, file_path, csv_file, extraction_type, accession_index, patient_index, date_index, date_type, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, NIFFLER_ID, MAX_PROCESSES, SEPARATOR
