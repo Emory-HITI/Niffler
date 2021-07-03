@@ -124,7 +124,7 @@ def initialize():
     for _ in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
         storescp_processes += 1
 
-    logging.info("Number of running niffler processes: {0} and storescp processes: {1}".format(niffler_processes,
+    logging.info("Number of running Niffler processes: {0} and storescp processes: {1}".format(niffler_processes,
                                                                                                storescp_processes))
 
     if niffler_processes > MAX_PROCESSES:
