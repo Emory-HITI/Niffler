@@ -302,7 +302,7 @@ def sleep_for_nightly_mode():
 def update_pickle():
     global extracted_ones
     # Pickle using the highest protocol available.
-    with open(csv_file +'.pickle', 'wb') as f:
+    with open(csv_file + '.pickle', 'wb') as f:
         pickle.dump(extracted_ones, f)
     logging.debug('Progress is recorded to the pickle file')
 
