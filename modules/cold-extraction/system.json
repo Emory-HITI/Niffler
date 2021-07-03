@@ -3,7 +3,7 @@
 	"SrcAet": "SRC_AET@SRCHOST:104",
 	"QueryAet": "QBNIFFLER:4243",
 	"DestAet": "QBNIFFLER",
-	"NightlyOnly": true,
+	"NightlyOnly": false,
 	"StartHour": 19,
 	"EndHour": 7,
 	"NifflerID": 1,
