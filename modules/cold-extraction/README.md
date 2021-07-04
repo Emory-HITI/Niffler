@@ -45,7 +45,7 @@ First, place the csv file adhering to the correct formats in a folder (by defaul
 
 * Please include a header for the csv, such as "PatientID,AccessionNumber", as otherwise the first line will be ignored.
 
-* Niffler can support up to 3 attributes in queries.
+* Niffler can support up to 3 attributes in queries. However, please note that the extractions are done internally in either patient level (if the query is just based on PatientID) or study level (for example, a combination of PatientID and AccessionNumber). So, if your matching 3 DICOM keyword extraction is aimed at receiving only particular series, Niffler will in fact retrieve the entire studies of the relevant series. As of now, Niffler's granularity for on-demand extraction does not go to series or instances level.
 
 The format examples:
 ```
