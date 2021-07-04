@@ -91,11 +91,11 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 
 * *NumberOfQueryAttributes*: Can be 1, 2, or 3. By default, 1.
 
-* *FirstAttr*: Which should be the first attribute. By default, "PatientID". Make sure to use the correct DICOM Attribute. 
-  Please note, the correct tag is "AccessionNumber" and not "Accession" or "Accessions".
+* *FirstAttr*: Which should be the first attribute. By default, "PatientID". 
   It is important to use the correct DICOM keywords such as, "PatientID", "AccessionNumber", "StudyInstanceUID", 
   "StudyDescription", and "AcquisitionDate".
   Please refer to the DICOM Standard for more information on the DICOM header attributes/keywords.
+  Please note, the correct keyword is "AccessionNumber" and not "Accession" or "Accessions". Similarly, it is "PatientID" - neither "EMPI" nor "Patient-ID" (although they all are indeed the same in practice).
   
 * *FirstIndex*: Set the CSV column index of first Attribute. By default, 0. Note the index starts at 0.
 
@@ -116,6 +116,10 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 ## Running the Niffler Retrospective Data Retriever
 
 ```bash
+
+$ python3 ColdDataRetriever.py
+
+# With Nohup
 $ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 
 # With Command Line Arguments
