@@ -43,20 +43,20 @@ First, place the csv file adhering to the correct formats in a folder (by defaul
 
 * Please make sure to use EMPI and not MRN or Institution-specific patient identifiers.
 
-* Please include a header for the csv, such as "EMPI,Accession", as otherwise the first line will be ignored.
+* Please include a header for the csv, such as "PatientID,AccessionNumber", as otherwise the first line will be ignored.
 
-* Niffler can support up to 3 attributes in queries.
+* Niffler can support up to 3 attributes in queries. However, please note that the extractions are done internally in either patient level (if the query is just based on PatientID) or study level (for example, a combination of PatientID and AccessionNumber). So, if your matching 3 DICOM keyword extraction is aimed at receiving only particular series, Niffler will in fact retrieve the entire studies of the relevant series. As of now, Niffler's granularity for on-demand extraction does not go to series or instances level.
 
 The format examples:
 ```
 [1]
-EMPI
+PatientID
 AAAAA
 AAAAA
 AAAAA
 
 [2]
-EMPI,Accession
+PatientID,AccessionNumber
 AAAAA,BBBBBYYBBBBB
 AAAAA,BBBBBYYBBBBB
 AAAAA,BBBBBYYBBBBB
@@ -64,7 +64,7 @@ AAAAA,BBBBBYYBBBBB
 * Make sure the accession's year is in the YY format.
 
 [3]
-EMPI,Accession,StudyDate
+PatientID,AccessionNumber,StudyDate
 AAAAA,BBBBBYYBBBBB,CCCCCC
 AAAAA,BBBBBYYBBBBB,CCCCCC 
 AAAAA,BBBBBYYBBBBB,CCCCCC
@@ -91,11 +91,11 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 
 * *NumberOfQueryAttributes*: Can be 1, 2, or 3. By default, 1.
 
-* *FirstAttr*: Which should be the first attribute. By default, "PatientID". Make sure to use the correct DICOM Attribute. 
-  Please note, the correct tag is "AccessionNumber" and not "Accession" or "Accessions".
+* *FirstAttr*: Which should be the first attribute. By default, "PatientID". 
   It is important to use the correct DICOM keywords such as, "PatientID", "AccessionNumber", "StudyInstanceUID", 
   "StudyDescription", and "AcquisitionDate".
   Please refer to the DICOM Standard for more information on the DICOM header attributes/keywords.
+  Please note, the correct keyword is "AccessionNumber" and not "Accession" or "Accessions". Similarly, it is "PatientID" - neither "EMPI" nor "Patient-ID" (although they all are indeed the same in practice).
   
 * *FirstIndex*: Set the CSV column index of first Attribute. By default, 0. Note the index starts at 0.
 
@@ -116,6 +116,10 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 ## Running the Niffler Retrospective Data Retriever
 
 ```bash
+
+$ python3 ColdDataRetriever.py
+
+# With Nohup
 $ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 
 # With Command Line Arguments
