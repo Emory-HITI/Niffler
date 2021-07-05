@@ -207,15 +207,15 @@ def retrieve():
 
     # Cases where only one DICOM keyword is considered as an attribute.
     if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
-        # For the cases that extract entirely based on the EMPI - Patient-level extraction.
-        if first_attr.lower() == "patientid" or first_attr.lower() == "empi":
+        # For the cases that extract entirely based on the PatientID - Patient-level extraction.
+        if first_attr == "PatientID":
             for pid in range(0, length):
                 sleep_for_nightly_mode()
-                patientID = firsts[pid]
-                if (not resume) or (resume and (patientID not in extracted_ones)):
+                patient = firsts[pid]
+                if (not resume) or (resume and (patient not in extracted_ones)):
                     subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
-                        DCM4CHE_BIN, SRC_AET, QUERY_AET, patientID, DEST_AET), shell=True)
-                    extracted_ones.append(patientID)
+                        DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
+                    extracted_ones.append(patient)
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
         # "Any" mode. Example: Extractions based on just AccessionNumber of AcquisitionDate.
@@ -236,24 +236,20 @@ def retrieve():
         accessions = []
         studies = []
         # For the typical case that has the PatientID and AccessionNumber values together.
-        if ((first_attr.lower() == "patientid" or first_attr.lower() == "empi") and
-            (second_attr.lower() == "accession" or first_attr.lower() == "accessionnumber")):
+        if first_attr == "PatientID" and second_attr == "AccessionNumber":
             empi_accession_mode = True
             patients = firsts
             accessions = seconds
-        elif ((first_attr.lower() == "accession" or first_attr.lower() == "accessionnumber") and
-            (second_attr.lower() == "patientid" or first_attr.lower() == "empi")):
+        elif first_attr == "AccessionNumber" and second_attr == "PatientID":
             empi_accession_mode = True
             patients = seconds
             accessions = firsts
-        # For the typical case that has the PatientID and AccessionNumber values together.
-        elif ((first_attr.lower() == "patientid" or first_attr.lower() == "empi") and
-                (second_attr.lower() == "study" or first_attr.lower() == "studyinstanceuid")):
-            empi_accession_mode = True
+        # For the typical case that has the PatientID and StudyInstanceUID values together.
+        elif first_attr == "PatientID" and second_attr == "StudyInstanceUID":
+            empi_study_mode = True
             patients = firsts
             studies = seconds
-        elif ((first_attr.lower() == "study" or first_attr.lower() == "studyinstanceuid") and
-              (second_attr.lower() == "patientid" or first_attr.lower() == "empi")):
+        elif first_attr == "StudyInstanceUID" and second_attr == "PatientID":
             empi_study_mode = True
             patients = seconds
             studies = firsts
@@ -262,11 +258,11 @@ def retrieve():
             for pid in range(0, length):
                 sleep_for_nightly_mode()
                 accession = accessions[pid]
-                patientID = patients[pid]
-                temp_id = patientID + SEPARATOR + accession
+                patient = patients[pid]
+                temp_id = patient + SEPARATOR + accession
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
                     subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} "
-                                "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patientID, accession, DEST_AET),
+                                "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, accession, DEST_AET),
                                 shell=True)
                     extracted_ones.append(temp_id)
 
@@ -274,11 +270,11 @@ def retrieve():
             for pid in range(0, length):
                 sleep_for_nightly_mode()
                 study = studies[pid]
-                patientID = patients[pid]
-                temp_id = patientID + SEPARATOR + study
+                patient = patients[pid]
+                temp_id = patient + SEPARATOR + study
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
                     subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} "
-                                    "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patientID, study,
+                                    "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, study,
                                                         DEST_AET),
                                     shell=True)
                     extracted_ones.append(temp_id)
