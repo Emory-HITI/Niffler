@@ -35,4 +35,5 @@ If you use Niffler in your research, please cite the below paper:
 
 * Pradeeban Kathiravelu, Puneet Sharma, Ashish Sharma, Imon Banerjee, Hari Trivedi, Saptarshi Purkayastha, Priyanshu Sinha, Alexandre Cadrin-Chenevert, Nabile Safdar, Judy Wawira Gichoya. **A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images.** Accepted. Journal of Digital Imaging (JDI). 2021.
 
-* Pradeeban Kathiravelu, Ashish Sharma, Puneet Sharma. **Understanding Scanner Utilization with Real-Time DICOM Metadata Extraction**. In IEEE Access. January 2021. https://doi.org/10.1109/ACCESS.2021.3050467
+* Pradeeban Kathiravelu, Ashish Sharma, Puneet Sharma. **Understanding Scanner Utilization With Real-Time DICOM Metadata Extraction.** IEEE Access, 9 (2021): 10621-10633. https://doi.org/10.1109/ACCESS.2021.3050467
+
