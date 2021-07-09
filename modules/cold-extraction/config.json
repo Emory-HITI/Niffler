@@ -7,9 +7,9 @@
 	"FirstAttr": "PatientID",
 	"FirstIndex": 0,
 	"SecondAttr": "AccessionNumber",
-	"SecondIndex": 1,
+	"SecondIndex": 5,
 	"ThirdAttr": "StudyDate",
-	"ThirdIndex": 2,
+	"ThirdIndex": 3,
 	"DateFormat": "%Y%m%d",
 	"SendEmail": true,
 	"YourEmail": "test@test.test"
