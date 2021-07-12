@@ -99,12 +99,12 @@ html {
 
 .backdrop {
     background-image: url("../images/img1.png");
-    height: 100%;
+    height: fit-content;
     width: 100%;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    position: absolute;
+    background-attachment: scroll;
 }
 
 .row {
@@ -256,4 +256,21 @@ html {
 
 .loginbttm {
     padding: 25px;
+}
+
+/* Remove field -> on-demand extraction */
+
+.remove_field {
+    text-decoration: none;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    background-color: grey;
+    border-radius: 12px;
+    padding: 6px;
+}
+
+.remove_field:hover {
+    background-color: red;
+    color: white;
 }
