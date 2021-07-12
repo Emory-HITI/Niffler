@@ -122,7 +122,7 @@ $ python3 ColdDataRetriever.py
 $ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 
 # With Command Line Arguments
-$ nohup python3 ColdDataRetriever.py --SendEmail false --NumberOfQueryAttributes 1 --FirstAttr accession --FirstIndex 0 --CsvFile "csv/accession.csv"> UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+$ nohup python3 ColdDataRetriever.py --SendEmail false --NumberOfQueryAttributes 1 --FirstAttr AccessionNumber --FirstIndex 0 --CsvFile "csv/accession.csv"> UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 ```
 Check that the extraction is going smooth, by,
 ```
