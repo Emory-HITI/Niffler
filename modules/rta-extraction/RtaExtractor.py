@@ -159,6 +159,6 @@ if __name__ == "__main__":
     schedule.every(1).day.at("23:59").do(run_threaded, clear_data(db_json='meds_json'))
     schedule.every(1).day.at("23:59").do(run_threaded, clear_data(db_json='orders_json'))
 
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
