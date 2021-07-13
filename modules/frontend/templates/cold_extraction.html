@@ -28,6 +28,7 @@
                             margin-left: 55px;
                             background: rgba(255, 255, 255, 0.25);
                             border-radius: 25px;
+                            margin-bottom: 40px;
                         "
                     >
                         <center>
@@ -93,40 +94,6 @@
                             </div>
                         </div>
 
-                        <!-- <div
-                            class="row"
-                            style="justify-content: center; align-items: center"
-                        >
-                            <div class="col-1">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Niffler/cold-extraction/csv/your-file.csv"
-                                >
-                                    ?
-                                </button>
-                            </div>
-                            <div class="col-5">
-                                <div class="text">CSV File*</div>
-                            </div>
-                            <div class="col">
-                                <input
-                                    class="form-control"
-                                    type="file"
-                                    name="csvFile"
-                                    placeholder="Your CSV File"
-                                />
-                                 <input
-                                    class="form-control"
-                                    type="text"
-                                    name="csvFile"
-                                    placeholder="Your csv file path"
-                                /> 
-                            </div>
-                        </div> -->
-
                         <div
                             class="row"
                             style="justify-content: center; align-items: center"
@@ -153,179 +120,6 @@
                                     value="{00100020}/{0020000D}/{0020000E}/{00080018}.dcm"
                                     style="font-size: 15px"
                                 />
-                            </div>
-                        </div>
-
-                        <div
-                            class="row"
-                            style="justify-content: center; align-items: center"
-                        >
-                            <div class="col-1">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="Currently supported options: empi, empi_accession ,empi_date, accession "
-                                >
-                                    ?
-                                </button>
-                            </div>
-                            <div class="col-5">
-                                <div class="text">Extraction Type</div>
-                            </div>
-                            <div class="col">
-                                <!-- <input
-                                    class="form-control"
-                                    type="text"
-                                    name="ExtractionType"
-                                    placeholder="E.g. empi_accession"
-                                /> -->
-                                <select
-                                    class="form-select"
-                                    aria-label="Default select example"
-                                    name="ExtractionType"
-                                >
-                                    <option selected value="empi">EMPI</option>
-                                    <option value="empi_accession">
-                                        EMPI_Accession
-                                    </option>
-                                    <option value="accession">Accession</option>
-                                    <option value="empi_date">EMPI_Date</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div
-                            class="row"
-                            style="justify-content: center; align-items: center"
-                        >
-                            <div class="col-1">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="If present the CSV column index of AccessionNumber, else leave as it is"
-                                >
-                                    ?
-                                </button>
-                            </div>
-                            <div class="col-5">
-                                <div class="text">Accession Index</div>
-                            </div>
-                            <div class="col">
-                                <input
-                                    class="form-control"
-                                    type="number"
-                                    min="0"
-                                    value="1"
-                                    name="AccessionIndex"
-                                    placeholder="If present the CSV column index of AccessionNumber, else 0"
-                                />
-                            </div>
-                        </div>
-
-                        <div
-                            class="row"
-                            style="justify-content: center; align-items: center"
-                        >
-                            <div class="col-1">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="If present the CSV column index of PatientIndex else leave as it is"
-                                >
-                                    ?
-                                </button>
-                            </div>
-                            <div class="col-5">
-                                <div class="text">Patient Index</div>
-                            </div>
-                            <div class="col">
-                                <input
-                                    class="form-control"
-                                    type="number"
-                                    min="0"
-                                    value="0"
-                                    name="PatientIndex"
-                                    placeholder="If present the CSV column index of PatientIndex"
-                                />
-                            </div>
-                        </div>
-
-                        <div
-                            class="row"
-                            style="justify-content: center; align-items: center"
-                        >
-                            <div class="col-1">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="If present the CSV column index of DateIndex else leave as it is"
-                                >
-                                    ?
-                                </button>
-                            </div>
-                            <div class="col-5">
-                                <div class="text">Date Index</div>
-                            </div>
-                            <div class="col">
-                                <input
-                                    class="form-control"
-                                    type="number"
-                                    min="0"
-                                    value="1"
-                                    name="DateIndex"
-                                    placeholder="If present the CSV column index of DateIndex"
-                                />
-                            </div>
-                        </div>
-
-                        <div
-                            class="row"
-                            style="justify-content: center; align-items: center"
-                        >
-                            <div class="col-1">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    title="DateType can range from AcquisitionDate, StudyDate, etc. Replace Accordingly. For extractions without a Date, leave this entry unmodified"
-                                >
-                                    ?
-                                </button>
-                            </div>
-                            <div class="col-5">
-                                <div class="text">Date Type</div>
-                            </div>
-                            <div class="col">
-                                <!-- <input
-                                    class="form-control"
-                                    type="text"
-                                    name="DateType"
-                                    placeholder="E.g. StudyDate"
-                                /> -->
-                                <select
-                                    class="form-select"
-                                    aria-label="Default select example"
-                                    name="DateType"
-                                >
-                                    <option selected value="StudyDate">
-                                        StudyDate
-                                    </option>
-                                    <option value="AcquisitionDate">
-                                        AcquisitionDate
-                                    </option>
-                                    <option value="SeriesDate">
-                                        SeriesDate
-                                    </option>
-                                </select>
                             </div>
                         </div>
 
@@ -377,12 +171,6 @@
                                 <div class="text">Send Email</div>
                             </div>
                             <div class="col">
-                                <!-- <input
-                                class="form-control"
-                                type="text"
-                                name="sendEmail"
-                                placeholder="True if you want to receive email else false"
-                            /> -->
                                 <select
                                     class="form-select"
                                     aria-label="Default select example"
@@ -460,6 +248,51 @@
                                 />
                             </div>
                         </div>
+                        <br />
+                        <div
+                            class="row"
+                            style="justify-content: center; align-items: center"
+                        >
+                            <div class="col-1">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="Add attributes"
+                                >
+                                    ?
+                                </button>
+                            </div>
+                            <div class="col-5">
+                                <div class="text">Add Attributes</div>
+                            </div>
+                            <div class="col input_fields_wrap">
+                                <button
+                                    class="btn btn-success add_field_button"
+                                    type="button"
+                                >
+                                    Add More Fields
+                                </button>
+                                <div>
+                                    <br />
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        placeholder="First Attribute"
+                                        name="attr[1]"
+                                    />
+                                    <br />
+                                    <input
+                                        class="form-control"
+                                        type="number"
+                                        min="0"
+                                        placeholder="Column number of that attribute"
+                                        name="column[1]"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                         <center>
                             <div class="row" style="margin-top: 20px">
                                 <div class="col">
@@ -472,6 +305,7 @@
                                 </div>
                                 <div class="col">
                                     <button
+                                        id="submit"
                                         type="submit"
                                         class="btn btn-warning"
                                     >
@@ -480,6 +314,51 @@
                                 </div>
                             </div>
                         </center>
+                        <script>
+                            $(document).ready(function () {
+                                var max_fields = 3; //maximum input boxes allowed
+                                var wrapper = $(".input_fields_wrap"); //Fields wrapper
+                                var add_button = $(".add_field_button"); //Add button ID
+
+                                var x = 1; //initlal text box count
+                                $(add_button).click(function (e) {
+                                    //on add input button click
+                                    e.preventDefault();
+                                    if (x < max_fields) {
+                                        //max input box allowed
+                                        x++; //text box increment
+                                        $(wrapper).append(
+                                            `<div>` +
+                                                `<br />` +
+                                                ` <input class="form-control" type="text" name="attr[` +
+                                                x +
+                                                `]" placeholder="` +
+                                                x +
+                                                ` Attribute" />` +
+                                                `<br />` +
+                                                `<input class="form-control" type="number" min = "0" name="column[` +
+                                                x +
+                                                `]"  placeholder="` +
+                                                x +
+                                                ` Attribute Column number" style="margin-bottom: 12px;"/>` +
+                                                `<a href="#" class="remove_field">Remove</a>` +
+                                                `</div>`
+                                        ); // add input boxes.
+                                    }
+                                });
+
+                                $(wrapper).on(
+                                    "click",
+                                    ".remove_field",
+                                    function (e) {
+                                        //user click on remove text
+                                        e.preventDefault();
+                                        $(this).parent("div").remove();
+                                        x--;
+                                    }
+                                );
+                            });
+                        </script>
                     </div>
                     <div class="col-1"></div>
                     <div class="col" style="padding-top: 30px">

@@ -261,7 +261,7 @@ def retrieve():
                 patient = patients[pid]
                 temp_id = patient + SEPARATOR + accession
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
-                    subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} "
+                    subprocess.call("{0}/movescu -c {1} -b {2} -m PatientID={3} -m AccessionNumber={4} "
                                 "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, accession, DEST_AET),
                                 shell=True)
                     extracted_ones.append(temp_id)
@@ -273,7 +273,7 @@ def retrieve():
                 patient = patients[pid]
                 temp_id = patient + SEPARATOR + study
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
-                    subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m StudyInstanceUID={4} "
+                    subprocess.call("{0}/movescu -c {1} -b {2} -m PatientID={3} -m StudyInstanceUID={4} "
                                     "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, study,
                                                         DEST_AET),
                                     shell=True)
@@ -335,9 +335,8 @@ def extract_empi_study():
             patient = patients2[pid2]
             temp_id = patient + SEPARATOR + study
             if (not resume) or (resume and (temp_id not in extracted_ones)):
-                subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m "
-                                "StudyInstanceUID={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
-                                                                         patient, study, DEST_AET), shell=True)
+                subprocess.call("{0}/movescu -c {1} -b {2} -m PatientID={3} -m StudyInstanceUID={4} --dest {5}".
+                                format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, study, DEST_AET), shell=True)
                 extracted_ones.append(temp_id)
 
     except IOError:

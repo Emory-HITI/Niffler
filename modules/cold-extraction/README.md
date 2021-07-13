@@ -43,9 +43,9 @@ First, place the csv file adhering to the correct formats in a folder (by defaul
 
 * Please make sure to use EMPI and not MRN or Institution-specific patient identifiers.
 
-* Please include a header for the csv, such as "PatientID,AccessionNumber", as otherwise the first line will be ignored.
+* Please include a header for the csv, such as "PatientID,AccessionNumber". The first line is considered the header and will be ignored in the extractions.
 
-* Niffler can support up to 3 attributes in queries. However, please note that the extractions are done internally in either patient level (if the query is just based on PatientID) or study level (for example, a combination of PatientID and AccessionNumber). So, if your matching 3 DICOM keyword extraction is aimed at receiving only particular series, Niffler will in fact retrieve the entire studies of the relevant series. As of now, Niffler's granularity for on-demand extraction does not go to series or instances level.
+* Niffler can support up to 3 C-FIND DICOM keywords in queries. However, please note that the extractions are done internally in either patient level (if the query is just based on PatientID) or study level (for example, a combination of PatientID and AccessionNumber). So, if your matching 3 DICOM keyword extraction is aimed at receiving only particular series, Niffler will in fact retrieve the entire studies of the relevant series. Niffler's granularity for on-demand extraction does not go to series or instances level.
 
 The format examples:
 ```
@@ -92,8 +92,7 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 * *NumberOfQueryAttributes*: Can be 1, 2, or 3. By default, 1.
 
 * *FirstAttr*: Which should be the first attribute. By default, "PatientID". 
-  It is important to use the correct DICOM keywords such as, "PatientID", "AccessionNumber", "StudyInstanceUID", 
-  "StudyDescription", and "AcquisitionDate".
+  It is important to use the correct DICOM keywords such as, "PatientID", "AccessionNumber", "StudyInstanceUID", and "StudyDate".
   Please refer to the DICOM Standard for more information on the DICOM header attributes/keywords.
   Please note, the correct keyword is "AccessionNumber" and not "Accession" or "Accessions". Similarly, it is "PatientID" - neither "EMPI" nor "Patient-ID" (although they all are indeed the same in practice).
   
@@ -107,7 +106,7 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 
 * *ThirdIndex*: Set the CSV column index of third Attribute. By default, 2. This field is ignored when NumberOfQueryAttributes is 1 or 2.
 
-* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. This field is ignored for extractions that do not use a Date as one of their extraction attributes. Currently supported date types are: StudyDate, AcquisitionDate, and SeriesDate. Leave this entry unmodified for such cases. The default is %Y%m%d and works for most cases.
+* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. This field is ignored for extractions that do not use a Date as one of their extraction attributes. We have tested with StudyDate. Leave this entry unmodified for such cases. The default is %Y%m%d and works for most cases.
 
 * *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
 
@@ -123,7 +122,7 @@ $ python3 ColdDataRetriever.py
 $ nohup python3 ColdDataRetriever.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 
 # With Command Line Arguments
-$ nohup python3 ColdDataRetriever.py --SendEmail false --NumberOfQueryAttributes 1 --FirstAttr accession --FirstIndex 0 --CsvFile "csv/accession.csv"> UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+$ nohup python3 ColdDataRetriever.py --SendEmail false --NumberOfQueryAttributes 1 --FirstAttr AccessionNumber --FirstIndex 0 --CsvFile "csv/accession.csv"> UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 ```
 Check that the extraction is going smooth, by,
 ```
