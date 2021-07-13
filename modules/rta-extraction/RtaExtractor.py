@@ -14,6 +14,7 @@ import os, os.path
 from re import findall
 import sys
 import glob
+from warnings import resetwarnings
 from bson.objectid import ObjectId
 import pymongo
 from pymongo.message import delete, query
@@ -30,8 +31,10 @@ import subprocess
 import pandas as pd
 import json
 import time
+import pdb
 from datetime import datetime, timedelta
 from pymongo import MongoClient
+from collections import Counter
 
 def run_threaded(job_func):
     job_thread = threading.Thread(target=job_func)
@@ -65,38 +68,32 @@ def load_json_data(db_json=None, folder_path=None, first_index=None, second_inde
     time_taken = round(time.time()-load_time, 2)
     logging.info('Spent {} seconds loading data into {}.'.format(time_taken, db_json))
 
-# Data Clearing Function - Not working as expected
+# Data Clearing Function
 def clear_data(db_json=None):
     clear_time = time.time()
+    count = 0
     data_collection = db[db_json]
-    items_collection = data_collection.find_one()['items']
+    cursor = data_collection.find({})
+    items_collection = cursor[0]['items']
+    previous_time = datetime.now()-timedelta(days=1)
+    previous_date = previous_time.date()
 
-    cut_off_time = datetime.now()-timedelta(days=1)
-    cut_off_date = cut_off_time.date()
-    for item in items_collection:
-        item_datetime = datetime.strptime(item['lab_date'][:-1], '%Y-%m-%dT%H:%M:%S')
-        item_date = item_datetime.date()
-        diff_time = cut_off_date - item_date
-        if (diff_time.total_seconds() > 0):
-            items_collection.remove(item)
+    remove_list = []
+    for i in range(len(items_collection)):
+        item_date = datetime.strptime(items_collection[i]['lab_date'], '%Y-%m-%dT%H:%M:%SZ').date()
+        diff_time = previous_date-item_date
+        if (diff_time.total_seconds()>=0):
+            remove_list.append(items_collection[i])
+
+    for x in remove_list:
+        if x in items_collection:
+            items_collection.remove(x)
 
     item_id = data_collection.find_one()['_id']
     db[db_json].update_one({'_id':ObjectId(item_id)}, {'$set':{'items':items_collection}})
-
     time_taken = round(time.time()-clear_time, 2)
-    logging.info('Spent {} seconds clearing the data from {}.'.format(time_taken, db_json))
-
-# Data Clearing Function - Not working at all.
-def clear_data_dummy(db_json=None):
-    clear_time = time.time()
-    data_collection = db[db_json]
-    cut_off_time = datetime.now()-timedelta(days=1)
-    cut_off_date = cut_off_time.date()
-    data_collection.delete_many({'lab_date':{'$lt':str(cut_off_date)}})
-
-    time_taken = round(time.time()-clear_time, 2)
-    logging.info('Spent {} seconds clearing the data from {}.'.format(time_taken, db_json))
-
+    logging.info('Spent {} seconds clealearing the data from {}.'.format(time_taken, db_json))
+    
 # Data Filtering Function
 def view_data(db_json=None, user_query=None):
     view_time = time.time()
@@ -162,8 +159,6 @@ if __name__ == "__main__":
     schedule.every(1).day.at("23:59").do(run_threaded, clear_data(db_json='meds_json'))
     schedule.every(1).day.at("23:59").do(run_threaded, clear_data(db_json='orders_json'))
 
-    clear_data_dummy(db_json='labs_json')
-
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    # while True:
+    #     schedule.run_pending()
+    #     time.sleep(1)
