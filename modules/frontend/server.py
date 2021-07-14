@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from werkzeug.utils import secure_filename
+import glob
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -85,6 +86,7 @@ def logout():
 @app.route('/png-extraction', methods=['GET', 'POST'])
 @login_required
 def extract_png():
+    all_logs = []
     config_values = {}
     if request.method =='POST':
         depth = request.form['depth']
@@ -96,7 +98,24 @@ def extract_png():
         useProcess = request.form['useProcess']
         if(useProcess == '' or len(useProcess) == 0):
             useProcess = '0'
-
+        if not (os.path.isdir(request.form['DICOMFolder'])):
+            all_logs.append("Oops !! The Given DICOM Home Folder path is incorrect / Does not exits")
+            all_logs.append("Incorrect Execution")
+            return render_template('pngHome.html', logs = all_logs)
+        # Checking depth is valid or not
+        directory = request.form['DICOMFolder'] + '/'
+        i = 0
+        while i < int(depth):
+            directory += "*/"
+            i += 1
+        file_path = directory + "*.dcm"
+        filelist=glob.glob(file_path, recursive=True)
+        try:
+            ff = filelist[0]
+        except IndexError:
+            all_logs.append("Given Depth is incorrect. Please provide correct depth")
+            all_logs.append("Incorrect/Unsuccessful Execution")
+            return render_template('pngHome.html', logs = all_logs)
         config_values["DICOMHome"] = request.form['DICOMFolder']
         config_values["OutputDirectory"] = request.form['outputFolder']
         config_values["Depth"] = request.form['depth']
@@ -114,6 +133,7 @@ def extract_png():
             import ImageExtractor
             lt = ImageExtractor.initialize_config_and_execute(config_values)
             return render_template('pngHome.html', logs = lt)
+        return render_template('pngHome.html', logs = all_logs)
     return render_template('pngHome.html')
 
 @app.route('/cold-extraction', methods=['GET', 'POST'])
