@@ -91,10 +91,13 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 
 * *NumberOfQueryAttributes*: Can be 1, 2, or 3. By default, 1.
 
-* *FirstAttr*: Which should be the first attribute. By default, "PatientID". 
-  It is important to use the correct DICOM keywords such as, "PatientID", "AccessionNumber", "StudyInstanceUID", and "StudyDate".
+**Please note:** It is important to use the correct DICOM keywords such as, "PatientID", "AccessionNumber", "StudyInstanceUID", and "StudyDate".
   Please refer to the DICOM Standard for more information on the DICOM header attributes/keywords.
   Please note, the correct keyword is "AccessionNumber" and not "Accession" or "Accessions". Similarly, it is "PatientID" - neither "EMPI" nor "Patient-ID" (although they all are indeed the same in practice).
+  
+Please refer to the DICOM standards to ensure you spell the [DICOM keyword](http://dicom.nema.org/dicom/2013/output/chtml/part06/chapter_6.html) correctly, if in doubt.
+
+* *FirstAttr*: Which should be the first attribute. By default, "PatientID".   
   
 * *FirstIndex*: Set the CSV column index of first Attribute. By default, 0. Note the index starts at 0.
 
