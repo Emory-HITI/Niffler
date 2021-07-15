@@ -89,6 +89,7 @@
                                     class="form-control"
                                     type="text"
                                     name="StorageFolder"
+                                    required
                                     placeholder="path/to/storage/folder"
                                 />
                             </div>
@@ -287,7 +288,7 @@
                                         class="form-control"
                                         type="number"
                                         min="0"
-                                        placeholder="Column number of that attribute"
+                                        placeholder="CSV Column Index"
                                         name="column[1]"
                                     />
                                 </div>
@@ -327,20 +328,24 @@
                                     if (x < max_fields) {
                                         //max input box allowed
                                         x++; //text box increment
+                                        var st = "";
+                                        if (x == 2) {
+                                            st = "Second";
+                                        } else if (x == 3) {
+                                            st = "Third";
+                                        }
                                         $(wrapper).append(
                                             `<div>` +
                                                 `<br />` +
                                                 ` <input class="form-control" type="text" name="attr[` +
                                                 x +
                                                 `]" placeholder="` +
-                                                x +
+                                                st +
                                                 ` Attribute" />` +
                                                 `<br />` +
                                                 `<input class="form-control" type="number" min = "0" name="column[` +
                                                 x +
-                                                `]"  placeholder="` +
-                                                x +
-                                                ` Attribute Column number" style="margin-bottom: 12px;"/>` +
+                                                `]"  placeholder="CSV Column index" style="margin-bottom: 12px;"/>` +
                                                 `<a href="#" class="remove_field">Remove</a>` +
                                                 `</div>`
                                         ); // add input boxes.

@@ -3,7 +3,11 @@
 Here we have created a frontend module for Niffler for ease of acccess of it's modules.
 This module is using **Flask** as an engine to run all the frontend.
 
-**Make sure you have installed Flask from requirements.txt file.**
+## Install Requirements
+```
+$ pip3 install -r requirements.txt
+
+```
 
 ## Steps for running Frontend Module
 
