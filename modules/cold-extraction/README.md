@@ -98,7 +98,7 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
   
 * *FirstIndex*: Set the CSV column index of first Attribute. By default, 0. Note the index starts at 0.
 
-* *SecondAttr*: Which should be the second attribute. By default, "Accession". This field is ignored when NumberOfQueryAttributes is 1.
+* *SecondAttr*: Which should be the second attribute. By default, "AccessionNumber". This field is ignored when NumberOfQueryAttributes is 1.
 
 * *SecondIndex*: Set the CSV column index of second Attribute. By default, 1. This field is ignored when NumberOfQueryAttributes is 1.
 
