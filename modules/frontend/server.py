@@ -1,6 +1,7 @@
 from flask import Flask, flash, request, redirect, url_for, render_template, send_file
 import os
 import sys
+import io
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
@@ -213,10 +214,9 @@ def cold_extraction():
             cold_extraction_values['SendEmail'] = request.form['sendEmail']
             cold_extraction_values['YourEmail'] = request.form['email']
 
-            import sys
-            import io
-            sys.path.append("../cold-extraction/")
+            sys.path.append(COLD_UPLOAD_FOLDER)
             import ColdDataRetriever
+            os.chdir(COLD_UPLOAD_FOLDER)
             x = ColdDataRetriever.initialize_config_and_execute(cold_extraction_values)
             return render_template('cold_extraction.html', logs = logs, files_list = files_present_in_server)
         else:
