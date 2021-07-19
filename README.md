@@ -4,7 +4,7 @@ Niffler is an efficient DICOM Framework for machine learning pipelines and proce
 
 Niffler enables receiving DICOM images real-time as a data stream from PACS as well as specific DICOM data based on a series of DICOM C-MOV queries. The Niffler real-time DICOM receiver extracts the metadata free of PHI as the images arrive, store the metadata in a Mongo database, and deletes the images nightly. The on-demand extractor reads a CSV file provided by the user (consisting of EMPIs, AccessionNumbers, or other properties), and performs a series of DICOM C-MOVE requests to receive them from the PACS, without manually querying them. Niffler also provides additional features such as converting DICOM images into PNG images, and perform additional computations such as computing scanner utilization and finding scanners with misconfigured clocks.
 
-Emory University develops Niffler with funding from The National Cancer Institute (NCI) of the National Institutes of Health (NIH). Other collaborators contribute to Niffler with funding from the Google Summer of Code (GSoC) and other sources.
+Emory University develops Niffler with funding from the National Cancer Institute (NCI) of the National Institutes of Health (NIH). Other collaborators contribute to Niffler with funding from the Google Summer of Code (GSoC) and other sources.
 
 # Configure Niffler
 
