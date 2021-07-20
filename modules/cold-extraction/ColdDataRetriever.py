@@ -142,7 +142,7 @@ def initialize():
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
         datetime.datetime.now()))
 
-    if not filepath == "CFIND-ONLY":
+    if not file_path == "CFIND-ONLY":
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
             DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
@@ -217,12 +217,12 @@ def retrieve():
                 sleep_for_nightly_mode()
                 patient = firsts[pid]
                 if (not resume) or (resume and (patient not in extracted_ones)):
-                    if filepath == "CFIND-ONLY":
+                    if file_path == "CFIND-ONLY":
                         if not os.path.exists(temp_folder):
                             os.makedirs(temp_folder)
 
                         inc = random.randint(0, 1000000)
-                        subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
+                        subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} -r AccessionNumber "
                                         "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
                                         "--out-cat --out-file {4}/{5}.csv --out-dir .".format(
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, temp_folder, inc), shell=True)
