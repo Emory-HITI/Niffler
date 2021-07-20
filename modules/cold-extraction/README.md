@@ -163,6 +163,24 @@ For "empi_accession" extractions, each entry above is empi,accession. For "empi"
 For other combinations of extractions, each entry above will be empi, study. The reason is we have to _translate_ these headers into empi_study for C-MOVE queries.
 
 
+## CFIND-ONLY mode
+
+Niffler experimentally supports a CFIND-ONLY mode.
+
+To activate, use the below value,
+```
+	"StorageFolder": "CFIND-ONLY",
+```
+As of now, this is only supported for the below mode, C-FIND based entirely on PatientID.
+```
+	"NumberOfQueryAttributes": 1,
+	"FirstAttr": "PatientID",
+	"FirstIndex": 0,
+```
+The output will be a list of CSV files consisting of PatientID, StudyInstanceUI, and StudyDescription.
+
+The CSV outputs will be in the folder of the original CSV file, with the name of CsvFile appended by random numbers.
+
 ## Troubleshooting
 
 If the process fails even when no one else's Niffler process is running, check your log file (UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out)
