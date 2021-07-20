@@ -212,7 +212,10 @@ def retrieve():
     if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
         # For the cases that extract entirely based on the PatientID - Patient-level extraction.
         if first_attr == "PatientID":
-            temp_folder = storage_folder + "/cfind-temp"
+            temp_folder = "csv/cfind-temp"
+            if not os.path.exists(temp_folder):
+                os.makedirs(temp_folder)
+
             for pid in range(0, length):
                 sleep_for_nightly_mode()
                 patient = firsts[pid]
@@ -233,13 +236,10 @@ def retrieve():
                     extracted_ones.append(patient)
 
             if file_path == "CFIND-ONLY":
-                cwd = os.getcwd()
-                os.chdir(temp_folder)
-                all_files = glob.glob('*.csv')
+                all_files = glob.glob(os.path.join(temp_folder, "*.csv"))
                 df_from_each_file = (pd.read_csv(f, sep=',') for f in all_files)
                 df_merged = pd.concat(df_from_each_file, ignore_index=True)
                 df_merged.to_csv(storage_folder + "/cfind-output.csv")
-                os.chdir(cwd)
                 shutil.rmtree(temp_folder)
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
