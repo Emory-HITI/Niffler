@@ -13,7 +13,6 @@ import pickle
 import threading
 import argparse
 import random
-import pandas as pd
 
 from collections import defaultdict
 
