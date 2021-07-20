@@ -27,6 +27,7 @@
                         margin-left: 55px;
                         background: rgba(255, 255, 255, 0.25);
                         border-radius: 25px;
+                        margin-bottom: 160px;
                     "
                 >
                     <center>
@@ -66,6 +67,7 @@
                                 class="form-control"
                                 type="text"
                                 name="DICOMFolder"
+                                required
                                 placeholder="path/to/folder/containing/dcm/images"
                             />
                         </div>
@@ -102,6 +104,7 @@
                                 class="form-control"
                                 type="text"
                                 name="outputFolder"
+                                required
                                 placeholder="path/to/output/folder"
                             />
                         </div>
@@ -444,11 +447,12 @@
                         {% if logs %}
                         <h4 style="color: white">Errors: {{ logs[0] }}</h4>
                         <h4 style="color: white">Status: {{ logs[1] }}</h4>
+                        {% if logs|length == 0 %}
                         <h4 style="color: white">
                             Please check your output folder for extracted Images
                             !!
                         </h4>
-                        {% else %}
+                        {% endif %} {% else %}
                         <h4 style="color: white">
                             Run PNG Extraction to check Logs
                         </h4>

@@ -1,10 +1,12 @@
 from flask import Flask, flash, request, redirect, url_for, render_template, send_file
 import os
 import sys
+import io
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 from werkzeug.utils import secure_filename
+import glob
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -85,6 +87,7 @@ def logout():
 @app.route('/png-extraction', methods=['GET', 'POST'])
 @login_required
 def extract_png():
+    all_logs = []
     config_values = {}
     if request.method =='POST':
         depth = request.form['depth']
@@ -96,7 +99,24 @@ def extract_png():
         useProcess = request.form['useProcess']
         if(useProcess == '' or len(useProcess) == 0):
             useProcess = '0'
-
+        if not (os.path.isdir(request.form['DICOMFolder'])):
+            all_logs.append("Oops !! The Given DICOM Home Folder path is incorrect / Does not exits")
+            all_logs.append("Incorrect Execution")
+            return render_template('pngHome.html', logs = all_logs)
+        # Checking depth is valid or not
+        directory = request.form['DICOMFolder'] + '/'
+        i = 0
+        while i < int(depth):
+            directory += "*/"
+            i += 1
+        file_path = directory + "*.dcm"
+        filelist=glob.glob(file_path, recursive=True)
+        try:
+            ff = filelist[0]
+        except IndexError:
+            all_logs.append("Given Depth is incorrect. Please provide correct depth")
+            all_logs.append("Incorrect/Unsuccessful Execution")
+            return render_template('pngHome.html', logs = all_logs)
         config_values["DICOMHome"] = request.form['DICOMFolder']
         config_values["OutputDirectory"] = request.form['outputFolder']
         config_values["Depth"] = request.form['depth']
@@ -114,12 +134,14 @@ def extract_png():
             import ImageExtractor
             lt = ImageExtractor.initialize_config_and_execute(config_values)
             return render_template('pngHome.html', logs = lt)
+        return render_template('pngHome.html', logs = all_logs)
     return render_template('pngHome.html')
 
 @app.route('/cold-extraction', methods=['GET', 'POST'])
 @login_required
 def cold_extraction():
     logs = []
+    number_of_query_attributes = 1
     csv_folder = UPLOAD_FOLDER
     if not os.path.exists(csv_folder):
         os.makedirs(csv_folder)
@@ -142,19 +164,31 @@ def cold_extraction():
         file_path = request.form['file_path']
         if(file_path == '' or len(file_path) == 0):
             file_path = '{00100020}/{0020000D}/{0020000E}/{00080018}.dcm'
-        accession_index = request.form['AccessionIndex']
-        if(accession_index == '' or len(accession_index) == 0):
-            accession_index = '1'
-        patient_index = request.form['PatientIndex']
-        if(patient_index == '' or len(patient_index) == 0):
-            patient_index = '0'
-        date_index = request.form['DateIndex']
-        if(date_index == '' or len(date_index) == 0):
-            date_index = '1'
         date_format = request.form['DateFormat']
         if(date_format == '' or len(date_format) == 0):
             date_format = '%Y%m%d'
-
+        if "attr[2]" in request.form:
+            SecondAttr = request.form['attr[2]']
+            if(SecondAttr == '' or len(SecondAttr) == 0):
+                SecondAttr = ''
+                SecondIndex = 0
+            else:
+                number_of_query_attributes += 1
+                SecondIndex =  request.form['column[2]']
+        else:
+            SecondAttr = ''
+            SecondIndex = 0
+        if "attr[3]" in request.form:
+            ThirdAttr = request.form['attr[3]']
+            if(ThirdAttr == '' or len(ThirdAttr) == 0):
+                ThirdAttr = ''
+                ThirdIndex = 0
+            else:
+                number_of_query_attributes += 1
+                ThirdIndex =  request.form['column[3]']
+        else:
+            ThirdAttr = ''
+            ThirdIndex = 0
         NifflerSystem_File = COLD_UPLOAD_FOLDER + NifflerSystem
         checkfile = True
         try:
@@ -169,19 +203,20 @@ def cold_extraction():
             cold_extraction_values['NifflerSystem'] = NifflerSystem_File
             cold_extraction_values['StorageFolder'] = request.form['StorageFolder']
             cold_extraction_values['FilePath'] = file_path
-            cold_extraction_values['ExtractionType'] = request.form['ExtractionType']
-            cold_extraction_values['AccessionIndex'] = accession_index
-            cold_extraction_values['PatientIndex'] = patient_index
-            cold_extraction_values['DateIndex'] = date_index
-            cold_extraction_values['DateType'] = request.form['DateType']
+            cold_extraction_values['FirstAttr'] = request.form['attr[1]']
+            cold_extraction_values['FirstIndex'] = request.form['column[1]']
+            cold_extraction_values['SecondAttr'] = SecondAttr
+            cold_extraction_values['SecondIndex'] = SecondIndex
+            cold_extraction_values['ThirdAttr'] = ThirdAttr
+            cold_extraction_values['ThirdIndex'] = ThirdIndex
+            cold_extraction_values['NumberOfQueryAttributes'] = number_of_query_attributes
             cold_extraction_values['DateFormat'] = date_format
             cold_extraction_values['SendEmail'] = request.form['sendEmail']
             cold_extraction_values['YourEmail'] = request.form['email']
 
-            import sys
-            import io
-            sys.path.append("../cold-extraction/")
+            sys.path.append(COLD_UPLOAD_FOLDER)
             import ColdDataRetriever
+            os.chdir(COLD_UPLOAD_FOLDER)
             x = ColdDataRetriever.initialize_config_and_execute(cold_extraction_values)
             return render_template('cold_extraction.html', logs = logs, files_list = files_present_in_server)
         else:
