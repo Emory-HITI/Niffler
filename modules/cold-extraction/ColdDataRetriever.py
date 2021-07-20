@@ -232,11 +232,15 @@ def retrieve():
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
                     extracted_ones.append(patient)
 
-            all_files = glob.glob(os.path.join(temp_folder, "*.csv"))
-            df_from_each_file = (pd.read_csv(f, sep=',') for f in all_files)
-            df_merged = pd.concat(df_from_each_file, ignore_index=True)
-            df_merged.to_csv(storage_folder + "/cfind-output.csv")
-            shutil.rmtree(temp_folder)
+            if file_path == "CFIND-ONLY":
+                cwd = os.getcwd()
+                os.chdir(temp_folder)
+                all_files = glob.glob('*.csv')
+                df_from_each_file = (pd.read_csv(f, sep=',') for f in all_files)
+                df_merged = pd.concat(df_from_each_file, ignore_index=True)
+                df_merged.to_csv(storage_folder + "/cfind-output.csv")
+                os.chdir(cwd)
+                shutil.rmtree(temp_folder)
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
         # "Any" mode. Example: Extractions based on just AccessionNumber of AcquisitionDate.
