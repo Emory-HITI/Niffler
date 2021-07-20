@@ -237,13 +237,13 @@ def retrieve():
 
             if file_path == "CFIND-ONLY":
                 cwd = os.getcwd()
-                extension = 'csv'
                 os.chdir(temp_folder)
-                all_filenames = [i for i in glob.glob('*.{}'.format(extension))]
-                # combine all files in the list
-                combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames])
-                # export to csv
-                combined_csv.to_csv(storage_folder + "/cfind-output.csv", index=False, encoding='utf-8-sig')
+                all_filenames = [i for i in glob.glob('*.*')]
+                with open(storage_folder + "/cfind-output.csv", 'w') as outfile:
+                    for fname in all_filenames:
+                        with open(fname) as infile:
+                            for line in infile:
+                                outfile.write(line)
                 os.chdir(cwd)
                 shutil.rmtree(temp_folder)
 
