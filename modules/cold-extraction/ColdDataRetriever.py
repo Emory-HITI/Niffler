@@ -236,10 +236,14 @@ def retrieve():
                     extracted_ones.append(patient)
 
             if file_path == "CFIND-ONLY":
-                all_files = glob.glob(os.path.join(temp_folder, "*.csv"))
-                df_from_each_file = (pd.read_csv(f, sep=',') for f in all_files)
-                df_merged = pd.concat(df_from_each_file, ignore_index=False)
-                df_merged.to_csv(storage_folder + "/cfind-output.csv")
+                cwd = os.getcwd()
+                extension = 'csv'
+                all_filenames = [i for i in glob.glob('*.{}'.format(extension))]
+                # combine all files in the list
+                combined_csv = pd.concat([pd.read_csv(f) for f in all_filenames])
+                # export to csv
+                combined_csv.to_csv(storage_folder + "/cfind-output.csv", index=False, encoding='utf-8-sig')
+                os.chdir(cwd)
                 shutil.rmtree(temp_folder)
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
