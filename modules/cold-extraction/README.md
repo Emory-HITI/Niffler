@@ -179,7 +179,7 @@ As of now, this is only supported for the below mode, C-FIND based entirely on P
 	"FirstAttr": "PatientID",
 	"FirstIndex": 0,
 ```
-The output will be CSV file consisting of PatientID, StudyInstanceUID, AccessionNumber, and StudyDescription 
+The output will be in cfind-output.csv consisting of PatientID, StudyInstanceUID, AccessionNumber, and StudyDescription 
 in the StorageFolder.
 
 ## Troubleshooting
