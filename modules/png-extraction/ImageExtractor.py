@@ -15,11 +15,11 @@ import pickle
 import numpy as np
 import pandas as pd
 import pydicom as dicom 
-import png 
+import png
 # pydicom imports needed to handle data errors
 from pydicom import config
 from pydicom import datadict
-from pydicom import values
+from pydicom import values 
 
 import pathlib
 configs = {}
@@ -254,16 +254,16 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
 # Function when pydicom fails to read a value attempt to read as other types.
 def fix_mismatch_callback(raw_elem, **kwargs):
     try:
-        values.convert_value(raw_elem.VR, raw_elem)
-    except TypeError:
+        if raw_elem.VR: 
+            values.convert_value(raw_elem.VR, raw_elem)
+    except BaseException as err:
         for vr in kwargs['with_VRs']:
             try:
                 values.convert_value(vr, raw_elem)
-            except TypeError:
+            except ValueError:
                 pass
             else:
                 raw_elem = raw_elem._replace(VR=vr)
-                break
     return raw_elem
 
 
@@ -275,7 +275,7 @@ def get_path(depth, dicom_home):
         i += 1
     return directory + "*.dcm"
 
-
+    
 # Function used by pydicom.
 def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
     """A callback function to check that RawDataElements are translatable
@@ -294,8 +294,8 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
     dicom.config.data_element_callback = fix_mismatch_callback
     config.data_element_callback_kwargs = {
         'with_VRs': with_VRs,
-    }
-    
+    }    
+
 
 def execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
             processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
