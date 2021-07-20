@@ -171,7 +171,7 @@ Niffler experimentally supports a CFIND-ONLY mode.
 
 To activate, use the below value,
 ```
-	"StorageFolder": "CFIND-ONLY",
+	"FilePath": "CFIND-ONLY",
 ```
 As of now, this is only supported for the below mode, C-FIND based entirely on PatientID.
 ```
@@ -179,9 +179,8 @@ As of now, this is only supported for the below mode, C-FIND based entirely on P
 	"FirstAttr": "PatientID",
 	"FirstIndex": 0,
 ```
-The output will be a list of CSV files consisting of PatientID, StudyInstanceUI, and StudyDescription.
-
-The CSV outputs will be in the folder of the original CSV file, with the name of CsvFile appended by random numbers.
+The output will be in cfind-output.csv consisting of PatientID, StudyInstanceUID, AccessionNumber, and StudyDescription 
+in the StorageFolder.
 
 ## Troubleshooting
 

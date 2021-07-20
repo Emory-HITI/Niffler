@@ -1,5 +1,5 @@
 import logging
-import os
+import os, glob
 import signal
 import csv
 import time
@@ -13,6 +13,7 @@ import pickle
 import threading
 import argparse
 import random
+import pandas as pd
 
 from collections import defaultdict
 
@@ -141,7 +142,7 @@ def initialize():
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
         datetime.datetime.now()))
 
-    if not storage_folder == "CFIND-ONLY":
+    if not file_path == "CFIND-ONLY":
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
             DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
@@ -211,21 +212,40 @@ def retrieve():
     if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
         # For the cases that extract entirely based on the PatientID - Patient-level extraction.
         if first_attr == "PatientID":
+            temp_folder = "csv/cfind-temp"
+            if not os.path.exists(temp_folder):
+                os.makedirs(temp_folder)
+
             for pid in range(0, length):
                 sleep_for_nightly_mode()
                 patient = firsts[pid]
                 if (not resume) or (resume and (patient not in extracted_ones)):
-                    if storage_folder == "CFIND-ONLY":
-                        inc = random.randint(0,1000000)
-                        subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
+                    if file_path == "CFIND-ONLY":
+                        if not os.path.exists(temp_folder):
+                            os.makedirs(temp_folder)
+
+                        inc = random.randint(0, 1000000)
+                        subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} -r AccessionNumber "
                                         "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
-                                        "--out-cat --out-file {4}_{5}.csv --out-dir .".format(
-                            DCM4CHE_BIN, SRC_AET, QUERY_AET,  patient, csv_file, inc), shell=True)
+                                        "--out-cat --out-file {4}/{5}.csv --out-dir .".format(
+                            DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, temp_folder, inc), shell=True)
 
                     else:
                         subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
                     extracted_ones.append(patient)
+
+            if file_path == "CFIND-ONLY":
+                cwd = os.getcwd()
+                os.chdir(temp_folder)
+                all_filenames = [i for i in glob.glob('*.*')]
+                with open(storage_folder + "/cfind-output.csv", 'w') as outfile:
+                    for fname in all_filenames:
+                        with open(fname) as infile:
+                            for line in infile:
+                                outfile.write(line)
+                os.chdir(cwd)
+                shutil.rmtree(temp_folder)
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
         # "Any" mode. Example: Extractions based on just AccessionNumber of AcquisitionDate.
