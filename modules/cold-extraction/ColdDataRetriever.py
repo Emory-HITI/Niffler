@@ -216,10 +216,10 @@ def retrieve():
                 patient = firsts[pid]
                 if (not resume) or (resume and (patient not in extracted_ones)):
                     if storage_folder == "CFIND-ONLY":
-                        inc = random.random()
+                        inc = random.randint()
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
                                         "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
-                                        "--out-cat --out-file {4}.{5}.csv --out-dir .".format(
+                                        "--out-cat --out-file {4}_{5}.csv --out-dir .".format(
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, file_path, csv_file, inc), shell=True)
 
                     else:
