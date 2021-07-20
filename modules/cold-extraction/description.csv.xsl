@@ -41,11 +41,15 @@
 
   <xsl:template match="/NativeDicomModel">
     <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00100020']"/>
+    <xsl:text>"</xsl:text>
+    <xsl:text>,</xsl:text>
+    <xsl:text>"</xsl:text>
     <xsl:apply-templates select="DicomAttribute[@tag='0020000D']"/>
     <xsl:text>"</xsl:text>
     <xsl:text>,</xsl:text>
-    <xsl:text>"</xsl:text>    
-    <xsl:apply-templates select="DicomAttribute[@tag='00100020']"/>
+    <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00080050']"/>
     <xsl:text>"</xsl:text>
     <xsl:text>,</xsl:text>
     <xsl:text>"</xsl:text>
