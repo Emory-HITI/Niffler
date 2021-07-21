@@ -67,6 +67,7 @@ def initialize_config_and_execute(valuesDict):
 
     nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
     niffler_str = 'ColdDataRetriever'
+    cfind_only = 'CFIND-ONLY'
 
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
@@ -141,7 +142,7 @@ def initialize():
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
         datetime.datetime.now()))
 
-    if not file_path == "CFIND-ONLY":
+    if not file_path == cfind_only:
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
             DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
@@ -212,7 +213,7 @@ def retrieve():
         # For the cases that extract entirely based on the PatientID - Patient-level extraction.
         if first_attr == "PatientID":
             temp_folder = os.path.join(storage_folder, "cfind-temp")
-            if file_path == "CFIND-ONLY":
+            if file_path == cfind_only:
                 if not os.path.exists(temp_folder):
                     os.makedirs(temp_folder)
 
@@ -220,7 +221,7 @@ def retrieve():
                 sleep_for_nightly_mode()
                 patient = firsts[pid]
                 if (not resume) or (resume and (patient not in extracted_ones)):
-                    if file_path == "CFIND-ONLY":
+                    if file_path == cfind_only:
                         inc = random.randint(0, 1000000)
                         inc = str(inc) + ".csv"
                         temp_file = os.path.join(temp_folder, inc)
@@ -234,7 +235,7 @@ def retrieve():
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
                     extracted_ones.append(patient)
 
-            if file_path == "CFIND-ONLY":
+            if file_path == cfind_only:
                 all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
                 init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription"
                 with open(os.path.join(storage_folder, "cfind-output.csv"), 'w') as outfile:
