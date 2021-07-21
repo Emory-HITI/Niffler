@@ -233,7 +233,7 @@ def retrieve():
                     extracted_ones.append(patient)
 
             if file_path == "CFIND-ONLY":
-                all_filenames = [i for i in glob.glob(os.path.join(storage_folder, '*.*'))]
+                all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
                 with open(storage_folder + "/cfind-output.csv", 'w') as outfile:
                     for fname in all_filenames:
                         with open(fname) as infile:
