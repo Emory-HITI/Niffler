@@ -60,3 +60,14 @@ if [ "$MONGO" = false ] ; then
     echo "true" > init/mongo.out
 fi
 
+SERVICE=`head -n 1 init/service.out`
+if [ "$SERVICE" = false ] ; then
+    echo "Installing Niffler Frontend"
+    pip install -r modules/frontend/requirements.txt
+    chmod +x modules/frontend/service/frontend_service.sh
+    sudo cp modules/frontend/service/niffler.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl start niffler.service
+    sudo systemctl enable niffler.service
+    echo "true" > init/service.out
+fi

@@ -8,7 +8,7 @@ Emory University develops Niffler with funding from the National Cancer Institut
 
 # Configure Niffler
 
-Niffler consists of 5 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
+Niffler consists of 7 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
 
 ## Configure PACS
 
