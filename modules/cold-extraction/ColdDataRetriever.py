@@ -18,12 +18,15 @@ from collections import defaultdict
 
 
 def initialize_config_and_execute(valuesDict):
+    """
+    Initializes the variables and starts the execution of the on-demand extraction.
+    """
     global storescp_processes, niffler_processes, nifflerscp_str, niffler_str
     global storage_folder, file_path, csv_file, number_of_query_attributes, first_index, second_index, third_index, \
         first_attr, second_attr, third_attr, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
         NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only
+    global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only, temp_folder
 
     storage_folder = valuesDict['StorageFolder']
     file_path = valuesDict['FilePath']
@@ -68,6 +71,7 @@ def initialize_config_and_execute(valuesDict):
     nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
     niffler_str = 'ColdDataRetriever'
     cfind_only = 'CFIND-ONLY'
+    temp_folder = os.path.join(storage_folder, "cfind-temp")
 
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
@@ -96,8 +100,10 @@ def initialize_config_and_execute(valuesDict):
     run_cold_extraction()
 
 
-# Check and kill the StoreScp processes.
 def check_kill_process():
+    """
+    Check and kill the idling StoreScp processes.
+    """
     for line in os.popen("ps ax | grep -E " + nifflerscp_str + " | grep -v grep"):
         fields = line.split()
         pid = fields[0]
@@ -117,8 +123,10 @@ def check_kill_process():
             sys.exit(1)                
 
 
-# Initialize the storescp and Niffler AET.
 def initialize():
+    """
+    Initialize the storescp and Niffler AET.
+    """
     global niffler_processes
     global storescp_processes
     for _ in os.popen("ps ax | grep " + niffler_str + " | grep -v grep"):
@@ -148,6 +156,9 @@ def initialize():
 
 
 def read_csv():
+    """
+    Read and parse the user provided csv file.
+    """
     global length
     with open(csv_file, newline='') as f:
         reader = csv.reader(f)
@@ -161,7 +172,7 @@ def read_csv():
             row = [x.strip() for x in row]
 
             if not (row[first_index] == ""):
-                if first_attr == "StudyDate" or first_attr == "AcquisitionDate" or first_attr == "SeriesDate":
+                if first_attr == "StudyDate":
                     date_str = convert_to_date_format(row[first_index])
                     firsts.append(date_str)
                 else:
@@ -169,7 +180,7 @@ def read_csv():
 
             if number_of_query_attributes == 2 or number_of_query_attributes == 3:
                 if not (row[first_index] == "" or row[second_index] == ""):
-                    if second_attr == "StudyDate" or second_attr == "AcquisitionDate" or second_attr == "SeriesDate":
+                    if second_attr == "StudyDate":
                         date_str = convert_to_date_format(row[second_index])
                         seconds.append(date_str)
                     else:
@@ -177,7 +188,7 @@ def read_csv():
 
             if number_of_query_attributes == 3:
                 if not (row[first_index] == "" or row[second_index] == "" or row[third_index] == ""):
-                    if third_attr == "StudyDate" or third_attr == "AcquisitionDate" or third_attr == "SeriesDate":
+                    if third_attr == "StudyDate":
                         date_str = convert_to_date_format(row[third_index])
                         thirds.append(date_str)
                     else:
@@ -188,14 +199,19 @@ def read_csv():
 
 
 def convert_to_date_format(string_val):
+    """
+    Convert StudyDate value to the correct date format.
+    """
     temp_date = string_val
     dt_stamp = datetime.datetime.strptime(temp_date, date_format)
     date_str = dt_stamp.strftime('%Y%m%d')
     return date_str
 
 
-# Run the retrieval only once, when the extraction script starts, and keep it running in a separate thread.
 def run_retrieval():
+    """
+    Run the retrieval only once, when the extraction script starts, and keep it running in a separate thread.
+    """
     global IS_EXTRACTION_NOT_RUNNING
     if IS_EXTRACTION_NOT_RUNNING:
         IS_EXTRACTION_NOT_RUNNING = False   
@@ -204,18 +220,20 @@ def run_retrieval():
         retrieve()
 
 
-# The core DICOM on-demand retrieve process.
 def retrieve():
-    global length, t_start
+    """
+    The core DICOM on-demand retrieve process to retrieve the images or metadata.
+    """
+    global length, t_start, temp_folder
+
+    if file_path == cfind_only:
+        if not os.path.exists(temp_folder):
+            os.makedirs(temp_folder)
 
     # Cases where only one DICOM keyword is considered as an attribute.
     if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
         # For the cases that extract entirely based on the PatientID - Patient-level extraction.
         if first_attr == "PatientID":
-            temp_folder = os.path.join(storage_folder, "cfind-temp")
-            if file_path == cfind_only:
-                if not os.path.exists(temp_folder):
-                    os.makedirs(temp_folder)
 
             for pid in range(0, length):
                 sleep_for_nightly_mode()
@@ -235,17 +253,7 @@ def retrieve():
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
                     extracted_ones.append(patient)
 
-            if file_path == cfind_only:
-                all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
-                init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription"
-                with open(os.path.join(storage_folder, "cfind-output.csv"), 'w') as outfile:
-                    init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
-                    outfile.write(init_line)
-                    for fname in all_filenames:
-                        with open(fname) as infile:
-                            for line in infile:
-                                outfile.write(line)
-                shutil.rmtree(temp_folder)
+            remove_temp_folder()
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
         # "Any" mode. Example: Extractions based on just AccessionNumber of AcquisitionDate.
@@ -347,7 +355,27 @@ def retrieve():
     os.kill(os.getpid(), signal.SIGINT)
 
 
+def remove_temp_folder():
+    """
+    Remove the temp folder created by c-find to produce intermediate files.
+    """
+    global temp_folder
+    if file_path == cfind_only:
+        all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
+        with open(os.path.join(storage_folder, "cfind-output.csv"), 'w') as outfile:
+            init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
+            outfile.write(init_line)
+            for fname in all_filenames:
+                with open(fname) as infile:
+                    for line in infile:
+                        outfile.write(line)
+        shutil.rmtree(temp_folder)
+
+
 def extract_empi_study():
+    """
+    C-MOVE based on PatientID and StudyInstanceUID, executed by default for most cases after C-FIND.
+    """
     try:
         # Processing the Intermediate CSV file with EMPI and StudyIDs
         with open('intermediate1.csv', newline='') as g:  # DCM4CHE appends 1.
@@ -375,6 +403,9 @@ def extract_empi_study():
 
 
 def sleep_for_nightly_mode():
+    """
+    Sleep during the day time if nightly mode is in place.
+    """
     if NIGHTLY_ONLY:
         if END_HOUR <= datetime.datetime.now().hour < START_HOUR:
             # log once while sleeping
@@ -386,10 +417,10 @@ def sleep_for_nightly_mode():
             time.sleep(300)
 
 
-# Write the pickle file periodically to track the progress and persist it to the filesystem
 def update_pickle():
-    global extracted_ones
-    # Pickle using the highest protocol available.
+    """
+    Write the pickle file periodically to track the progress and persist it to the filesystem.
+    """
     with open(csv_file + '.pickle', 'wb') as f:
         pickle.dump(extracted_ones, f)
     logging.debug('Progress is recorded to the pickle file')
@@ -401,6 +432,9 @@ def run_threaded(job_func):
 
 
 def run_cold_extraction():
+    """
+    Schedule the threads.
+    """
     read_csv()
     # The thread scheduling
     schedule.every(1).minutes.do(run_threaded, run_retrieval)    
