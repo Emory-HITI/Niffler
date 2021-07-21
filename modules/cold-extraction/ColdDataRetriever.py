@@ -211,18 +211,16 @@ def retrieve():
     if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
         # For the cases that extract entirely based on the PatientID - Patient-level extraction.
         if first_attr == "PatientID":
-            temp_folder = "csv/cfind-temp"
-            if not os.path.exists(temp_folder):
-                os.makedirs(temp_folder)
+            temp_folder = storage_folder + "/cfind-temp"
+            if file_path == "CFIND-ONLY":
+                if not os.path.exists(temp_folder):
+                    os.makedirs(temp_folder)
 
             for pid in range(0, length):
                 sleep_for_nightly_mode()
                 patient = firsts[pid]
                 if (not resume) or (resume and (patient not in extracted_ones)):
                     if file_path == "CFIND-ONLY":
-                        if not os.path.exists(temp_folder):
-                            os.makedirs(temp_folder)
-
                         inc = random.randint(0, 1000000)
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} -r AccessionNumber "
                                         "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
@@ -235,15 +233,12 @@ def retrieve():
                     extracted_ones.append(patient)
 
             if file_path == "CFIND-ONLY":
-                cwd = os.getcwd()
-                os.chdir(temp_folder)
                 all_filenames = [i for i in glob.glob('*.*')]
                 with open(storage_folder + "/cfind-output.csv", 'w') as outfile:
                     for fname in all_filenames:
                         with open(fname) as infile:
                             for line in infile:
                                 outfile.write(line)
-                os.chdir(cwd)
                 shutil.rmtree(temp_folder)
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
