@@ -211,7 +211,7 @@ def retrieve():
     if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
         # For the cases that extract entirely based on the PatientID - Patient-level extraction.
         if first_attr == "PatientID":
-            temp_folder = storage_folder + "/cfind-temp"
+            temp_folder = os.path.join(storage_folder, "cfind-temp")
             if file_path == "CFIND-ONLY":
                 if not os.path.exists(temp_folder):
                     os.makedirs(temp_folder)
@@ -234,8 +234,9 @@ def retrieve():
 
             if file_path == "CFIND-ONLY":
                 all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
+                init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription"
                 with open(storage_folder + "/cfind-output.csv", 'w') as outfile:
-                    init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription"
+                    init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
                     outfile.write(init_line)
                     for fname in all_filenames:
                         with open(fname) as infile:
