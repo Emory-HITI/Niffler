@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=opt/Niffler/modules/frontend/service/frontend_service.sh
+ExecStart=/opt/Niffler/modules/frontend/service/frontend_service.sh
 TimeoutStartSec=360
 
 [Install]
