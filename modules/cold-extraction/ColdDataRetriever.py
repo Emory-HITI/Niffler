@@ -222,10 +222,12 @@ def retrieve():
                 if (not resume) or (resume and (patient not in extracted_ones)):
                     if file_path == "CFIND-ONLY":
                         inc = random.randint(0, 1000000)
+                        inc = str(inc) + ".csv"
+                        temp_file = os.path.join(temp_folder, inc)
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} -r AccessionNumber "
                                         "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
-                                        "--out-cat --out-file {4}/{5}.csv --out-dir .".format(
-                            DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, temp_folder, inc), shell=True)
+                                        "--out-cat --out-file {4} --out-dir .".format(
+                            DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, temp_file), shell=True)
 
                     else:
                         subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
