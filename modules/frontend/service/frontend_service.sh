@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /Niffler/modules/frontend/
+cd /opt/Niffler/modules/frontend/
 source ~/.bashrc
 python3 server.py >> niffler-front.out &
 wait
