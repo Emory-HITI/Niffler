@@ -68,6 +68,7 @@ def initialize_config_and_execute(valuesDict):
     nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
     niffler_str = 'ColdDataRetriever'
     cfind_only = 'CFIND-ONLY'
+    temp_folder = os.path.join(storage_folder, "cfind-temp")
 
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
@@ -95,7 +96,6 @@ def initialize_config_and_execute(valuesDict):
     t_start = time.time()
     run_cold_extraction()
 
-    temp_folder = os.path.join(storage_folder, "cfind-temp")
 
 
 # Check and kill the StoreScp processes.
