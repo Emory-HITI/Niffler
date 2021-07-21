@@ -238,9 +238,7 @@ def retrieve():
                 patient = firsts[pid]
                 if (not resume) or (resume and (patient not in extracted_ones)):
                     if file_path == cfind_only:
-                        inc = random.randint(0, 1000000)
-                        inc = str(inc) + ".csv"
-                        temp_file = os.path.join(temp_folder, inc)
+                        temp_file = generate_temp_file_name()
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} -r AccessionNumber "
                                         "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
                                         "--out-cat --out-file {4} --out-dir .".format(
@@ -251,7 +249,7 @@ def retrieve():
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
                     extracted_ones.append(patient)
 
-            remove_temp_folder()
+            merge_temp_files()
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
         # "Any" mode. Example: Extractions based on just AccessionNumber of AcquisitionDate.
@@ -353,11 +351,21 @@ def retrieve():
     os.kill(os.getpid(), signal.SIGINT)
 
 
-def remove_temp_folder():
+def generate_temp_file_name():
     """
+    Generate a name to generate a temporary file to store c-find outputs.
+    """
+    inc = random.randint(0, 1000000)
+    inc = str(inc) + ".csv"
+    temp_file = os.path.join(temp_folder, inc)
+    return temp_file
+
+
+def merge_temp_files():
+    """
+    Merge temp files produced by c-find into the final output.
     Remove the temp folder created by c-find to produce intermediate files.
     """
-    global temp_folder
     if file_path == cfind_only:
         all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
         with open(os.path.join(storage_folder, "cfind-output.csv"), 'w') as outfile:
