@@ -23,7 +23,7 @@ def initialize_config_and_execute(valuesDict):
         first_attr, second_attr, third_attr, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
         NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global firsts, seconds, thirds, niffler_log, resume, length, t_start
+    global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only
 
     storage_folder = valuesDict['StorageFolder']
     file_path = valuesDict['FilePath']
