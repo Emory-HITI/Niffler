@@ -1,0 +1,11 @@
+[Unit]
+Description=frontend service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/Niffler/modules/frontend/service/frontend_service.sh
+TimeoutStartSec=360
+
+[Install]
+WantedBy=default.target
