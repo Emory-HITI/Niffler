@@ -25,6 +25,14 @@ Converts a set of DICOM images into png images, extract metadata in a privacy-pr
 
 Converts a set of DICOM images into anonymized DICOM images, stripping off the PHI. 
 
+## rta-extraction
+
+Extracts the RTA data retrieved from a RIS, from a curl output as json to a Mongo collection.
+
+## frontend
+
+A frontend for the cold-extraction and png-extraction modules, with authentication.
+
 ## app-layer
 
 The app-layer (application layer) consists of specific algorithms. The app-layer/src/main/scripts consists of Javascript scripts such as scanner clock calibration. The app-layer/src/main/java consists of the the scanner utilization computation algorithms developed in Java.
