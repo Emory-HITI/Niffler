@@ -224,8 +224,6 @@ def retrieve():
     """
     The core DICOM on-demand retrieve process to retrieve the images or metadata.
     """
-    global length, t_start, temp_folder
-
     if file_path == cfind_only:
         if not os.path.exists(temp_folder):
             os.makedirs(temp_folder)
