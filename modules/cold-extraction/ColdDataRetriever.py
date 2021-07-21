@@ -23,7 +23,7 @@ def initialize_config_and_execute(valuesDict):
         first_attr, second_attr, third_attr, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
         NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only
+    global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only, temp_folder
 
     storage_folder = valuesDict['StorageFolder']
     file_path = valuesDict['FilePath']
@@ -94,6 +94,8 @@ def initialize_config_and_execute(valuesDict):
     # record the start time
     t_start = time.time()
     run_cold_extraction()
+
+    temp_folder = os.path.join(storage_folder, "cfind-temp")
 
 
 # Check and kill the StoreScp processes.
@@ -206,16 +208,16 @@ def run_retrieval():
 
 # The core DICOM on-demand retrieve process.
 def retrieve():
-    global length, t_start
+    global length, t_start, temp_folder
+
+    if file_path == cfind_only:
+        if not os.path.exists(temp_folder):
+            os.makedirs(temp_folder)
 
     # Cases where only one DICOM keyword is considered as an attribute.
     if number_of_query_attributes > 3 or number_of_query_attributes <= 1:
         # For the cases that extract entirely based on the PatientID - Patient-level extraction.
         if first_attr == "PatientID":
-            temp_folder = os.path.join(storage_folder, "cfind-temp")
-            if file_path == cfind_only:
-                if not os.path.exists(temp_folder):
-                    os.makedirs(temp_folder)
 
             for pid in range(0, length):
                 sleep_for_nightly_mode()
@@ -235,16 +237,7 @@ def retrieve():
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
                     extracted_ones.append(patient)
 
-            if file_path == cfind_only:
-                all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
-                with open(os.path.join(storage_folder, "cfind-output.csv"), 'w') as outfile:
-                    init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
-                    outfile.write(init_line)
-                    for fname in all_filenames:
-                        with open(fname) as infile:
-                            for line in infile:
-                                outfile.write(line)
-                shutil.rmtree(temp_folder)
+            remove_temp_folder()
 
         # For the cases that extract based on a single property other than EMPI/PatientID. Goes to study level.
         # "Any" mode. Example: Extractions based on just AccessionNumber of AcquisitionDate.
@@ -344,6 +337,20 @@ def retrieve():
 
     # Extraction has successfully completed.
     os.kill(os.getpid(), signal.SIGINT)
+
+
+def remove_temp_folder():
+    global temp_folder
+    if file_path == cfind_only:
+        all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
+        with open(os.path.join(storage_folder, "cfind-output.csv"), 'w') as outfile:
+            init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
+            outfile.write(init_line)
+            for fname in all_filenames:
+                with open(fname) as infile:
+                    for line in infile:
+                        outfile.write(line)
+        shutil.rmtree(temp_folder)
 
 
 def extract_empi_study():
