@@ -243,7 +243,6 @@ def retrieve():
                                         "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
                                         "--out-cat --out-file {4} --out-dir .".format(
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, temp_file), shell=True)
-
                     else:
                         subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
@@ -295,10 +294,21 @@ def retrieve():
                 patient = patients[pid]
                 temp_id = patient + SEPARATOR + accession
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
-                    subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} -m AccessionNumber={4} "
-                                "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, accession, DEST_AET),
-                                shell=True)
+                    if file_path == cfind_only:
+                        temp_file = generate_temp_file_name()
+                        subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
+                                        "-m AccessionNumber={4}  "
+                                        "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
+                                        "--out-cat --out-file {5} --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
+                                                                                      patient, accession, temp_file),
+                                        shell=True)
+                    else:
+                        subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
+                                        "-m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
+                                                                                   patient, accession, DEST_AET),
+                                        shell=True)
                     extracted_ones.append(temp_id)
+            merge_temp_files()
 
         elif empi_study_mode:
             for pid in range(0, length):
@@ -307,11 +317,21 @@ def retrieve():
                 patient = patients[pid]
                 temp_id = patient + SEPARATOR + study
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
-                    subprocess.call("{0}/movescu -c {1} -b {2} -m PatientID={3} -m StudyInstanceUID={4} "
-                                    "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, study,
-                                                        DEST_AET),
-                                    shell=True)
+                    if file_path == cfind_only:
+                        temp_file = generate_temp_file_name()
+                        subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
+                                        "-m StudyInstanceUID={4}  "
+                                        "-r AccessionNumber -r StudyDescription -x description.csv.xsl "
+                                        "--out-cat --out-file {5} --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
+                                                                                      patient, study, temp_file),
+                                        shell=True)
+                    else:
+                        subprocess.call("{0}/movescu -c {1} -b {2} -m PatientID={3} -m StudyInstanceUID={4} "
+                                        "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, study,
+                                                            DEST_AET),
+                                        shell=True)
                     extracted_ones.append(temp_id)
+            merge_temp_files()
 
         # For the cases that does not have the typical EMPI and Accession values together.
         # "Any, Any" mode. Example: empi and a date
