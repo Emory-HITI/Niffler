@@ -237,7 +237,7 @@ def retrieve():
             if file_path == "CFIND-ONLY":
                 all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
                 init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription"
-                with open(storage_folder + "/cfind-output.csv", 'w') as outfile:
+                with open(os.path.join(storage_folder, "cfind-output.csv"), 'w') as outfile:
                     init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
                     outfile.write(init_line)
                     for fname in all_filenames:
