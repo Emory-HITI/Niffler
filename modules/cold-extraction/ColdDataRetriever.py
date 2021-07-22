@@ -79,7 +79,7 @@ def initialize_config_and_execute(valuesDict):
     elif file_path == cfind_detailed:
         cfind_add = '-r StudyDescription -r StudyDate -r StudyTime -r DeviceSerialNumber -r ProtocolName ' \
                     '-r PerformedProcedureStepDescription -r NumberOfStudyRelatedSeries -r  ' \
-                    'NumberOfStudyRelatedInstances -r AcquisitionDate' \
+                    'NumberOfStudyRelatedInstances -r AcquisitionDate ' \
                     '-x detailed.csv.xsl'
 
     temp_folder = os.path.join(storage_folder, "cfind-temp")
