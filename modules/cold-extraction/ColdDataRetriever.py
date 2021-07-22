@@ -25,8 +25,8 @@ def initialize_config_and_execute(valuesDict):
     global storage_folder, file_path, csv_file, number_of_query_attributes, first_index, second_index, third_index, \
         first_attr, second_attr, third_attr, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
-        NIFFLER_ID, MAX_PROCESSES, SEPARATOR
-    global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only, temp_folder
+        NIFFLER_ID, MAX_PROCESSES, SEPARATOR, cfind_add
+    global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only, cfind_detailed, temp_folder
 
     storage_folder = valuesDict['StorageFolder']
     file_path = valuesDict['FilePath']
@@ -70,7 +70,15 @@ def initialize_config_and_execute(valuesDict):
 
     nifflerscp_str = "storescp.*{0}".format(QUERY_AET)
     niffler_str = 'ColdDataRetriever'
+
     cfind_only = 'CFIND-ONLY'
+    cfind_detailed = 'CFIND-DETAILED'
+
+    if file_path == cfind_only:
+        cfind_add = '-r StudyDescription -x description.csv.xsl'
+    elif file_path == cfind_detailed:
+        cfind_add = '-r StudyDescription -r StudyDate -x detailed.csv.xsl'
+
     temp_folder = os.path.join(storage_folder, "cfind-temp")
 
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
@@ -150,7 +158,7 @@ def initialize():
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
         datetime.datetime.now()))
 
-    if not file_path == cfind_only:
+    if not file_path == cfind_only and not file_path == cfind_detailed:
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
             DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
@@ -224,7 +232,7 @@ def retrieve():
     """
     The core DICOM on-demand retrieve process to retrieve the images or metadata.
     """
-    if file_path == cfind_only:
+    if file_path == cfind_only or file_path == cfind_detailed:
         if not os.path.exists(temp_folder):
             os.makedirs(temp_folder)
 
@@ -237,12 +245,11 @@ def retrieve():
                 sleep_for_nightly_mode()
                 patient = firsts[pid]
                 if (not resume) or (resume and (patient not in extracted_ones)):
-                    if file_path == cfind_only:
+                    if file_path == cfind_only or file_path == cfind_detailed:
                         temp_file = generate_temp_file_name()
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} -r AccessionNumber "
-                                        "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
-                                        "--out-cat --out-file {4} --out-dir .".format(
-                            DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, temp_file), shell=True)
+                                        "-r StudyInstanceUID {4} --out-cat --out-file {5} --out-dir .".format(
+                            DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, cfind_add, temp_file), shell=True)
                     else:
                         subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} --dest {4}".format(
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, DEST_AET), shell=True)
@@ -294,14 +301,12 @@ def retrieve():
                 patient = patients[pid]
                 temp_id = patient + SEPARATOR + accession
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
-                    if file_path == cfind_only:
+                    if file_path == cfind_only or file_path == cfind_detailed:
                         temp_file = generate_temp_file_name()
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
-                                        "-m AccessionNumber={4}  "
-                                        "-r StudyInstanceUID -r StudyDescription -x description.csv.xsl "
-                                        "--out-cat --out-file {5} --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
-                                                                                      patient, accession, temp_file),
-                                        shell=True)
+                                        "-m AccessionNumber={4} -r StudyInstanceUID {5} --out-cat --out-file {6} "
+                                        "--out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, accession,
+                                                             cfind_add, temp_file), shell=True)
                     else:
                         subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
                                         "-m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
@@ -317,19 +322,16 @@ def retrieve():
                 patient = patients[pid]
                 temp_id = patient + SEPARATOR + study
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
-                    if file_path == cfind_only:
+                    if file_path == cfind_only or file_path == cfind_detailed:
                         temp_file = generate_temp_file_name()
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
-                                        "-m StudyInstanceUID={4}  "
-                                        "-r AccessionNumber -r StudyDescription -x description.csv.xsl "
-                                        "--out-cat --out-file {5} --out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
-                                                                                      patient, study, temp_file),
-                                        shell=True)
+                                        "-m StudyInstanceUID={4} -r AccessionNumber {5} --out-cat --out-file {6} "
+                                        "--out-dir .".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, study, cfind_add,
+                                                             temp_file), shell=True)
                     else:
                         subprocess.call("{0}/movescu -c {1} -b {2} -m PatientID={3} -m StudyInstanceUID={4} "
                                         "--dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, study,
-                                                            DEST_AET),
-                                        shell=True)
+                                                            DEST_AET), shell=True)
                     extracted_ones.append(temp_id)
             merge_temp_files()
 
@@ -386,10 +388,13 @@ def merge_temp_files():
     Merge temp files produced by c-find into the final output.
     Remove the temp folder created by c-find to produce intermediate files.
     """
-    if file_path == cfind_only:
+    if file_path == cfind_only or file_path == cfind_detailed:
         all_filenames = [i for i in glob.glob(os.path.join(temp_folder, '*.*'))]
         with open(os.path.join(storage_folder, "cfind-output.csv"), 'w') as outfile:
-            init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
+            if file_path == cfind_only:
+                init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
+            else:
+                init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription,StudyDate\n"
             outfile.write(init_line)
             for fname in all_filenames:
                 with open(fname) as infile:
