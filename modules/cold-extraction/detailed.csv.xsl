@@ -59,6 +59,34 @@
     <xsl:text>"</xsl:text>
     <xsl:apply-templates select="DicomAttribute[@tag='00080020']"/>
     <xsl:text>"</xsl:text>
+    <xsl:text>,</xsl:text>
+    <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00080030']"/>
+    <xsl:text>"</xsl:text>
+    <xsl:text>,</xsl:text>
+    <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00181000']"/>
+    <xsl:text>"</xsl:text>
+    <xsl:text>,</xsl:text>
+    <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00181030']"/>
+    <xsl:text>"</xsl:text>
+    <xsl:text>,</xsl:text>
+    <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00400254']"/>
+    <xsl:text>"</xsl:text>
+    <xsl:text>,</xsl:text>
+    <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00201206']"/>
+    <xsl:text>"</xsl:text>
+    <xsl:text>,</xsl:text>
+    <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00201208']"/>
+    <xsl:text>"</xsl:text>
+    <xsl:text>,</xsl:text>
+    <xsl:text>"</xsl:text>
+    <xsl:apply-templates select="DicomAttribute[@tag='00080022']"/>
+    <xsl:text>"</xsl:text>
     <xsl:text>&#xA;</xsl:text>
   </xsl:template>
 
