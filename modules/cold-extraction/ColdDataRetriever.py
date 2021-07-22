@@ -398,10 +398,10 @@ def generate_temp_file_name():
     Generate a name to generate a temporary file to store c-find outputs.
     """
     if file_path == cfind_only or file_path == cfind_detailed:
-        temp_file = 'intermediate.csv'
-    else:
         inc = ''.join(random.choices(string.ascii_uppercase, k=10))
         temp_file = str(inc) + ".csv"
+    else:
+        temp_file = 'intermediate.csv'
     return temp_file
 
 
