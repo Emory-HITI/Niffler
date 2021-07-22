@@ -1,6 +1,12 @@
 # The Niffler On-Demand Retrospective DICOM Extractor
 
-The retrospective DICOM Extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. Below we discuss the steps to run Niffler on-demand DICOM extraction queries. 
+The retrospective DICOM Extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. 
+It facilitates simple execution of several DICOM pulls in a single step, with just a CSV file consisting of values for
+DICOM keywords that are compatible with CFIND. Without Niffler, this required a series of manual C-FIND and C-MOVE queries
+one for each specific query. Now, with a CSV file, 10,000s of queries can be run at once, thanks to Niffler.
+Niffler is flexible and allows certain formatting and provides a CFIND-ONLY mode in addition to the data pull.
+
+Below we discuss the steps to run Niffler on-demand DICOM extraction queries. 
 
 
 # Configuring Niffler On-Demand Extractor
