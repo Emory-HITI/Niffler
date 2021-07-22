@@ -171,24 +171,18 @@ For "empi_accession" extractions, each entry above is empi,accession. For "empi"
 For other combinations of extractions, each entry above will be empi, study. The reason is we have to _translate_ these headers into empi_study for C-MOVE queries.
 
 
-## CFIND-ONLY mode
+## CFIND-ONLY and CFIND-DETAILED modes
 
-Niffler experimentally supports a CFIND-ONLY mode.
+Niffler also supports a CFIND-ONLY mode.
 
 To activate, use the below value,
 ```
 	"FilePath": "CFIND-ONLY",
 ```
-As of now, this is only supported for the below mode, C-FIND based entirely on PatientID.
-```
-	"NumberOfQueryAttributes": 1,
-	"FirstAttr": "PatientID",
-	"FirstIndex": 0,
-```
-The output will be in cfind-output.csv consisting of PatientID, StudyInstanceUID, AccessionNumber, and StudyDescription 
-in the StorageFolder.
 
-A variant is, CFIND-DETAILED mode that provides a more elaborate C-FIND output.
+The output is cfind-output.csv in the StorageFolder, consisting of PatientID, StudyInstanceUID, AccessionNumber, and StudyDescription. This is a quick process as it just retrieves the metadata through C-FIND rather than the entire DICOM images through a C-MOVE.
+
+CFIND-DETAILED mode provides a more elaborate C-FIND output with more DICOM keywords (defined in description.csv.xsl).
 
 To activate, use the below value,
 ```
