@@ -182,6 +182,13 @@ As of now, this is only supported for the below mode, C-FIND based entirely on P
 The output will be in cfind-output.csv consisting of PatientID, StudyInstanceUID, AccessionNumber, and StudyDescription 
 in the StorageFolder.
 
+A variant is, CFIND-DETAILED mode that provides a more elaborate C-FIND output.
+
+To activate, use the below value,
+```
+	"FilePath": "CFIND-DETAILED",
+```
+
 ## Troubleshooting
 
 If the process fails even when no one else's Niffler process is running, check your log file (UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out)
