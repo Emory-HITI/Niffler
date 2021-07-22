@@ -13,6 +13,7 @@ import pickle
 import threading
 import argparse
 import random
+import string
 
 from collections import defaultdict
 
@@ -25,7 +26,7 @@ def initialize_config_and_execute(valuesDict):
     global storage_folder, file_path, csv_file, number_of_query_attributes, first_index, second_index, third_index, \
         first_attr, second_attr, third_attr, date_format, email, send_email, system_json
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
-        NIFFLER_ID, MAX_PROCESSES, SEPARATOR, cfind_add, temp_file, out_folder
+        NIFFLER_ID, MAX_PROCESSES, SEPARATOR, cfind_add, out_folder
     global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only, cfind_detailed, temp_folder
 
     storage_folder = valuesDict['StorageFolder']
@@ -78,18 +79,15 @@ def initialize_config_and_execute(valuesDict):
 
     if file_path == cfind_only:
         cfind_add = '-r StudyDescription -x description.csv.xsl'
-        temp_file = generate_temp_file_name()
         out_folder = temp_folder
     elif file_path == cfind_detailed:
         cfind_add = '-r StudyDescription -r StudyDate -r StudyTime -r DeviceSerialNumber -r ProtocolName ' \
                     '-r PerformedProcedureStepDescription -r NumberOfStudyRelatedSeries -r  ' \
                     'NumberOfStudyRelatedInstances -r AcquisitionDate ' \
                     '-x detailed.csv.xsl'
-        temp_file = generate_temp_file_name()
         out_folder = temp_folder
     else:
         cfind_add = ' -x stid.csv.xsl '
-        temp_file = 'intermediate.csv'
         out_folder = '.'
 
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
@@ -257,6 +255,7 @@ def retrieve():
                 patient = firsts[pid]
                 if (not resume) or (resume and (patient not in extracted_ones)):
                     if file_path == cfind_only or file_path == cfind_detailed:
+                        temp_file = generate_temp_file_name()
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} -r AccessionNumber "
                                         "-r StudyInstanceUID {4} --out-cat --out-file {5} --out-dir {6}".format(
                             DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, cfind_add, temp_file, out_folder), shell=True)
@@ -272,6 +271,7 @@ def retrieve():
             for pid in range(0, length):
                 sleep_for_nightly_mode()
                 first = firsts[pid]
+                temp_file = generate_temp_file_name()
                 subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -r PatientID -r StudyInstanceUID {5} "
                                 " --out-cat --out-file {6} --out-dir {7}".format(
                     DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first, cfind_add, temp_file, out_folder), shell=True)
@@ -313,6 +313,7 @@ def retrieve():
                 temp_id = patient + SEPARATOR + accession
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
                     if file_path == cfind_only or file_path == cfind_detailed:
+                        temp_file = generate_temp_file_name()
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
                                         "-m AccessionNumber={4} -r StudyInstanceUID {5} --out-cat --out-file {6} "
                                         "--out-dir {7}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, accession,
@@ -333,6 +334,7 @@ def retrieve():
                 temp_id = patient + SEPARATOR + study
                 if (not resume) or (resume and (temp_id not in extracted_ones)):
                     if file_path == cfind_only or file_path == cfind_detailed:
+                        temp_file = generate_temp_file_name()
                         subprocess.call("{0}/findscu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
                                         "-m StudyInstanceUID={4} -r AccessionNumber {5} --out-cat --out-file {6} "
                                         "--out-dir {7}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET, patient, study,
@@ -351,6 +353,7 @@ def retrieve():
                 sleep_for_nightly_mode()
                 first = firsts[pid]
                 second = seconds[pid]
+                temp_file = generate_temp_file_name()
                 subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6} -r PatientID -r StudyInstanceUID {7} "
                                 "--out-cat --out-file {8} --out-dir {9}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
                                                                               first_attr, first, second_attr, second,
@@ -367,6 +370,7 @@ def retrieve():
             first = firsts[pid]
             second = seconds[pid]
             third = thirds[pid]
+            temp_file = generate_temp_file_name()
             subprocess.call("{0}/findscu -c {1} -b {2} -m {3}={4} -m {5}={6} -m {7}={8} -r PatientID -r "
                             "StudyInstanceUID {9} --out-cat --out-file {10} --out-dir {11}".format(
                 DCM4CHE_BIN, SRC_AET, QUERY_AET, first_attr, first, second_attr, second, third_attr, third, cfind_add,
@@ -390,12 +394,14 @@ def retrieve():
 
 
 def generate_temp_file_name():
-    global temp_file
     """
     Generate a name to generate a temporary file to store c-find outputs.
     """
-    inc = random.randint(0, 10000000)
-    temp_file = str(inc) + ".csv"
+    if file_path == cfind_only or file_path == cfind_detailed:
+        temp_file = 'intermediate.csv'
+    else:
+        inc = ''.join(random.choices(string.ascii_uppercase, k=10))
+        temp_file = str(inc) + ".csv"
     return temp_file
 
 
