@@ -1,6 +1,9 @@
 # The Niffler Real-time DICOM Extractor
 
-The Real-time DICOM Extractor runs continuously to receive DICOM files, extract and store their metadata in real-time into a Metadata Store, and then delete the data nightly.
+The Real-time DICOM Extractor runs continuously to receive DICOM files, extract and store their metadata in real-time 
+into a Metadata Store, and then delete the data nightly. The metadata store provides a repository of metadata
+over time which we use later for our algorithms. Some such examples such as Scanner Utilization computation and 
+Scanner Clock Calibration are provided as part of Niffler open-source project.
 
 
 # Configuring Niffler Real-time DICOM Extractor

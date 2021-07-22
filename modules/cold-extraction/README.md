@@ -1,6 +1,12 @@
 # The Niffler On-Demand Retrospective DICOM Extractor
 
-The retrospective DICOM Extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. Below we discuss the steps to run Niffler on-demand DICOM extraction queries. 
+The retrospective DICOM Extractor retrieves DICOM images on-demand, based on a CSV file provided by the user. 
+It facilitates simple execution of several DICOM pulls in a single step, with just a CSV file consisting of values for
+DICOM keywords that are compatible with CFIND. Without Niffler, this required a series of manual C-FIND and C-MOVE queries
+one for each specific query. Now, with a CSV file, 10,000s of queries can be run at once, thanks to Niffler.
+Niffler is flexible and allows certain formatting and provides a CFIND-ONLY mode in addition to the data pull.
+
+Below we discuss the steps to run Niffler on-demand DICOM extraction queries. 
 
 
 # Configuring Niffler On-Demand Extractor
@@ -165,24 +171,18 @@ For "empi_accession" extractions, each entry above is empi,accession. For "empi"
 For other combinations of extractions, each entry above will be empi, study. The reason is we have to _translate_ these headers into empi_study for C-MOVE queries.
 
 
-## CFIND-ONLY mode
+## CFIND-ONLY and CFIND-DETAILED modes
 
-Niffler experimentally supports a CFIND-ONLY mode.
+Niffler also supports a CFIND-ONLY mode.
 
 To activate, use the below value,
 ```
 	"FilePath": "CFIND-ONLY",
 ```
-As of now, this is only supported for the below mode, C-FIND based entirely on PatientID.
-```
-	"NumberOfQueryAttributes": 1,
-	"FirstAttr": "PatientID",
-	"FirstIndex": 0,
-```
-The output will be in cfind-output.csv consisting of PatientID, StudyInstanceUID, AccessionNumber, and StudyDescription 
-in the StorageFolder.
 
-A variant is, CFIND-DETAILED mode that provides a more elaborate C-FIND output.
+The output is cfind-output.csv in the StorageFolder, consisting of PatientID, StudyInstanceUID, AccessionNumber, and StudyDescription. This is a quick process as it just retrieves the metadata through C-FIND rather than the entire DICOM images through a C-MOVE.
+
+CFIND-DETAILED mode provides a more elaborate C-FIND output with more DICOM keywords (defined in description.csv.xsl).
 
 To activate, use the below value,
 ```
