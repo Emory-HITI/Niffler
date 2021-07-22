@@ -77,7 +77,7 @@ def initialize_config_and_execute(valuesDict):
     if file_path == cfind_only:
         cfind_add = '-r StudyDescription -x description.csv.xsl'
     elif file_path == cfind_detailed:
-        cfind_add = '-r StudyDescription -r StudyDate -r StudyTime -r DeviceSerialNumber -r ProtocolName' \
+        cfind_add = '-r StudyDescription -r StudyDate -r StudyTime -r DeviceSerialNumber -r ProtocolName ' \
                     '-r PerformedProcedureStepDescription -r NumberOfStudyRelatedSeries -r  ' \
                     'NumberOfStudyRelatedInstances -r AcquisitionDate' \
                     '-x detailed.csv.xsl'
