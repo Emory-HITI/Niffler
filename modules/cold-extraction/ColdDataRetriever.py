@@ -158,7 +158,7 @@ def initialize():
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
         datetime.datetime.now()))
 
-    if not file_path == cfind_only:
+    if not file_path == cfind_only and not file_path == cfind_detailed:
         subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
             DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
 
@@ -232,7 +232,7 @@ def retrieve():
     """
     The core DICOM on-demand retrieve process to retrieve the images or metadata.
     """
-    if file_path == cfind_only:
+    if file_path == cfind_only or file_path == cfind_detailed:
         if not os.path.exists(temp_folder):
             os.makedirs(temp_folder)
 
