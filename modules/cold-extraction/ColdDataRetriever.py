@@ -77,7 +77,10 @@ def initialize_config_and_execute(valuesDict):
     if file_path == cfind_only:
         cfind_add = '-r StudyDescription -x description.csv.xsl'
     elif file_path == cfind_detailed:
-        cfind_add = '-r StudyDescription -r StudyDate -x detailed.csv.xsl'
+        cfind_add = '-r StudyDescription -r StudyDate -r StudyTime -r DeviceSerialNumber -r ProtocolName' \
+                    '-r PerformedProcedureStepDescription -r NumberOfStudyRelatedSeries -r  ' \
+                    'NumberOfStudyRelatedInstances -r AcquisitionDate' \
+                    '-x detailed.csv.xsl'
 
     temp_folder = os.path.join(storage_folder, "cfind-temp")
 
@@ -394,7 +397,9 @@ def merge_temp_files():
             if file_path == cfind_only:
                 init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription\n"
             else:
-                init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription,StudyDate\n"
+                init_line = "PatientID,StudyInstanceUID,AccessionNumber,StudyDescription,StudyDate" \
+                            "StudyTime,DeviceSerialNumber,ProtocolName,PerformedProcedureStepDescription," \
+                            "NumberOfStudyRelatedSeries,NumberOfStudyRelatedInstances,AcquisitionDate\n"
             outfile.write(init_line)
             for fname in all_filenames:
                 with open(fname) as infile:
