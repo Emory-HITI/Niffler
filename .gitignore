@@ -13,3 +13,4 @@ coverage.xml
 /tests/data/**/*.dcm
 /tests/data/**/*.pickle
 !/tests/data/**/no-img.dcm
+!/tests/data/**/*.csv
