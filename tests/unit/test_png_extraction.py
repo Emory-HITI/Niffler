@@ -1,9 +1,8 @@
-import glob
 import pytest
 import sys
-import time
+import shutil
 
-from pathlib import Path, PurePath
+from pathlib import Path
 from pytest_mock import MockerFixture
 
 # Import Niffler Module
@@ -106,10 +105,13 @@ class TestExtractImages:
                 'file': self.invalid_test_dcm_file
             }
         ])
-        out_dir = pytest.out_dir / 'png-extraction/outputs/TestExtractImages'
-        self.png_destination = f"{str(out_dir)}/extracted-images/"
-        self.failed = f"{str(out_dir)}/failed-dicom/"
-        pytest.create_dirs(out_dir, self.png_destination, self.failed)
+        self.out_dir = pytest.out_dir / 'png-extraction/outputs/TestExtractImages'
+        self.png_destination = f"{str(self.out_dir)}/extracted-images/"
+        self.failed = f"{str(self.out_dir)}/failed-dicom/"
+        pytest.create_dirs(self.out_dir, self.png_destination, self.failed)
+
+    def teardown_method(self):
+        shutil.rmtree(self.out_dir)
 
     def test_is16bit(self):
         flattened_to_level = "patient"

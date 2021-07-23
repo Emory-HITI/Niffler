@@ -21,7 +21,7 @@ def mock_logger(mocker: MockerFixture):
 
 @pytest.fixture(autouse=True)
 def mock_global_config(mocker: MockerFixture):
-    STORAGE_FOLDER = pytest.data_dir / 'meta-extraction' / 'storage_folder'
+    STORAGE_FOLDER = pytest.out_dir / 'meta-extraction' / 'storage_folder'
     PICKLE_FOLDER = pytest.out_dir / 'meta-extraction' / 'pickles'
     pytest.create_dirs(STORAGE_FOLDER, PICKLE_FOLDER)
     return mocker.patch.multiple(
@@ -64,18 +64,16 @@ class TestGetTuples:
 
     def test_correct_output(self, features_lists):
         for features in features_lists:
-            first_key = features[0]
             tuple_list = MetadataExtractor.get_tuples(
                 self.test_valid_plan, features)
-            assert tuple_list[0][0] == first_key
+            assert tuple_list[0][0] in features
 
     def test_correct_output_with_key(self, features_lists):
         key = "rand_key"
         for features in features_lists:
-            first_key = key + "_" + features[0]
             tuple_list = MetadataExtractor.get_tuples(
                 self.test_valid_plan, features, key=key)
-            assert tuple_list[0][0] == first_key
+            assert tuple_list[0][0].split(key + "_")[-1] in features
 
     def test_feature_error(self, mock_logger):
         invalid_features = ["some_invalid_feature"]
