@@ -198,13 +198,3 @@ class TestReadCsv:
         assert CDR.length == 1
         self.reset_cdr_module_state()
 
-
-class TestGenerateTempFileName:
-
-    def setup_method(self):
-        CDR.storage_folder = test_config.storage_folder
-        CDR.temp_folder = os.path.join(CDR.storage_folder, "cfind-temp")
-
-    def test_success(self):
-        CDR.generate_temp_file_name()
-        CDR.random.randint.assert_called_once()
