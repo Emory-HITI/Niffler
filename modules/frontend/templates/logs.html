@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block content %}
+<center>
+    <div>
+        {% if jobs %}
+        <center>
+            <table>
+                <tr>
+                    <th style="font-size: 40px">Jobs</th>
+                </tr>
+                {% for job in jobs %} {% for currJob in jobs[job] %}
+                <tr style="margin-bottom: 12px">
+                    <td style="font-size: 20px; padding: 12px">
+                        ↳ {{ currJob }}
+                    </td>
+                </tr>
+                {% endfor %} {% endfor %}
+            </table>
+        </center>
+        {% else %}
+        <br />
+        <br />
+        <h3>No logs yet</h3>
+        {% endif %}
+    </div>
+</center>
+{% endblock %}

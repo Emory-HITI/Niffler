@@ -14,11 +14,7 @@
                     $('[data-toggle="tooltip"]').tooltip();
                 });
             </script>
-            <form
-                method="POST"
-                enctype="multipart/form-data"
-                action="/cold-extraction"
-            >
+            <form id="coldForm">
                 <div class="row">
                     <div
                         class="col-5"
@@ -176,6 +172,7 @@
                                     class="form-select"
                                     aria-label="Default select example"
                                     name="sendEmail"
+                                    id="sendEmail"
                                     onchange="yesnoCheck(this);"
                                 >
                                     <!-- <option selected value="">Select</option> -->
@@ -306,9 +303,9 @@
                                 </div>
                                 <div class="col">
                                     <button
-                                        id="submit"
-                                        type="submit"
+                                        type="button"
                                         class="btn btn-warning"
+                                        id="run-cold"
                                     >
                                         RUN
                                     </button>
@@ -408,7 +405,7 @@
                             {% if logs %}
                             <h4 style="color: white">Errors: {{ logs[0] }}</h4>
                             {% else %}
-                            <h4 style="color: white">
+                            <h4 style="color: white" id="res">
                                 Run On-demand Extraction to check Logs
                             </h4>
                             {% endif %}
@@ -417,6 +414,86 @@
                     <div class="col-1"></div>
                 </div>
             </form>
+            <script type="text/javascript" charset="utf-8">
+                var socket = io.connect(
+                    "http://" + document.domain + ":" + location.port
+                );
+                let button = document.getElementById("run-cold");
+
+                button.addEventListener("click", () => {
+                    const form = document.getElementById("coldForm");
+                    var number_of_query_attributes = 1;
+                    if (form.elements["attr[2]"] === undefined) {
+                        var SecondAttr = "";
+                        var SecondIndex = 0;
+                    } else {
+                        var SecondAttr = form.elements["attr[2]"].value;
+                        var SecondIndex = form.elements["column[2]"].value;
+                        number_of_query_attributes += 1;
+                    }
+                    if (form.elements["attr[3]"] === undefined) {
+                        var ThirdAttr = "";
+                        var ThirdIndex = 0;
+                    } else {
+                        var ThirdAttr = form.elements["attr[3]"].value;
+                        var ThirdIndex = form.elements["column[3]"].value;
+                        number_of_query_attributes += 1;
+                    }
+                    var csv_choose;
+                    var csv_choose_name;
+                    if (form.elements["csvFile_choose"].files.length === 0) {
+                        csv_choose = "";
+                        csv_choose_name = "";
+                    } else {
+                        csv_choose = form.elements["csvFile_choose"].files[0];
+                        csv_choose_name =
+                            form.elements["csvFile_choose"].files[0].name;
+                    }
+                    var csv_name;
+                    if (form.elements["csvFile_name"] === undefined) {
+                        csv_name = "";
+                    } else {
+                        csv_name = form.elements["csvFile_name"].value;
+                    }
+                    coldData = {
+                        NifflerSystem: form.elements["NifflerSystem"].value,
+                        StorageFolder: form.elements["StorageFolder"].value,
+                        FilePath: form.elements["file_path"].value,
+                        FirstAttr: form.elements["attr[1]"].value,
+                        FirstIndex: form.elements["column[1]"].value,
+                        SecondAttr: SecondAttr,
+                        SecondIndex: SecondIndex,
+                        ThirdAttr: ThirdAttr,
+                        ThirdIndex: ThirdIndex,
+                        NumberOfQueryAttributes: number_of_query_attributes,
+                        DateFormat: form.elements["DateFormat"].value,
+                        SendEmail: document.getElementById("sendEmail").value,
+                        YourEmail: form.elements["email"].value,
+                        csv_file: csv_choose,
+                        csv_file_name: csv_choose_name,
+                        csv_file_path: csv_name,
+                    };
+                    socket.emit("processing-cold-extraction", {
+                        data: coldData,
+                    });
+                });
+
+                socket.on("processing", function (data) {
+                    document.getElementById("res").innerHTML =
+                        JSON.parse(data).data;
+                    socket.emit("running-cold-extraction", {
+                        data: JSON.parse(data).cold_Values,
+                    });
+                });
+
+                socket.on("processing-finished", function (data) {
+                    var x = JSON.parse(data).data;
+                    document.getElementById("res").innerHTML =
+                        `<h4 style="color: white">Errors: ${x[0]}</h4>` +
+                        `<h4 style="color: white">Status: ${x[1]}</h4>` +
+                        `<h4 style="color: white">Please check your Storage folder !!</h4>`;
+                });
+            </script>
         </div>
     </div>
 </div>
