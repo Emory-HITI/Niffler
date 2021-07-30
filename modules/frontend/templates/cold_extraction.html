@@ -490,8 +490,16 @@
                     var x = JSON.parse(data).data;
                     document.getElementById("res").innerHTML =
                         `<h4 style="color: white">Errors: ${x[0]}</h4>` +
-                        `<h4 style="color: white">Status: ${x[1]}</h4>` +
-                        `<h4 style="color: white">Please check your Storage folder !!</h4>`;
+                        `<h4 style="color: white">Status: ${x[1]}</h4>`;
+                    if (x[1] === "UNSUCCESSFUL :( !!") {
+                        document.getElementById(
+                            "res"
+                        ).innerHTML += `<h4 style="color: white">Something went wrong, Please Try again !!</h4>`;
+                    } else {
+                        document.getElementById(
+                            "res"
+                        ).innerHTML += `<h4 style="color: white">Please check your Storage folder !!</h4>`;
+                    }
                 });
             </script>
         </div>

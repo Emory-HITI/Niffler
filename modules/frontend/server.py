@@ -122,6 +122,7 @@ def handle_png(png_values):
     if(useProcess == '' or len(useProcess) == 0):
         useProcess = '0'
     if not (os.path.isdir(png_values['data']['DICOMFolder'])):
+        all_jobs[logged_in_user].append("User " + logged_in_user + " PNG Extraction Failed: DICOM folder does not exist")
         all_logs.append("Oops !! The Given DICOM Home Folder path is Incorrect / Does not exits / Empty")
         all_logs.append("Incorrect Execution")
         all_logs.append("Failed")
@@ -138,6 +139,7 @@ def handle_png(png_values):
     try:
         ff = filelist[0]
     except IndexError:
+        all_jobs[logged_in_user].append("User " + logged_in_user + " PNG Extraction Failed: DICOM folder does not contain any DICOM files")
         all_logs.append("Given Depth is incorrect. Please provide correct depth")
         all_logs.append("Incorrect/Unsuccessful Execution")
         emit('processing-finished', json.dumps({'data': all_logs}), broadcast=True)
@@ -181,6 +183,14 @@ def cold_extraction_home(name=None):
 
 @socketio.on('processing-cold-extraction')
 def loading_cold_extraction(input_json):
+    logged_in_user = current_user.name
+    if logged_in_user not in all_jobs:
+        now = datetime.now()
+        all_jobs[logged_in_user] = []
+        all_jobs[logged_in_user].append("User " + logged_in_user + " Started On-demand Extraction at: " + str(now.strftime("%d/%m/%Y, %H:%M:%S")))
+    else:
+        now = datetime.now()
+        all_jobs[logged_in_user].append("User " + logged_in_user + " Started On-demand Extraction at: " + str(now.strftime("%d/%m/%Y, %H:%M:%S")))
     logs = []
     f1 = input_json['data']['csv_file']
     if(len(f1) > 1):
@@ -197,6 +207,7 @@ def loading_cold_extraction(input_json):
         with open(NifflerSystem_File, 'r') as f:
             checkfile = True
     except:
+        all_jobs[logged_in_user].append("User " + logged_in_user + " Cold Extraction Failed: Niffler System File does not exist")
         err = "Error could not load given " + NifflerSystem + " file !!"
         logs.append(err)
         logs.append("UNSUCCESSFUL :( !!")
@@ -215,14 +226,6 @@ def loading_cold_extraction(input_json):
     #     emit('processing-finished', json.dumps({'data': logs}), broadcast=True)
     #     return
 
-    logged_in_user = current_user.name
-    if logged_in_user not in all_jobs:
-        now = datetime.now()
-        all_jobs[logged_in_user] = []
-        all_jobs[logged_in_user].append("User " + logged_in_user + " Started On-demand Extraction at: " + str(now.strftime("%d/%m/%Y, %H:%M:%S")))
-    else:
-        now = datetime.now()
-        all_jobs[logged_in_user].append("User " + logged_in_user + " Started On-demand Extraction at: " + str(now.strftime("%d/%m/%Y, %H:%M:%S")))
     emit('processing', json.dumps({'data': 'Processing Data . . . .\n\nThis Process may take several minutes or Hours. You can check logs !!', 'cold_Values': input_json}), broadcast=True)
 
 @socketio.on('running-cold-extraction')
@@ -268,7 +271,6 @@ def cold_extraction(cold_values):
     os.chdir(COLD_UPLOAD_FOLDER)
     import ColdDataRetriever
     x = ColdDataRetriever.initialize_config_and_execute(cold_extraction_values)
-    # time.sleep(60)
     logs.append("None")
     logs.append("Cold Extraction is SUCCESSFUL !!")
     if logged_in_user in all_jobs:
