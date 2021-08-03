@@ -6,5 +6,7 @@
 	"MedsDataExtractionFrequency": 30,
 	"OrdersDataExtractionFrequency": 30,
 	
-	"MongoURI": "mongodb://localhost:27017"
+	"MongoURI": "mongodb://localhost:27017",
+	"UserName": "",
+	"PassCode": ""
 }
