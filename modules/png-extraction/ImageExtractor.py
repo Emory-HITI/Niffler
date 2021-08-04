@@ -12,6 +12,7 @@ from multiprocessing import Pool
 import pdb
 import time
 import pickle
+import argparse
 import numpy as np
 import pandas as pd
 import pydicom as dicom 
@@ -457,4 +458,23 @@ if __name__ == "__main__":
     with open('config.json', 'r') as f:
         niffler = json.load(f)
 
-    initialize_config_and_execute(niffler)
+    # CLI Argument Parser
+    ap = argparse.ArgumentParser()
+
+    ap.add_argument("--DICOMHome", default=niffler['DICOMHome'])
+    ap.add_argument("--OutputDirectory", default=niffler['OutputDirectory'])
+    ap.add_argument("--Depth", default=niffler['Depth'])
+    ap.add_argument("--SplitIntoChunks", default=niffler['SplitIntoChunks'])
+    ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
+    ap.add_argument("--UseProcesses", default=niffler['UseProcesses'])
+    ap.add_argument("--FlattenedToLevel", default=niffler['FlattenedToLevel'])
+    ap.add_argument("--is16Bit", default=niffler['is16Bit'])
+    ap.add_argument("--SendEmail", default=niffler['SendEmail'])
+    ap.add_argument("--YourEmail", default=niffler['YourEmail'])
+
+    args = vars(ap.parse_args())
+
+    if len(args) > 0:
+        initialize_config_and_execute(args)
+    else:
+        initialize_config_and_execute(niffler)
