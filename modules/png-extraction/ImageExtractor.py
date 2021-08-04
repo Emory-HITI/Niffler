@@ -16,7 +16,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import pydicom as dicom 
-# import png
+import png
 # pydicom imports needed to handle data errors
 from pydicom import config
 from pydicom import datadict
