@@ -465,6 +465,7 @@ if __name__ == "__main__":
     ap.add_argument("--OutputDirectory", default=niffler['OutputDirectory'])
     ap.add_argument("--Depth", default=niffler['Depth'])
     ap.add_argument("--SplitIntoChunks", default=niffler['SplitIntoChunks'])
+    ap.add_argument("--PrintImages", default=niffler['PrintImages'])
     ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
     ap.add_argument("--UseProcesses", default=niffler['UseProcesses'])
     ap.add_argument("--FlattenedToLevel", default=niffler['FlattenedToLevel'])
