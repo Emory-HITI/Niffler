@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 import os
 import glob 
 from shutil import copyfile
@@ -455,8 +456,10 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
 
 
 if __name__ == "__main__":
+    niffler = defaultdict(lambda: None)
     with open('config.json', 'r') as f:
-        niffler = json.load(f)
+        tmp_niffler = json.load(f)
+        niffler.update(tmp_niffler)
 
     # CLI Argument Parser
     ap = argparse.ArgumentParser()
