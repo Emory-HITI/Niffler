@@ -37,8 +37,15 @@ The below two fields can be left unmodified for most executions. The default val
 
 
 ## Running the Niffler PNG Extractor
-```
+```bash
+
+$ python3 ImageExtractor.py
+
+# With Nohup
 $ nohup python3 ImageExtractor.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+
+# With Command Line Arguments
+$ nohup python3 ImageExtractor.py --DICOMHome "/opt/data/new-study" --Depth 0 --PrintImages true --SendEmail true > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 ```
 Check that the extraction is going smooth with no errors, by,
 
