@@ -1,7 +1,6 @@
 from HITI_anon_internal.Anon import EmoryAnon
 import sys
 import pandas as pd
-from tqdm import tqdm
 
 def anonymization(metadata):
     metadata = metadata.drop(del_cols, axis=1)
@@ -86,7 +85,7 @@ if __name__ == "__main__":
     metadata_path = sys.argv[1]
     metadata = pd.read_csv(metadata_path, low_memory=False)
     del_cols = []
-    for col in tqdm(metadata.columns):
+    for col in metadata.columns:
         if (metadata[col].isnull().sum() > (0.90*len(metadata))):
             del_cols.append(col)    
     
