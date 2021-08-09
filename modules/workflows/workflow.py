@@ -14,10 +14,10 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
 
     # cold extraction
     os.system('chmod 777 {}'.format(csv_file))
-    os.system('nohup python3 ../cold-extraction/ColdDataRetriver.py --StorageFolder {} --CsvFile {} --NumberOfQueryAttributes {} --FirstAttr {} \
-        --FirstIndex {} --SecondAttr {} --SecondIndex {} --SendEmail {} --YourEmail {} > {}'.format(dicom_images_path, 
-        csv_file, total_attributes, first_attribute, first_index, second_attribute, second_index, email_flag, email,
-        logs_path+'cold_extraction_'+folder_name+'.out'))
+    os.system('nohup python3 ../cold-extraction/ColdDataRetriver.py --StorageFolder {} --CsvFile {} --NumberOfQueryAttributes {} \
+        --FirstAttr {} --FirstIndex {} --SecondAttr {} --SecondIndex {} --SendEmail {} --YourEmail {} > {}'.format(
+            dicom_images_path, csv_file, total_attributes, first_attribute, first_index, second_attribute, second_index, 
+            email_flag, email,logs_path+'cold_extraction_'+folder_name+'.out'))
 
     # png extraction
     png_path = master_path+folder_name+'/png_images/'
@@ -34,8 +34,8 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
     os.makedirs(dicom_anon_path, exist_ok=False)
     os.system('chmod -R 777 {}'.format(dicom_anon_path))
 
-    os.system('nohup python3 dicom_anonymization.py {} {} > {}'.format(dicom_images_path, dicom_anon_path, 
-                                                                    logs_path+'dicom_anon_'+folder_name+'.out'))
+    os.system('nohup python3 ../dicom-anonymization/DicomAnonymizer.py {} {} > {}'.format(dicom_images_path, 
+              dicom_anon_path, logs_path+'dicom_anon_'+folder_name+'.out'))
 
     # metadata anonymization
     metadata_path = png_path+'meta/'
