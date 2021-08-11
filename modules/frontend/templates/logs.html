@@ -7,7 +7,7 @@
                 <tr>
                     <th style="font-size: 40px">Jobs</th>
                 </tr>
-                {% for job in jobs %} {% for currJob in jobs[job] %}
+                {% for job in jobs %} {% for currJob in jobs[job] | reverse %}
                 <tr style="margin-bottom: 12px">
                     <td style="font-size: 20px; padding: 12px">
                         ↳ {{ currJob }}

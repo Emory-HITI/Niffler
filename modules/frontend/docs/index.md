@@ -1,6 +1,5 @@
 # Developer Cookbook
 
----
 
 ## Introduction
 
@@ -74,3 +73,27 @@ In this particular module we have the following files/folders:
 -   **_templates:_** This folder stores all the HTML templates which are used in this module. We have one _base.html_ templatewhich we are extending for all other templates.
 
 -   **_static:_** This folder contains the CSS and images used in the website.
+
+## FUTURE SCOPE OF DEVELOPMENT
+
+
+To add more modules to the Niffler Frontend module we have to do the following steps:
+
+For example lets say we have a module name "ViewImages"
+
+1. Add a frontend HTML template to the templates folder located in frontend modules,
+   Ex. Filename **_View_Images_Frontend.html_**
+   → Niffler/modules/frontend/templates/ViewImagesFrontend.html
+
+2. In the same HTML file add websockets events to send, process and retrieve data from frontend to the backend.
+
+3. After the processesed data is sent to the backend (server.py), if you wish to perform even more processing you are free to do so.
+
+4. After processing call the respective module,
+   for example: Here, "ViewImages" module is called and the processed data list/dictionary is passed to that particular module.
+
+5. After the data is passed, use websocket to emit a loading event to notify user that the data is correct and the module is running. If an error is encountered you can send that error to the frontend by doing the same as discussed above.
+
+6. Once the module has done with it's execution, notify the user and add that to the logs, so the user can check it later.
+
+And there we go, that's the process to add another module with the frontend.

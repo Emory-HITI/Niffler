@@ -271,7 +271,7 @@ def cold_extraction(cold_values):
     os.chdir(COLD_UPLOAD_FOLDER)
     import ColdDataRetriever
     x = ColdDataRetriever.initialize_config_and_execute(cold_extraction_values)
-    logs.append("None")
+    logs.append("No errors encountered")
     logs.append("Cold Extraction is SUCCESSFUL !!")
     if logged_in_user in all_jobs:
         now = datetime.now()
