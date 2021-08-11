@@ -493,9 +493,11 @@
 
             socket.on("processing-finished", function (data) {
                 var x = JSON.parse(data).data;
-                document.getElementById("res").innerHTML =
-                    `<h4 style="color: white">Errors: ${x[0]}</h4>` +
-                    `<h4 style="color: white">Status: ${x[1]}</h4>`;
+                if (x[0] === null) {
+                    document.getElementById("res").innerHTML =
+                        `<h4 style="color: white">Errors: No Errors occurred</h4>` +
+                        `<h4 style="color: white">Status: ${x[1]}</h4>`;
+                }
                 if (x[2] === "Failed") {
                     document.getElementById(
                         "res"
