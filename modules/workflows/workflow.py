@@ -1,3 +1,4 @@
+from genericpath import exists
 import os, os.path
 import json
 import subprocess
@@ -6,10 +7,10 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
             second_index, email_flag, email, folder_name):
 
     dicom_images_path = master_path+str(folder_name)+'/cold_extraction_accession_number/'
-    os.makedirs(dicom_images_path, exist_ok=False)
+    os.makedirs(dicom_images_path, exist_ok=True)
 
     logs_path = master_path+'logs/'
-    os.makedirs(logs_path, exist_ok=False)
+    os.makedirs(logs_path, exist_ok=True)
 
     # cold extraction
     subprocess.call('../cold-extraction/ColdDataRetriver.py --StorageFolder {} --CsvFile {} \
@@ -19,7 +20,7 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
 
     # png extraction
     png_path = master_path+folder_name+'/png_images/'
-    os.makedirs(png_path, exist_ok=False)
+    os.makedirs(png_path, exist_ok=True)
 
     subprocess.call('../png-extraction/ImageExtractor.py --DICOMHome {} --OutputDirectory {}, --Depth {} \
         --PrintImage {} --CommonHeadersOnly {} --UseProcesses {} --FlattenedToLevel {} --is16Bit {} --SendEmail {} \
@@ -28,7 +29,7 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
 
     # dicom anonymization
     dicom_anon_path = master_path+folder_name+'/dicom_anon/'
-    os.makedirs(dicom_anon_path, exist_ok=False)
+    os.makedirs(dicom_anon_path, exist_ok=True)
 
     subprocess.call('../dicom-anonymization/DicomAnonymizer.py {} {} > {}'.format(dicom_images_path, 
             dicom_anon_path, logs_path+'dicom_anon_'+folder_name+'.out'))
@@ -36,7 +37,7 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
     # metadata anonymization
     metadata_path = png_path+'meta/'
     metadata_anon_path = master_path+folder_name+'/metadata_anon/'
-    os.makedirs(metadata_anon_path, exist_ok=False)
+    os.makedirs(metadata_anon_path, exist_ok=True)
 
     subprocess.call('metadata_anonymization.py {} {} > \
         {}'.format(metadata_path, metadata_anon_path, logs_path+'metadata_anonymization_'+folder_name+'.out'))
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     folder_name = config['FolderName']
 
     if not os.path.exists(master_path):
-        os.makedirs(master_path)
+        os.makedirs(master_path, exist_ok=True)
 
     workflow(depth, master_path, processes, csv_file, total_attributes, first_attribute, first_index, second_attribute, 
             second_index, email_flag, email, folder_name)
