@@ -1,6 +1,5 @@
 # Developer Cookbook
 
----
 
 ## Introduction
 
@@ -77,7 +76,6 @@ In this particular module we have the following files/folders:
 
 ## FUTURE SCOPE OF DEVELOPMENT
 
----
 
 To add more modules to the Niffler Frontend module we have to do the following steps:
 
