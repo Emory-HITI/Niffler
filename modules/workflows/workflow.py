@@ -37,6 +37,7 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
     # metadata anonymization
     metadata_path = png_path+'meta/'
     metadata_anon_path = master_path+folder_name+'/metadata_anon/'
+    os.makedirs(metadata_path, exist_ok=True)
     os.makedirs(metadata_anon_path, exist_ok=True)
 
     subprocess.call("python3 metadata_anonymization.py {} {} > "
