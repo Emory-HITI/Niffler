@@ -40,8 +40,16 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
     os.makedirs(metadata_path, exist_ok=True)
     os.makedirs(metadata_anon_path, exist_ok=True)
 
-    subprocess.call("python3 metadata_anonymization.py {} {} > "
-        "{}".format(metadata_path, metadata_anon_path, logs_path+'metadata_anonymization_'+folder_name+'.out'), shell=True)
+    for i, file in enumerate(metadata_path):
+        metadata_filename = 'metadata_{}.csv'.format(i)
+        metadata_filepath = metadata_path+metadata_filename
+
+        anon_metadata_filename = 'metadata_anon_{}.csv'.format(i)
+        anon_metadata_filepath = metadata_anon_path+anon_metadata_filename
+
+        subprocess.call("python3 metadata_anonymization.py {} {} > "
+            "{}".format(metadata_filepath, anon_metadata_filepath, 
+            logs_path+'metadata_anonymization_'+folder_name+'.out'), shell=True)
 
 if __name__ == "__main__":
 
