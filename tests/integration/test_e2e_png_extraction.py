@@ -15,10 +15,16 @@ import ImageExtractor
 
 @pytest.fixture
 def mock_logger(mocker: MockerFixture):
+    """
+    Mock module logging
+    """
     return mocker.patch('ImageExtractor.logging')
 
 
 def create_out_dir_structure(out_dir: PurePath):
+    """
+    Creates directory structure for cold-extraction output
+    """
     pytest.create_dirs(*[
         out_dir / 'extracted-images',
         out_dir / 'failed-dicom/1',
@@ -32,9 +38,14 @@ def create_out_dir_structure(out_dir: PurePath):
 
 
 class TestExecute:
+    """
+    Tests for ImageExtractor.execute
+    """
 
     def generate_kwargs(self, out_dir: PurePath, **kwargs):
-
+        """
+        Generates kwargs for ImageExtractor.execute
+        """
         kwargs_dict = {
             'pickle_file': str(out_dir / 'ImageExtractor.pickle'),
             'dicom_home': str(pytest.data_dir / 'png-extraction' / 'input'),
@@ -60,6 +71,9 @@ class TestExecute:
         return kwargs_dict
 
     def setup_method(self):
+        """
+        Setup for tests
+        """
         self.out_dir = pytest.out_dir / 'png-extraction/outputs/TestExecute'
         self.out_dirs_test_success = create_out_dir_structure(
             self.out_dir / 'test_success'
@@ -69,9 +83,16 @@ class TestExecute:
         )
 
     def teardown_method(self):
+        """
+        Cleanup after tests
+        """
         shutil.rmtree(self.out_dir)
 
     def test_success(self, mock_logger):
+        """
+        ImageExtractor.execute function executes successfully
+        Checks content of output dir
+        """
         execute_kwargs = self.generate_kwargs(
             out_dir=self.out_dirs_test_success
         )
@@ -84,6 +105,10 @@ class TestExecute:
         ) != 0
 
     def test_no_dicoms(self, mock_logger):
+        """
+        ImageExtractor.execute function executes
+        Checks if script exited using SystemExit
+        """
         execute_kwargs = self.generate_kwargs(
             out_dir=self.out_no_dicoms,
             dicom_home=str(
@@ -98,8 +123,14 @@ class TestExecute:
 
 
 class TestImageExtractorModule:
+    """
+    Tests for ImageExtractor.initialize_config_and_execute
+    """
 
     def generate_config(self, **kwargs):
+        """
+        Generates kwargs for ImageExtractor.initialize_config_and_execute
+        """
         config = {
             "DICOMHome": str(pytest.data_dir / 'png-extraction' / 'input'),
             "OutputDirectory": str(self.default_out_dir),
@@ -117,13 +148,23 @@ class TestImageExtractorModule:
         return config
 
     def setup_method(self):
+        """
+        Setup for tests
+        """
         self.default_out_dir = pytest.out_dir / \
             'png-extraction/outputs-integration/TestImageExtractorModule'
-    
+
     def teardown_method(self):
+        """
+        Cleanup after tests
+        """
         shutil.rmtree(self.default_out_dir)
 
     def test_main(self):
+        """
+        ImageExtractor.initialize_config_and_execute function executes successfully
+        Checks content of output dir
+        """
         config = self.generate_config()
         ImageExtractor.initialize_config_and_execute(config)
         assert len(

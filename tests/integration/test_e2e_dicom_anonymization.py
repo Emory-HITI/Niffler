@@ -12,6 +12,9 @@ import DicomAnonymizer as DCMAnon
 
 
 class Config(object):
+    """
+    Config object for DicomAnonymizer tests
+    """
     input_dir = pytest.data_dir / 'dicom-anonymization' / 'input'
     output_dir = pytest.out_dir / 'dicom-anonymization' / 'output'
 
@@ -21,26 +24,45 @@ class Config(object):
             self.output_dir
         )
 
-
+# Initialize config object
 test_config = Config()
 
 
 class TestDcmAnonymize:
+    """
+    Tests for DicomAnonymizer.dcm_anonymize
+    """
 
     def test_success(self):
+        """
+        Tests Success for dcm_anonymize function with params
+        dcm_folder and dcm_output_dir.
+        """
         dcm_root_dir = test_config.input_dir / 'dcm_root_dir'
         dcm_output_dir = test_config.output_dir / 'dcm_root_dir_out'
         pytest.create_dirs(dcm_output_dir)
         dcm_folders = DCMAnon.get_dcm_folders(dcm_root_dir)
-        with pytest.raises(SystemExit):
+        try:
             DCMAnon.dcm_anonymize(dcm_folders, dcm_output_dir)
+        except SystemExit:
+            pass
+        except Exception as e:
+            pytest.fail(e, pytrace=True)
 
     def test_stop_success(self):
+        """
+        Tests Success for dcm_anonymize function with params
+        dcm_folder, dcm_output_dir and stop flag.
+        """
         dcm_root_dir = test_config.input_dir / 'dcm_root_dir'
         dcm_output_dir = test_config.output_dir / 'dcm_root_dir_out'
         pytest.create_dirs(dcm_output_dir)
         dcm_folders = DCMAnon.get_dcm_folders(dcm_root_dir)
-        with pytest.raises(SystemExit):
+        try:
             DCMAnon.dcm_anonymize(dcm_folders, dcm_output_dir, stop=2)
+        except SystemExit:
+            pass
+        except Exception as e:
+            pytest.fail(e, pytrace=True)
 
     # TODO: Invalid Dicom file. Empty .txt renamed to .dcm doesn't work.

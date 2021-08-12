@@ -10,6 +10,9 @@ import DicomAnonymizer as DCMAnon
 
 
 class Config(object):
+    """
+    Config Object for dicom-anonymization tests
+    """
     input_dir = pytest.data_dir / 'dicom-anonymization' / 'input'
 
     def __init__(self):
@@ -18,12 +21,20 @@ class Config(object):
         )
 
 
+# Initialize config object
 test_config = Config()
 
 
 class TestRandomizeID:
+    """
+    Test for DicomAnonymizer.randomizeID
+    """
 
     def test_success(self):
+        """
+        Checks whether randomized img id starts with initial part of orig id.
+        Refer to DCMAnon.randomizeID code.
+        """
         tmp_id = "45365768335.0.7486.131"
         start_str = tmp_id.split(".")[0]
         randId = DCMAnon.randomizeID(tmp_id)
@@ -31,8 +42,16 @@ class TestRandomizeID:
 
 
 class TestAnonSample:
+    """
+    Tests for DicomAnonymizer.anonSample
+    """
 
     def test_success_randomize(self):
+        """
+        Checks whether anonymized img id starts with initial part of orig id.
+        Refer to DCMAnon.anonSample code.
+        """
+
         id_type = "some_type"
         tmp_id = "45365768335.0.7486.131"
         start_str = tmp_id.split(".")[0]
@@ -42,6 +61,11 @@ class TestAnonSample:
         assert anon_id.startswith(start_str)
 
     def test_success_no_randomize(self):
+        """
+        Checks whether anonymized img id starts with initial part of orig id.
+        Test for if conditional
+        Refer to DCMAnon.anonSample code.
+        """
         id_type = "some_type"
         tmp_id = "45365768335.30.854.131"
         start_str = tmp_id.split(".")[0]
@@ -53,13 +77,22 @@ class TestAnonSample:
 
 
 class TestGetDcmFolders:
+    """
+    Tests for DicomAnonymizer.get_dcm_folders
+    """
 
     def test_no_files(self):
+        """
+        Checks whether get_dcm_folders returns 0 folders
+        """
         dcm_flds = DCMAnon.get_dcm_folders(
             test_config.input_dir / 'dcm_empty_dir')
         assert len(dcm_flds) == 0
 
     def test_get_folder(self):
+        """
+        Checks whether get_dcm_folders returns non 0 length of folders
+        """
         dcm_flds = DCMAnon.get_dcm_folders(
             test_config.input_dir / 'dcm_root_dir')
         assert len(dcm_flds) != 0
