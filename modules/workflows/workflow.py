@@ -16,7 +16,7 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
     subprocess.call("python3 ../cold-extraction/ColdDataRetriver.py --StorageFolder {} --CsvFile {} "
         "--NumberOfQueryAttributes {} --FirstAttr {} --FirstIndex {} --SecondAttr {} --SecondIndex {} --SendEmail {} "
         "--YourEmail {} > {}".format(dicom_images_path, csv_file, total_attributes, first_attribute, first_index, 
-        second_attribute, second_index, email_flag, email,logs_path+'cold_extraction_'+folder_name+'.out'))
+        second_attribute, second_index, email_flag, email,logs_path+'cold_extraction_'+folder_name+'.out'), shell=True)
 
     # png extraction
     png_path = master_path+folder_name+'/png_images/'
@@ -25,14 +25,14 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
     subprocess.call("python3 ../png-extraction/ImageExtractor.py --DICOMHome {} --OutputDirectory {}, --Depth {} "
         "--PrintImage {} --CommonHeadersOnly {} --UseProcesses {} --FlattenedToLevel {} --is16Bit {} --SendEmail {} "
         "-- YourEmail {} > {}".format(dicom_images_path, png_path, depth, False, True, processes, 
-        'series', True, email_flag, 'aredd30@emory.edu', logs_path+'png_extraction_'+folder_name+'.out'))
+        'series', True, email_flag, 'aredd30@emory.edu', logs_path+'png_extraction_'+folder_name+'.out'), shell=True)
 
     # dicom anonymization
     dicom_anon_path = master_path+folder_name+'/dicom_anon/'
     os.makedirs(dicom_anon_path, exist_ok=True)
 
     subprocess.call("python3 ../dicom-anonymization/DicomAnonymizer.py {} {} > {}".format(dicom_images_path, 
-            dicom_anon_path, logs_path+'dicom_anon_'+folder_name+'.out'))
+            dicom_anon_path, logs_path+'dicom_anon_'+folder_name+'.out'), shell=True)
 
     # metadata anonymization
     metadata_path = png_path+'meta/'
@@ -40,7 +40,7 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
     os.makedirs(metadata_anon_path, exist_ok=True)
 
     subprocess.call("python3 metadata_anonymization.py {} {} > "
-        "{}".format(metadata_path, metadata_anon_path, logs_path+'metadata_anonymization_'+folder_name+'.out'))
+        "{}".format(metadata_path, metadata_anon_path, logs_path+'metadata_anonymization_'+folder_name+'.out'), shell=True)
 
 if __name__ == "__main__":
 
