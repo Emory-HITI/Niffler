@@ -544,8 +544,6 @@ if __name__ == "__main__":
     ap.add_argument("--ThirdIndex", default=config['ThirdIndex'], type=int,
                     help="Set the CSV column index of third index query attribute. "
                          "Required only if the number of query attributes is 3")
-    ap.add_argument("--DateType", default=config['DateType'],
-                    help="DateType can range from AcquisitionDate, StudyDate, etc. Refer Readme.md.")
     ap.add_argument("--DateFormat", default=config['DateFormat'],
                     help="DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. Refer Readme.md.")
     ap.add_argument("--SendEmail", default=config['SendEmail'], type=bool,
