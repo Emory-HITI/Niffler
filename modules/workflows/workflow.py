@@ -3,7 +3,7 @@ import os, os.path
 import json
 import subprocess
 
-def workflow(depth, master_path, processes, csv_file, total_attributes, first_attribute, first_index, second_attribute, 
+def workflow(depth, file_path, master_path, processes, csv_file, total_attributes, first_attribute, first_index, second_attribute, 
             second_index, email_flag, email, folder_name):
 
     dicom_images_path = master_path+str(folder_name)+'/cold_extraction_accession_number/'
@@ -12,13 +12,14 @@ def workflow(depth, master_path, processes, csv_file, total_attributes, first_at
     logs_path = master_path+'logs/'
     os.makedirs(logs_path, exist_ok=True)
 
+    print (dicom_images_path, csv_file)
+
     # cold extraction
-    subprocess.call("python3 ../cold-extraction/ColdDataRetriever.py --NifflerSystem {0} --StorageFolder {1} "
+    subprocess.call("python3 ../cold-extraction/ColdDataRetriever.py --NifflerSystem {0} --StorageFolder {1}"
         "--FilePath {2} --CsvFile {3} --NumberOfQueryAttributes {4} --FirstAttr {5} --FirstIndex {6} --SecondAttr {7}"
-        "--SecondIndex {8} --ThirdAttr {9} --ThirdIndex {10} --DateFormat {11} --SendEmail {12} "
-        "--YourEmail {13} > {14}".format('system.json', dicom_images_path, "{00100020}/{0020000D}/{0020000E}/{00080018}.dcm", 
-        csv_file, total_attributes, first_attribute, first_index, second_attribute, second_index, 'StudyDate', 3, "%Y%m%d", 
-        email_flag, email,logs_path+'cold_extraction_'+folder_name+'.out'), shell=True)
+        "--SecondIndex {8} --ThirdAttr {9} --ThirdIndex {10} --DateFormat {11} --SendEmail {12} --YourEmail {13}"
+        .format('../cold-extraction/system.json', dicom_images_path, file_path, csv_file, total_attributes, 
+        first_attribute, first_index, second_attribute, second_index, 'StudyDate', 3, '%Y%m%d', email_flag, email), shell=True)
 
     # # png extraction
     # png_path = master_path+folder_name+'/png_images/'
@@ -59,6 +60,7 @@ if __name__ == "__main__":
         config = json.load(f)
 
     depth = int(config['Depth'])
+    file_path = config['FilePath']
     master_path = config['MasterPath']
     processes = int(config['UseProcesses'])
     csv_file = config['CsvFile']
@@ -74,7 +76,7 @@ if __name__ == "__main__":
     if not os.path.exists(master_path):
         os.makedirs(master_path, exist_ok=True)
 
-    workflow(depth, master_path, processes, csv_file, total_attributes, first_attribute, first_index, second_attribute, 
+    workflow(depth, file_path, master_path, processes, csv_file, total_attributes, first_attribute, first_index, second_attribute, 
             second_index, email_flag, email, folder_name)
 
 

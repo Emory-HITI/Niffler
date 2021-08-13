@@ -1,14 +1,15 @@
 {
     "Depth": 3,
+    "FilePath": "{00100020}/{0020000D}/{0020000E}/{00080018}.dcm",
     "MasterPath": "/home/aredd30/emory_mura_complete_extraction/",
     "UseProcesses": 0.5,
-    "CsvFile": "/home/aredd30/empi_cfind_cohorts/cohort_1.csv",
-    "NumberOfQueryAttributes": 2,
-    "FirstAttr": "PatientID",
-    "FirstIndex": 0,
+    "CsvFile": "/home/aredd30/empi_cfind_cohorts/cohort_6.csv",
+    "NumberOfQueryAttributes": 1,
+    "FirstAttr": "AccessionNumber",
+    "FirstIndex": 2,
     "SecondAttr": "AccessionNumber",
     "SecondIndex": 2,
     "SendEmail": true,
     "YourEmail": "aredd30@emory.edu",
-    "FolderName": "cohort_0"
+    "FolderName": "cohort_6"
 }
