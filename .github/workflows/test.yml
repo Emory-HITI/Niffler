@@ -6,6 +6,7 @@ on:
 jobs:
   run_unit_tests:
     name: Run Unit Tests
+    runs-on: ubuntu-latest
     container: "centos:latest"
     steps:
       - uses: actions/checkout@master
@@ -26,6 +27,7 @@ jobs:
 
   run_integration_tests:
     name: Run Integration Tests
+    runs-on: ubuntu-latest
     container: "centos:latest"
     steps:
       - uses: actions/checkout@master
