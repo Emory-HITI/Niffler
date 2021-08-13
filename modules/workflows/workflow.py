@@ -15,8 +15,8 @@ def workflow(depth, file_path, master_path, processes, csv_file, total_attribute
     print (dicom_images_path, csv_file)
 
     # cold extraction
-    subprocess.call("python3 ../cold-extraction/ColdDataRetriever.py --NifflerSystem {0} --StorageFolder {1}"
-        "--FilePath {2} --CsvFile {3} --NumberOfQueryAttributes {4} --FirstAttr {5} --FirstIndex {6} --SecondAttr {7}"
+    subprocess.call("python3 ../cold-extraction/ColdDataRetriever.py --NifflerSystem {0} --StorageFolder {1} "
+        "--FilePath {2} --CsvFile {3} --NumberOfQueryAttributes {4} --FirstAttr {5} --FirstIndex {6} --SecondAttr {7} "
         "--SecondIndex {8} --ThirdAttr {9} --ThirdIndex {10} --DateFormat {11} --SendEmail {12} --YourEmail {13}"
         .format('../cold-extraction/system.json', dicom_images_path, file_path, csv_file, total_attributes, 
         first_attribute, first_index, second_attribute, second_index, 'StudyDate', 3, '%Y%m%d', email_flag, email), shell=True)
