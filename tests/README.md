@@ -1,5 +1,20 @@
 # Testing Framework for Niffler Modules
 
+## Overview
+
+This framework includes Unit and Integration Testing of various Niffler Modules. It utilizes `pytest` and GitHub Actions to execute Automated Testing Workflows.
+
+Tests for the following Niffler modules have been added
+
+- Unit Tests
+  - Cold Extraction
+  - Dicom Anonymization
+  - Metadata Extraction
+  - PNG Extraction
+- Integration Tests
+  - Dicom Anonymization
+  - PNG Extraction
+
 ## Setup
 
 Install the requirements from `<repo-home>/requirements-dev.txt`
@@ -8,19 +23,13 @@ Install the requirements from `<repo-home>/requirements-dev.txt`
 pip install -r requirements-dev.txt
 ```
 
-Add the test data in `<repo-home>/tests/data/<module-name>/input` for respective tests.
+### Test Data
 
-### PNG Extraction Test Data Setup
+Unzip tests/data.zip in test directory.
 
-Test data in `<repo-home>/tests/data/png-extraction/input`.
-
-For unit tests, add a valid dcm file, with name `test-img.dcm`.
-
-### Meta Extraction Test Data Setup
-
-Test data in `<repo-home>/tests/data/meta-extraction/input`.
-
-For unit tests, add a valid dcm file, with name `test-img.dcm`.
+```bash
+unzip ./tests/data.zip -d ./tests/
+```
 
 ## Running Tests
 

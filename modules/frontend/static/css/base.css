@@ -1,5 +1,7 @@
 body,
 html {
+    background-color: black;
+    color: #fff;
     height: 100%;
 }
 

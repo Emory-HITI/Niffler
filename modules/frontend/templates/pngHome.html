@@ -13,11 +13,7 @@
                 $('[data-toggle="tooltip"]').tooltip();
             });
         </script>
-        <form
-            method="POST"
-            enctype="multipart/form-data"
-            action="/png-extraction"
-        >
+        <form id="pngForm">
             <div class="row">
                 <div
                     class="col-5"
@@ -423,7 +419,11 @@
                                 </button>
                             </div>
                             <div class="col">
-                                <button type="submit" class="btn btn-warning">
+                                <button
+                                    type="button"
+                                    class="btn btn-warning"
+                                    id="run-png"
+                                >
                                     RUN
                                 </button>
                             </div>
@@ -447,13 +447,8 @@
                         {% if logs %}
                         <h4 style="color: white">Errors: {{ logs[0] }}</h4>
                         <h4 style="color: white">Status: {{ logs[1] }}</h4>
-                        {% if logs|length == 0 %}
-                        <h4 style="color: white">
-                            Please check your output folder for extracted Images
-                            !!
-                        </h4>
-                        {% endif %} {% else %}
-                        <h4 style="color: white">
+                        {% else %}
+                        <h4 style="color: white" id="res">
                             Run PNG Extraction to check Logs
                         </h4>
                         {% endif %}
@@ -462,6 +457,58 @@
                 <div class="col-1"></div>
             </div>
         </form>
+        <script type="text/javascript" charset="utf-8">
+            var socket = io.connect(
+                "http://" + document.domain + ":" + location.port
+            );
+            let button = document.getElementById("run-png");
+
+            button.addEventListener("click", () => {
+                const form = document.getElementById("pngForm");
+                pngData = {
+                    DICOMFolder: form.elements["DICOMFolder"].value,
+                    outputFolder: form.elements["outputFolder"].value,
+                    depth: form.elements["depth"].value,
+                    chunks: form.elements["chunks"].value,
+                    useProcess: form.elements["useProcess"].value,
+                    level: form.elements["level"].value,
+                    is16Bit: form.elements["16Bit"].value,
+                    printImages: form.elements["printImages"].value,
+                    headers: form.elements["headers"].value,
+                    sendEmail: form.elements["sendEmail"].value,
+                    email: form.elements["email"].value,
+                };
+                socket.emit("notify-for-png", {
+                    data: pngData,
+                });
+            });
+
+            socket.on("processing", function (data) {
+                document.getElementById("res").innerHTML =
+                    JSON.parse(data).loggings;
+                socket.emit("png-extraction-task", {
+                    data: JSON.parse(data).pngValues,
+                });
+            });
+
+            socket.on("processing-finished", function (data) {
+                var x = JSON.parse(data).data;
+                if (x[0] === null) {
+                    document.getElementById("res").innerHTML =
+                        `<h4 style="color: white">Errors: No Errors occurred</h4>` +
+                        `<h4 style="color: white">Status: ${x[1]}</h4>`;
+                }
+                if (x[2] === "Failed") {
+                    document.getElementById(
+                        "res"
+                    ).innerHTML += `<h4 style="color: white">Something went wrong, Please Try again !!</h4>`;
+                } else {
+                    document.getElementById(
+                        "res"
+                    ).innerHTML += `<h4 style="color: white">Please check your output folder for extracted Images !!</h4>`;
+                }
+            });
+        </script>
     </div>
 </div>
 {% endblock %}

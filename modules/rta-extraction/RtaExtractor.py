@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
 This script:
     1 - starts dcm4che to receive images from remote PACS.
     2 - reads txt files containing feature list to identify research profiles consisting of the interesting attributes.
@@ -41,23 +40,21 @@ def run_threaded(job_func):
     job_thread.start()
 
 # Data Loading Function
-def load_json_data(db_json=None, folder_path=None, first_index=None, second_index=None):
-    '''
-    Parameters:
-    1. db_json      - Name of the MongoDB Collection.
-    2. folder_path  - Folder path for the json file. (Will be deprecated while testing on PACS Server)
-    3. first_index  - First index in the MongoDB Collection. (Usually a date time attribute)
-    4. second_index - Second index in the MongoDB Collection. (Usually empi information attribute)
-    '''
+def load_json_data(url, user, passcode, db_json=None, first_index=None, second_index=None):
+
+    # Parameters:
+    # 1. url          - URL to get the data.
+    # 2. user         - Username for Authorization of ResearchPACS Server.
+    # 3. passcode     - Passcode for Authorization of ResearchPACS Server.
+    # 4. db_json      - Name of the MongoDB Collection.
+    # 5. first_index  - First index in the MongoDB Collection. (Usually a date time attribute)
+    # 6. second_index - Second index in the MongoDB Collection. (Usually empi information attribute)
+
     load_time = time.time()
     data_collection = db[db_json]
-    for file in os.listdir(folder_path):
-        if file.endswith('.json'):
-            file_path = folder_path+file
+    data = requests.get(url, auth=(user, passcode))
+    data = data.json()
 
-    f = open(file_path, 'r')
-    data = json.load(f)
-    f.close()
     data_collection.insert_one(data)
     data_collection.create_index(
         [
@@ -65,32 +62,44 @@ def load_json_data(db_json=None, folder_path=None, first_index=None, second_inde
             (second_index, 1)
         ]
     )
+
+    for i in data['links']:
+        if (i['rel'] == 'next'):
+            url = i['href']
+            load_json_data(url, user, passcode, db_json, first_index, second_index)
+
     time_taken = round(time.time()-load_time, 2)
     logging.info('Spent {} seconds loading data into {}.'.format(time_taken, db_json))
 
 # Data Clearing Function
 def clear_data(db_json=None):
+
+    # Parameters
+    # 1. db_json - Name of the MongoDB Collection.
+
     clear_time = time.time()
-    count = 0
     data_collection = db[db_json]
     cursor = data_collection.find({})
-    items_collection = cursor[0]['items']
-    previous_time = datetime.now()-timedelta(days=1)
-    previous_date = previous_time.date()
 
-    remove_list = []
-    for i in range(len(items_collection)):
-        item_date = datetime.strptime(items_collection[i]['lab_date'], '%Y-%m-%dT%H:%M:%SZ').date()
-        diff_time = previous_date-item_date
-        if (diff_time.total_seconds()>=0):
-            remove_list.append(items_collection[i])
+    for i in range(len(list(cursor))):
+        items_collection = cursor[i]['items']
+        previous_time = datetime.now()-timedelta(days=1)
+        previous_date = previous_time.date()
 
-    for x in remove_list:
-        if x in items_collection:
-            items_collection.remove(x)
+        remove_list = []
+        for i in range(len(items_collection)):
+            item_date = datetime.strptime(items_collection[i]['lab_date'], '%Y-%m-%dT%H:%M:%SZ').date()
+            diff_time = previous_date-item_date
+            if (diff_time.total_seconds()>=0):
+                remove_list.append(items_collection[i])
 
-    item_id = data_collection.find_one()['_id']
-    db[db_json].update_one({'_id':ObjectId(item_id)}, {'$set':{'items':items_collection}})
+        for x in remove_list:
+            if x in items_collection:
+                items_collection.remove(x)
+
+        item_id = data_collection.find_one()['_id']
+        db[db_json].update_one({'_id':ObjectId(item_id)}, {'$set':{'items':items_collection}})
+
     time_taken = round(time.time()-clear_time, 2)
     logging.info('Spent {} seconds clealearing the data from {}.'.format(time_taken, db_json))
     
@@ -136,6 +145,8 @@ if __name__ == "__main__":
     Meds_ExtractionFrequency = niffler['MedsDataExtractionFrequency']
     Orders_ExtractionFrequency = niffler['OrdersDataExtractionFrequency']
     Mongo_URI = niffler['MongoURI']
+    UserName = niffler['UserName']
+    PassCode = niffler['PassCode']
 
     # Connect to MongoDB
     connection_start_time = time.time()
@@ -147,13 +158,19 @@ if __name__ == "__main__":
     logging.info('Time taken to establish MongoDB Connection - {}'.format(round(time.time() - connection_start_time), 2))
 
     db = client.database
-
-    schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, load_json_data(db_json='labs_json', 
-                                                folder_path=Labs_FolderPath, first_index='lab_date', second_index='empi'))
-    schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, load_json_data(db_json='meds_json', 
-                                                folder_path=Labs_FolderPath, first_index='update_dt_tm', second_index='empi'))
-    schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, load_json_data(db_json='orders_json', 
-                                                folder_path=Labs_FolderPath, first_index='completed_dt_tm', second_index='empi'))
+    
+    schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, 
+                                                        load_json_data(url='https://prd-rta-app01.eushc.org:8443/ords/radiology/RTA/labs/', 
+                                                        user=UserName, passcode=PassCode, db_json='labs_json', 
+                                                        first_index='lab_date', second_index='empi'))
+    schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, 
+                                                        load_json_data(url='https://prd-rta-app01.eushc.org:8443/ords/radiology/RTA/meds/', 
+                                                        user=UserName, passcode=PassCode, db_json='meds_json', 
+                                                        first_index='update_dt_tm', second_index='empi'))
+    schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, 
+                                                        load_json_data(url='https://prd-rta-app01.eushc.org:8443/ords/radiology/RTA/orders/',
+                                                        user=UserName, passcode=PassCode, db_json='orders_json', 
+                                                        irst_index='completed_dt_tm', second_index='empi'))
 
     schedule.every(1).day.at("23:59").do(run_threaded, clear_data(db_json='labs_json'))
     schedule.every(1).day.at("23:59").do(run_threaded, clear_data(db_json='meds_json'))

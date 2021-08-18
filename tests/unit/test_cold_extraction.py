@@ -14,6 +14,9 @@ import ColdDataRetriever as CDR
 
 @pytest.fixture(autouse=True)
 def mock_libs(mocker: MockerFixture):
+    """
+    Mocking ColdDataRetriever module imports
+    """
     return [
         mocker.patch('ColdDataRetriever.logging'),
         mocker.patch('ColdDataRetriever.random'),
@@ -24,10 +27,16 @@ def mock_libs(mocker: MockerFixture):
 
 @pytest.fixture()
 def mock_datetime(mocker: MockerFixture):
+    """
+    Mocking ColdDataRetriever module datetime import
+    """
     return mocker.patch('ColdDataRetriever.datetime')
 
 
 class Config(object):
+    """
+    Config Object for cold-extraction tests
+    """
     input_dir = pytest.data_dir / 'cold-extraction' / 'input'
     storage_folder = pytest.out_dir / 'cold-extraction' / 'storage-folder'
 
@@ -38,10 +47,14 @@ class Config(object):
         )
 
 
+# Initialize config object
 test_config = Config()
 
 
 class TestSetup:
+    """
+    Initial test setup for all unit test
+    """
 
     def setup_method(self):
         CDR.date_format = "%Y%m%d"
@@ -51,17 +64,29 @@ class TestSetup:
 
 
 class TestUpdatePickle:
+    """
+    Tests for ColdDataRetriever.update_pickle
+    """
 
     def setup_method(self):
+        """
+        Setup
+        """
         CDR.csv_file = None
         CDR.extracted_ones = None
 
     def teardown_method(self):
+        """
+        Cleanup
+        """
         CDR.csv_file = None
         CDR.extracted_ones = None
 
     def test_success(self):
-
+        """
+        Test for ColdDataRetriever.update_pickle function.
+        Check whether function executes without raising error.
+        """
         CDR.csv_file = str(test_config.input_dir / 'csv_files' / 'tmp.csv')
         CDR.extracted_ones = ['1234,4432']
         CDR.update_pickle()
@@ -69,21 +94,36 @@ class TestUpdatePickle:
 
 
 class TestRunThreaded:
+    """
+    Test for ColdDataRetriever.run_threaded
+    """
 
     def test_thread_start_success(self, mocker):
+        """
+        Checks whether the stub function is called on thread start
+        """
         stub = mocker.stub(name='job_func_stub')
         CDR.run_threaded(stub)
         stub.assert_called_once()
 
 
 class TestSleepForNightlyMode:
+    """
+    Test for ColdDataRetriever.sleep_for_nightly_mode
+    """
 
     def setup_method(self):
+        """
+        Setup
+        """
         CDR.NIGHTLY_ONLY = True
         CDR.END_HOUR = 8
         CDR.START_HOUR = 24
 
     def test_success(self, mock_datetime):
+        """
+        Checks whether infinite the execution reaches the inf while loop
+        """
         # To end the loop after 1st iteration
         tmp_date_obj = pytest.Dict2Class({'hour': 12})
         mock_datetime.datetime.now.return_value = tmp_date_obj
@@ -97,20 +137,35 @@ class TestSleepForNightlyMode:
 
 
 class TestConvertToDateFormat:
+    """
+    Test for ColdDataRetriever.convert_to_date_format
+    """
 
     def test_success(self):
+        """
+        Checks whether function is executed without exception
+        """
         date_str = "20180507"
         ret_date_str = CDR.convert_to_date_format(date_str)
         assert date_str == ret_date_str
 
 
 class TestCheckKillProcess:
+    """
+    Tests for ColdDataRetriever.check_kill_process
+    """
 
     def setup_method(self):
+        """
+        Setup
+        """
         CDR.nifflerscp_str = "storescp.*QBNIFFLER"
         CDR.storage_folder = test_config.storage_folder
 
     def test_kill_success(self):
+        """
+        Mocks popen and checks whether os.kill is called
+        """
         CDR.os.popen.return_value = StringIO(
             "1234 ? R+ 0:00 storescp.*QBNIFFLER\n")
         CDR.os.kill.return_value = None
@@ -119,6 +174,9 @@ class TestCheckKillProcess:
         CDR.os.kill.assert_called_once()
 
     def test_kill_permission_error(self):
+        """
+        Mocks popen and checks whether os.kill raises PermissionError
+        """
         CDR.os.popen.return_value = StringIO(
             "1234 ? R+ 0:00 storescp.*QBNIFFLER\n")
         CDR.os.kill.side_effect = PermissionError
@@ -131,8 +189,14 @@ class TestCheckKillProcess:
 
 
 class TestReadCsv:
+    """
+    Tests for ColdDataRetriever.read_csv
+    """
 
     def reset_cdr_module_state(self):
+        """
+        Resets module level variables       
+        """
         CDR.firsts = []
         CDR.seconds = []
         CDR.thirds = []
@@ -145,12 +209,19 @@ class TestReadCsv:
         CDR.third_attr = "AccessionNumber"
 
     def setup_method(self):
+        """
+        Setup
+        """
         CDR.csv_file = str(test_config.input_dir /
                            'csv_files' / 'unit_test_read_csv.csv')
         CDR.number_of_query_attributes = 3
         self.reset_cdr_module_state()
 
     def test_query_attrs_gt_3_or_lt_1(self):
+        """
+        Tests for execution when number_of_query_attributes > 3 or < 1
+        Checks log call based on log content of funtion
+        """
         self.reset_cdr_module_state()
         CDR.number_of_query_attributes = 6
         CDR.read_csv()
@@ -168,6 +239,10 @@ class TestReadCsv:
         self.reset_cdr_module_state()
 
     def test_first_col_date(self):
+        """
+        Test when first col is date col in the csv
+        Checks read success by asserting value of number of rows read.
+        """
         self.reset_cdr_module_state()
         CDR.csv_file = str(test_config.input_dir /
                            'csv_files' / 'unit_test_read_csv_1st_date.csv')
@@ -180,12 +255,20 @@ class TestReadCsv:
         self.reset_cdr_module_state()
 
     def test_second_col_date(self):
+        """
+        Test when second col is date col in the csv
+        Checks read success by asserting value of number of rows read.
+        """
         self.reset_cdr_module_state()
         CDR.read_csv()
         assert CDR.length == 1
         self.reset_cdr_module_state()
 
     def test_third_col_date(self):
+        """
+        Test when third col is date col in the csv
+        Checks read success by asserting value of number of rows read.
+        """
         self.reset_cdr_module_state()
         CDR.csv_file = str(test_config.input_dir /
                            'csv_files' / 'unit_test_read_csv_3rd_date.csv')
@@ -197,14 +280,3 @@ class TestReadCsv:
         CDR.read_csv()
         assert CDR.length == 1
         self.reset_cdr_module_state()
-
-
-class TestGenerateTempFileName:
-
-    def setup_method(self):
-        CDR.storage_folder = test_config.storage_folder
-        CDR.temp_folder = os.path.join(CDR.storage_folder, "cfind-temp")
-
-    def test_success(self):
-        CDR.generate_temp_file_name()
-        CDR.random.randint.assert_called_once()

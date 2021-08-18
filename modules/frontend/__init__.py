@@ -3,6 +3,7 @@ import os
 import sys
 from functools import wraps
 from flask_sqlalchemy import SQLAlchemy
+from flask_socketio import SocketIO
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -12,6 +13,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret-key-goes-here'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 db = SQLAlchemy(app)
+socketio = SocketIO(app,async_mode="threading", logger=True)
 
 isAdmin = False
 if(len(sys.argv) > 1 and sys.argv[1] == '--admin'):

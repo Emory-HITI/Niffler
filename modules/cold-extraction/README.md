@@ -161,15 +161,27 @@ $ tail -f niffler.log
 
 INFO:root:[EXTRACTION COMPLETE] 2020-09-21 17:42:38.465501: Niffler Extraction to /opt/data/new-study Completes. Terminating the completed storescp process.
 ```
-A pickle file tracks the progress. The pickle file is created by appending ".pickle" to the csv file name.
+A pickle file tracks the progress. The pickle file is created by appending ".pickle" to the csv file name in the same directory as the csv file. A sample pickle line is as below:
 
 ```
 <8c>^X1234, 000056789<94>
 ```
-For "empi_accession" extractions, each entry above is empi,accession. For "empi" extractions, each entry above is empi.
+For example, for extractions with 2 attributes, PatientID and AccessionNumber, each entry above is _PatientID,AccessionNumber_. For extractions with just PatientID, each entry above is _PatientID_.
 
-For other combinations of extractions, each entry above will be empi, study. The reason is we have to _translate_ these headers into empi_study for C-MOVE queries.
+For other combinations of extractions, each entry above will be _PatientID,StudyInstanceUID_. The reason is Niffler internally _translates_ these headers into C-MOVE extractions with PatientID and StudyInstanceUID.
 
+
+## Pause-and-resume vs. Rerun from the scratch
+
+As elaborated above, a pickle file tracks the progress of the extraction. This file is created by appending ".pickle" to the csv file (which is indicated by "CsvFile" in the config.json) in the same folder. When you have to stop the extraction in the middle or when the extraction stops involuntarily due to other factors (such as server power failure), you could re-run the ColdDataRetriever.py as is. Then ColdDataRetriever.py retrieves the studies that are not retrieved yet.
+
+On the other hand, if you want to run a fresh extraction from scratch - one where the output is sent to another folder, expecting it to get all the studies rather than those that were not extracted in the previous run, please make sure to delete the .pickle file first. Otherwise, when you re-run an extraction with a previously completed CSV file, Niffler finds the pickle file. The pickle file consists of almost all (almost, because the pickle is updated periodically rather than per each C-MOVE run) the completed lines from the CSV. When Niffler encounters this, Niffler will only extract the few studies that were not listed in the pickle.
+
+So in summary:
+
+1) Re-run as-is, with the presence of the pickle file, if your intention is to resume an extraction that was running but incomplete (i.e., the classic pause-and-resume mode).
+
+2) Run after deleting the respective pickle file, if your intention is to run from the scratch, with the outputs sent to a fresh/new directory rather than a pause-and-resume.
 
 ## CFIND-ONLY and CFIND-DETAILED modes
 
