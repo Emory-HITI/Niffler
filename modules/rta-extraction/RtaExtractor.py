@@ -119,7 +119,6 @@ def view_data(db_json=None, user_query=None):
             required_columns = data['items'][0].keys()
 
         df = pd.DataFrame(data['items'])
-        print (df.head())
 
     time_taken = round(time.time()-view_time, 2)
     logging.info('Spent {} seconds viewing the data of {}.'.format(time_taken, db_json))
@@ -142,13 +141,15 @@ if __name__ == "__main__":
     Meds_ExtractionFrequency = niffler['MedsDataExtractionFrequency']
     Orders_ExtractionFrequency = niffler['OrdersDataExtractionFrequency']
     Mongo_URI = niffler['MongoURI']
+    Mongo_UserName = niffler['MongoUserName']
+    Mongo_PassCode = niffler['MongoPassCode']
     UserName = niffler['UserName']
     PassCode = niffler['PassCode']
 
     # Connect to MongoDB
     connection_start_time = time.time()
     try:
-        client = MongoClient(Mongo_URI)
+        client = MongoClient(Mongo_URI, username=Mongo_UserName, password=Mongo_PassCode)
         logging.info('MongoDB Connection Successful.')
     except:
         logging.error('MongoDB Connection Unsuccessful.')
