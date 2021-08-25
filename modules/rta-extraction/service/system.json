@@ -7,6 +7,8 @@
 	"OrdersDataExtractionFrequency": 30,
 	
 	"MongoURI": "mongodb://localhost:27017",
+	"MongoUserName": "",
+	"MongoPassCode": "",
 	"UserName": "",
 	"PassCode": ""
 }
