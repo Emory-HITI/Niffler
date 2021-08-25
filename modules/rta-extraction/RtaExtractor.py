@@ -6,7 +6,7 @@ This script:
     2 - reads txt files containing feature list to identify research profiles consisting of the interesting attributes.
     3 - grabs one instance per series and extract the metadata for the identified attributes and store in MongoDB.
     4 - deletes the dicom images periodically once the metadata is extracted.
-    5 - keeps track of the volume of the dcm storage folder
+    5 - keeps track of the volume of the dcm storage folder.
 """
 
 import os, os.path
@@ -81,8 +81,8 @@ def clear_data(db_json=None):
     data_collection = db[db_json]
     cursor = data_collection.find({})
 
-    for i in range(len(list(cursor))):
-        items_collection = cursor[i]['items']
+    for document in cursor:
+        items_collection = document['items']
         previous_time = datetime.now()-timedelta(days=1)
         previous_date = previous_time.date()
 
@@ -97,35 +97,31 @@ def clear_data(db_json=None):
             if x in items_collection:
                 items_collection.remove(x)
 
-        item_id = data_collection.find_one()['_id']
+        item_id = document['_id']
         db[db_json].update_one({'_id':ObjectId(item_id)}, {'$set':{'items':items_collection}})
 
     time_taken = round(time.time()-clear_time, 2)
-    logging.info('Spent {} seconds clealearing the data from {}.'.format(time_taken, db_json))
+    logging.info('Spent {} seconds clearing the data from {}.'.format(time_taken, db_json))
     
 # Data Filtering Function
 def view_data(db_json=None, user_query=None):
     view_time = time.time()
     data_collection = db[db_json]
     data_cursor = data_collection.find({})
+
     for document in data_cursor:
         data = document
 
-    list_dict = []
-    if (user_query):
-        required_columns = user_query
-    else:
-        required_columns = data['items'].keys()
+        list_dict = []
+        if (user_query):
+            required_columns = user_query
+        else:
+            required_columns = data['items'][0].keys()
 
-    for i in range(len(data['items'])):
-        list_dict.append(data['items'][i])
-
-    df = pd.DataFrame(list_dict)
-    df = df[required_columns]
+        df = pd.DataFrame(data['items'])
 
     time_taken = round(time.time()-view_time, 2)
     logging.info('Spent {} seconds viewing the data of {}.'.format(time_taken, db_json))
-    return (df.head())
 
 
 if __name__ == "__main__":
@@ -145,13 +141,15 @@ if __name__ == "__main__":
     Meds_ExtractionFrequency = niffler['MedsDataExtractionFrequency']
     Orders_ExtractionFrequency = niffler['OrdersDataExtractionFrequency']
     Mongo_URI = niffler['MongoURI']
+    Mongo_UserName = niffler['MongoUserName']
+    Mongo_PassCode = niffler['MongoPassCode']
     UserName = niffler['UserName']
     PassCode = niffler['PassCode']
 
     # Connect to MongoDB
     connection_start_time = time.time()
     try:
-        client = MongoClient(Mongo_URI)
+        client = MongoClient(Mongo_URI, username=Mongo_UserName, password=Mongo_PassCode)
         logging.info('MongoDB Connection Successful.')
     except:
         logging.error('MongoDB Connection Unsuccessful.')
