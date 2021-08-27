@@ -137,6 +137,9 @@ if __name__ == "__main__":
     Labs_FolderPath = niffler['LabsFilePath']
     Meds_FolderPath = niffler['MedsFilePath']
     Orders_FolderPath = niffler['OrdersFilePath']
+    LabsURL = niffler['LabsURL']
+    MedsURL = niffler['MedsURL']
+    OrdersURL = niffler['OrdersURL']
     Labs_ExtractionFrequency = niffler['LabsDataExtractionFrequency']
     Meds_ExtractionFrequency = niffler['MedsDataExtractionFrequency']
     Orders_ExtractionFrequency = niffler['OrdersDataExtractionFrequency']
@@ -158,15 +161,15 @@ if __name__ == "__main__":
     db = client.database
     
     schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, 
-                                                        load_json_data(url='https://prd-rta-app01.eushc.org:8443/ords/radiology/RTA/labs/', 
+                                                        load_json_data(url=LabsURL, 
                                                         user=UserName, passcode=PassCode, db_json='labs_json', 
                                                         first_index='lab_date', second_index='empi'))
     schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, 
-                                                        load_json_data(url='https://prd-rta-app01.eushc.org:8443/ords/radiology/RTA/meds/', 
+                                                        load_json_data(url=MedsURL, 
                                                         user=UserName, passcode=PassCode, db_json='meds_json', 
                                                         first_index='update_dt_tm', second_index='empi'))
     schedule.every(Labs_ExtractionFrequency).minutes.do(run_threaded, 
-                                                        load_json_data(url='https://prd-rta-app01.eushc.org:8443/ords/radiology/RTA/orders/',
+                                                        load_json_data(url=OrdersURL,
                                                         user=UserName, passcode=PassCode, db_json='orders_json', 
                                                         irst_index='completed_dt_tm', second_index='empi'))
 
