@@ -1,7 +1,7 @@
 {
-	"LabsFilePath": "/Users/ananthreddy/Documents/emory_projects/json_parsing/labs/",
-	"MedsFilePath": "/Users/ananthreddy/Documents/emory_projects/json_parsing/meds/",
-	"OrdersFilePath": "/Users/ananthreddy/Documents/emory_projects/json_parsing/orders/",
+	"LabsURL":"",
+	"MedsURL":"",
+	"OrdersURL":"",
 	"LabsDataExtractionFrequency": 30,
 	"MedsDataExtractionFrequency": 30,
 	"OrdersDataExtractionFrequency": 30,
