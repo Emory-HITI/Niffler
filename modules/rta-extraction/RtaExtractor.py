@@ -54,14 +54,16 @@ def load_json_data(url, user, passcode, db_json=None, first_index=None, second_i
     data_collection = db[db_json]
     data = requests.get(url, auth=(user, passcode))
     data = data.json()
+    items_data = data['items']
 
-    data_collection.insert_one(data)
-    data_collection.create_index(
-        [
-            (first_index, 1),
-            (second_index, 1)
-        ]
-    )
+    for record in items_data:
+        data_collection.insert_one(record)
+        data_collection.create_index(
+            [
+                (first_index, 1),
+                (second_index, 1)
+            ]
+        )
 
     for i in data['links']:
         if (i['rel'] == 'next'):
@@ -82,23 +84,14 @@ def clear_data(db_json=None):
     cursor = data_collection.find({})
 
     for document in cursor:
-        items_collection = document['items']
         previous_time = datetime.now()-timedelta(days=1)
         previous_date = previous_time.date()
 
-        remove_list = []
-        for i in range(len(items_collection)):
-            item_date = datetime.strptime(items_collection[i]['lab_date'], '%Y-%m-%dT%H:%M:%SZ').date()
-            diff_time = previous_date-item_date
-            if (diff_time.total_seconds()>=0):
-                remove_list.append(items_collection[i])
+        item_date = datetime.strptime(document['lab_date'], '%Y-%m-%dT%H:%M:%SZ').date()
+        diff_time = previous_date-item_date
 
-        for x in remove_list:
-            if x in items_collection:
-                items_collection.remove(x)
-
-        item_id = document['_id']
-        db[db_json].update_one({'_id':ObjectId(item_id)}, {'$set':{'items':items_collection}})
+        if (diff_time.total_seconds()>=0):
+            data_collection.delete_one(document)
 
     time_taken = round(time.time()-clear_time, 2)
     logging.info('Spent {} seconds clearing the data from {}.'.format(time_taken, db_json))
@@ -109,16 +102,12 @@ def view_data(db_json=None, user_query=None):
     data_collection = db[db_json]
     data_cursor = data_collection.find({})
 
+    doc_list = []
     for document in data_cursor:
-        data = document
-
-        list_dict = []
-        if (user_query):
-            required_columns = user_query
-        else:
-            required_columns = data['items'][0].keys()
-
-        df = pd.DataFrame(data['items'])
+        doc_list.append(document)
+        
+    df = pd.DataFrame(doc_list)
+    logging.info (df.shape)
 
     time_taken = round(time.time()-view_time, 2)
     logging.info('Spent {} seconds viewing the data of {}.'.format(time_taken, db_json))
