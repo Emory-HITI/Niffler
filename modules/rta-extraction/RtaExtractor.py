@@ -107,8 +107,8 @@ def view_data(db_json=None, user_query=None):
         doc_list.append(document)
         
     df = pd.DataFrame(doc_list)
-    print (df.shape)
-    
+    logging.info (df.shape)
+
     time_taken = round(time.time()-view_time, 2)
     logging.info('Spent {} seconds viewing the data of {}.'.format(time_taken, db_json))
 
