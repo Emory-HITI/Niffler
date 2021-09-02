@@ -172,7 +172,7 @@ class TestExtractImages:
         Checks if converted png is 16bit
         """
         flattened_to_level = "patient"
-        is16Bit = "True"
+        is16Bit = True
         out_img = ImageExtractor.extract_images(
             self.file_data,
             self.index,
@@ -190,7 +190,7 @@ class TestExtractImages:
         Checks if converted png is not 16bit
         """
         flattened_to_level = "patient"
-        is16Bit = "False"
+        is16Bit = False
         out_img = ImageExtractor.extract_images(
             self.file_data,
             self.index,
@@ -208,7 +208,7 @@ class TestExtractImages:
         Check code execution when level set to patient
         """
         flattened_to_level = "patient"
-        is16Bit = "False"
+        is16Bit = False
         out_img = ImageExtractor.extract_images(
             self.file_data,
             self.index,
@@ -224,7 +224,7 @@ class TestExtractImages:
         Check code execution when level set to study
         """
         flattened_to_level = "study"
-        is16Bit = "False"
+        is16Bit = False
         out_img = ImageExtractor.extract_images(
             self.file_data,
             self.index,
@@ -240,7 +240,7 @@ class TestExtractImages:
         Check code execution when level set to other
         """
         flattened_to_level = "other"
-        is16Bit = "False"
+        is16Bit = False
         out_img = ImageExtractor.extract_images(
             self.file_data,
             self.index,
@@ -256,7 +256,7 @@ class TestExtractImages:
         Check code execution when no uuid in data for level other
         """
         flattened_to_level = "other"
-        is16Bit = "False"
+        is16Bit = False 
         out_img = ImageExtractor.extract_images(
             self.file_data.drop(['StudyInstanceUID'], axis=1),
             self.index,
@@ -272,7 +272,7 @@ class TestExtractImages:
         Check code execution when no uuid in data for level study
         """
         flattened_to_level = "study"
-        is16Bit = "False"
+        is16Bit = False 
         out_img = ImageExtractor.extract_images(
             self.file_data.drop(['StudyInstanceUID'], axis=1),
             self.index,
@@ -288,7 +288,7 @@ class TestExtractImages:
         Check code execution when read error
         """
         flattened_to_level = "study"
-        is16Bit = "False"
+        is16Bit = False 
         out_img = ImageExtractor.extract_images(
             self.invalid_file_data,
             self.index,
