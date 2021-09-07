@@ -45,7 +45,7 @@ def initialize_config_and_execute(config_values):
     email = configs['YourEmail']
     send_email = configs['SendEmail']
     no_splits = int(configs['SplitIntoChunks'])
-    is16Bit = configs['is16Bit']
+    is16Bit = bool(configs['is16Bit']) 
     
     metadata_col_freq_threshold = 0.1
 
@@ -205,7 +205,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
         pngfile = png_destination+folderName + '/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
         dicom_path = filedata.iloc[i].loc['file']
         image_path = png_destination+folderName+'/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
-        if is16Bit == 'True' or is16Bit == 'true':
+        if is16Bit:
             # write the PNG file as a 16-bit greyscale 
             image_2d = ds.pixel_array.astype(np.double) 
             # # Rescaling grey scale between 0-255
