@@ -37,13 +37,13 @@ def initialize_config_and_execute(config_values):
     p2 = pathlib.PurePath(configs['OutputDirectory'])
     output_directory = p2.as_posix()
 
-    print_images = configs['PrintImages']
-    print_only_common_headers = configs['CommonHeadersOnly']
+    print_images = bool(configs['PrintImages'])
+    print_only_common_headers = bool(configs['CommonHeadersOnly'])
     depth = int(configs['Depth'])
     processes = int(configs['UseProcesses']) # how many processes to use.
     flattened_to_level = configs['FlattenedToLevel']
     email = configs['YourEmail']
-    send_email = configs['SendEmail']
+    send_email = bool(configs['SendEmail'])
     no_splits = int(configs['SplitIntoChunks'])
     is16Bit = bool(configs['is16Bit']) 
     
@@ -436,13 +436,13 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
     for mapping in mappings:
         map_list.append(pd.read_csv(mapping,dtype='str'))
     merged_maps = pd.concat(map_list,ignore_index=True)
-    if print_only_common_headers == 'True' or print_only_common_headers == 'true':
+    if print_only_common_headers:
         mask_common_fields = merged_maps.isnull().mean() < 0.1
         common_fields = set(np.asarray(merged_maps.columns)[mask_common_fields])
         merged_maps = merged_maps[common_fields]
     merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
 
-    if send_email == 'True' or send_email == 'true':
+    if send_email:
        subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion'
                        ' has been complete" {0}'.format(email), shell=True)
     # Record the total run-time

@@ -20,9 +20,9 @@ Find the config.json file in the folder and modify accordingly *for each* Niffle
 * *FlattenedToLevel*: Specify how you want your folder tree to be. Default is, "patient" (produces patient/*.png). 
   You may change this value to "study" (patient/study/*.png) or "series" (patient/study/series/*.png). All IDs are de-identified.
  
-* *is16Bit*:  Specifies whether to save extracted image as 16-bit  image. By default, this is set to true. Please set it to false to run 8-bit extraction.
+* *is16Bit*:  Specifies whether to save extracted image as 16-bit  image. By default, this is set to _true_. Please set it to false to run 8-bit extraction.
   
-* *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
+* *SendEmail*: Do you want to send an email notification when the extraction completes? The default is _true_. You may disable this if you do not want to receive an email upon the completion.
 
 * *YourEmail*: Replace "test@test.test" with a valid email if you would like to receive an email notification. If the SendEmail property is disabled, you can leave this as is.
 
