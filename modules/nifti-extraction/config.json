@@ -1,0 +1,13 @@
+{
+	"DICOMHome": "/Users/ramoncorrea/kidneyProject/ct_uro",
+	"OutputDirectory": "/Users/ramoncorrea/kidneyProject/ct_uro_niffler",
+	"Depth": 3,
+	"SplitIntoChunks": 3,
+	"PrintImages": true,
+	"CommonHeadersOnly": true,
+	"UseProcesses": 12 ,
+	"FlattenedToLevel": "patient",
+	"is16Bit":true,
+	"SendEmail": true,
+	"YourEmail": "rlcorre@emory.edu"
+}
