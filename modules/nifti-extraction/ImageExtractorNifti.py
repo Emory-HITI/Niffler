@@ -16,7 +16,6 @@ import argparse
 import numpy as np
 import pandas as pd
 import pydicom as dicom 
-import png
 # pydicom imports needed to handle data errors
 from pydicom import config
 from pydicom import datadict
@@ -50,7 +49,7 @@ def initialize_config_and_execute(config_values):
     
     metadata_col_freq_threshold = 0.1
 
-    png_destination = output_directory + '/extracted-images/'
+    nifti_destination = output_directory + '/extracted-images/'
     failed = output_directory + '/failed-dicom/'
     maps_directory = output_directory + '/maps/'
     meta_directory = output_directory + '/meta/'
@@ -73,8 +72,8 @@ def initialize_config_and_execute(config_values):
     if not os.path.exists(meta_directory):
         os.makedirs(meta_directory)
 
-    if not os.path.exists(png_destination):
-        os.makedirs(png_destination)
+    if not os.path.exists(nifti_destination):
+        os.makedirs(nifti_destination)
 
     if not os.path.exists(failed):
         os.makedirs(failed)
@@ -93,7 +92,7 @@ def initialize_config_and_execute(config_values):
 
     logging.info("------- Values Initialization DONE -------")
     final_res = execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
-                        processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
+                        processes, flattened_to_level, email, send_email, no_splits, is16Bit, nifti_destination,
         failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start,dict_pickle_file)
     return final_res
 
@@ -163,10 +162,10 @@ def extract_headers(f_list_elem):
 # Function to extract pixel array information
 # takes an integer used to index into the global filedata dataframe
 # returns tuple of
-# filemapping: dicom to png paths   (as str)
+# filemapping: dicom to nifti paths   (as str)
 # fail_path: dicom to failed folder (as tuple)
 # found_err: error code produced when processing
-def extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit):
+def extract_images(filedata, i, nifti_destination, flattened_to_level, failed, is16Bit):
     #ds = dicom.dcmread(filedata.iloc[i].loc['file'], force=True) # read file in
     #dicom2nifti.dicom_series_to_nifti(filedata.iloc[i].loc['file'], )
     found_err=None
@@ -178,7 +177,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             ID = filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
             # check for existence of patient folder. Create if it does not exist.
-            os.makedirs(png_destination + folderName,exist_ok=True)
+            os.makedirs(nifti_destination + folderName,exist_ok=True)
         elif flattened_to_level == 'study':
             ID1 = filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             try:
@@ -188,7 +187,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
-            os.makedirs(png_destination + folderName,exist_ok=True)
+            os.makedirs(nifti_destination + folderName,exist_ok=True)
         else:
             ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             try:
@@ -201,12 +200,12 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + \
                          hashlib.sha224(ID3.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
-            os.makedirs(png_destination + folderName,exist_ok=True)
+            os.makedirs(nifti_destination + folderName,exist_ok=True)
 
 
-        pngfile = png_destination+folderName + '/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.nii.gz'
-        dicom2nifti.dicom_series_to_nifti(str(filedata.iloc[i].loc['file']),pngfile)
-        filemapping = filedata.iloc[i].loc['file'] + ', ' + pngfile + '\n'
+        niftifile = nifti_destination+folderName + '/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.nii.gz'
+        dicom2nifti.dicom_series_to_nifti(str(filedata.iloc[i].loc['file']),niftifile)
+        filemapping = filedata.iloc[i].loc['file'] + ', ' + niftifile + '\n'
     except AttributeError as error:
         found_err = error
         logging.error(found_err)
@@ -277,7 +276,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
 
 
 def execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
-            processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
+            processes, flattened_to_level, email, send_email, no_splits, is16Bit, nifti_destination,
     failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start,dict_pickle_file):
     err = None
     fix_mismatch()
@@ -338,7 +337,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
         mappings = "{}/maps/mapping_{}.csv".format(output_directory,i)
         fm = open(mappings, "w+")
-        filemapping = 'Original DICOM file location, PNG location \n'
+        filemapping = 'Original DICOM file location, NIFTI location \n'
         fm.write(filemapping)
 
         # add a check to see if the metadata has already been extracted
@@ -368,7 +367,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
             total = len(chunk)
             stamp = time.time()
             for i in range(len(filedata)):
-                (fmap,fail_path,err) = extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit)
+                (fmap,fail_path,err) = extract_images(filedata, i, nifti_destination, flattened_to_level, failed, is16Bit)
                 if err:
                     count +=1
                     #copyfile(fail_path[0],fail_path[1])
@@ -436,14 +435,14 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
     merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
 
     if send_email == True:
-       subprocess.call('echo "Niffler has successfully completed the png conversion" | mail -s "The image conversion'
+       subprocess.call('echo "Niffler has successfully completed the nifti conversion" | mail -s "The image conversion'
                        ' has been complete" {0}'.format(email), shell=True)
     # Record the total run-time
     logging.info('Total run time: %s %s', time.time() - t_start, ' seconds!')
     logging.shutdown()  # Closing logging file after extraction is done !!
     logs = []
     logs.append(err)
-    logs.append("The PNG conversion is SUCCESSFUL")
+    logs.append("The nifti conversion is SUCCESSFUL")
     return logs
 
 
