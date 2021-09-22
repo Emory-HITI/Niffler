@@ -8,19 +8,19 @@ Niffler RTA Extractor must be configured as a service for it to run continuously
 
 Find the system.json file in the service folder and modify accordingly.
 
-system.json entries are to be set only once for the Niffler deployment by the administrator. Once set, further extractions do not require a change.
+system.json entries are to be set <em>only once</em> for the Niffler deployment by the administrator. Once set, further extractions do not require a change.
 
- - LabsURL: Set the URL providing continous labs data.
- - MedsURL: Set the URL providing continous meds data.
- - OrdersURL: Set the URL providing continous orders data.
- - LabsDataLoadFrequency: Time Frequency for loading labs data onto MongoDB. The frequency is to be provided in minutes.
- - MedsDataLoadFrequency: Time Frequency for loading meds data onto MongoDB. The frequency is to be provided in minutes.
- - OrdersDataLoadFrequency: Time Frequency for loading orders data onto MongoDB. The frequency is to be provided in minutes.
- - UserName: Set the Username Credentials for RTA Connection.
- - PassCode: Set the Passcode Credentials for RTA Connection.
- - MongoURI: Set the MongoDB Connection URL.
- - MongoUserName: Set the MongoDB Username for Credentials.
- - MongoPassCode: Set the MongoDB Passcode for Credentials.
+ - <em>LabsURL</em>: Set the URL providing continous labs data.
+ - <em>MedsURL</em>: Set the URL providing continous meds data.
+ - <em>OrdersURL</em>: Set the URL providing continous orders data.
+ - <em>LabsDataLoadFrequency</em>: Time Frequency for loading labs data onto MongoDB. The frequency is to be provided in minutes.
+ - <em>MedsDataLoadFrequency</em>: Time Frequency for loading meds data onto MongoDB. The frequency is to be provided in minutes.
+ - <em>OrdersDataLoadFrequency</em>: Time Frequency for loading orders data onto MongoDB. The frequency is to be provided in minutes.
+ - <em>UserName</em>: Set the Username Credentials for RTA Connection.
+ - <em>PassCode</em>: Set the Passcode Credentials for RTA Connection.
+ - <em>MongoURI</em>: Set the MongoDB Connection URL.
+ - <em>MongoUserName</em>: Set the MongoDB Username for Credentials.
+ - <em>MongoPassCode</em>: Set the MongoDB Passcode for Credentials.
 
 ## Configure DICOM attributes to extract
 
