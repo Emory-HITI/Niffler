@@ -1,4 +1,4 @@
-PatientID,Name,Age
-1,AAA,23
-2,BBB,24
-3,CCC,
+PatientID,PatientName,PatientSex
+1,AAA,F
+2,BBB,M
+3,CCC,F

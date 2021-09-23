@@ -1,3 +1,0 @@
-PatientID
-Age
-Protocol
