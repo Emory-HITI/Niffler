@@ -1,0 +1,6 @@
+{
+  "InputFile": "sample.csv",
+  "OutputFile": "output.csv",
+  "FeatureFile": "properties.txt"
+
+}
