@@ -1,0 +1,13 @@
+{
+	"DICOMHome": "/path/to/files",
+	"OutputDirectory": "/path/to/svae",
+	"Depth": 3,
+	"SplitIntoChunks": 3,
+	"PrintImages": true,
+	"CommonHeadersOnly": true,
+	"UseProcesses": 12 ,
+	"FlattenedToLevel": "patient",
+	"is16Bit":true,
+	"SendEmail": true,
+	"YourEmail": "test@test.edu"
+}
