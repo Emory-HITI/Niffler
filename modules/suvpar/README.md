@@ -1,6 +1,6 @@
 # SUVPaR: Scanner Usage Visualization with PACS and RIS data
 
-This is a module that utilizes Niffler's other modules and (https://github.com/sharmalab/eaglescope)[Eaglescope] to 
+This is a module that utilizes Niffler's other modules and [Eaglescope](https://github.com/sharmalab/eaglescope) to 
 visualize MRI Scanner Usage.
 
 
