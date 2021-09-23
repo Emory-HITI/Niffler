@@ -337,7 +337,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
         mappings = "{}/maps/mapping_{}.csv".format(output_directory,i)
         fm = open(mappings, "w+")
-        filemapping = 'Original DICOM file location, nifti location \n'
+        filemapping = 'Original DICOM file location, NIFTI location \n'
         fm.write(filemapping)
 
         # add a check to see if the metadata has already been extracted
