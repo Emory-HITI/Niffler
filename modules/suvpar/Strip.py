@@ -7,8 +7,8 @@ df = {}
 output_csv = {}
 
 
-def initialize_config_and_execute():
-    global df, output_csv
+def initialize():
+    global output_csv, df
     with open('config.json', 'r') as f:
         config = json.load(f)
 
@@ -19,8 +19,16 @@ def initialize_config_and_execute():
     text_file = open(feature_file, "r")
     feature_list = text_file.read().split('\n')
 
-    filtered_csv = pandas.read_csv(filename, usecols=lambda x: x in feature_list, sep=',')
-    df = pandas.DataFrame(filtered_csv)
+    df = pandas.read_csv(filename, usecols=lambda x: x in feature_list, sep=',')
+    logging.info(df['ImageType'])
+
+
+def strip():
+    global df
+    # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
+    df = df[df.Modality == "MR"]
+    # Consider only the ImageType that are true.
+    df = df[df['ImageType'].str.contains("ORIGINAL")]
 
 
 def write():
@@ -28,5 +36,6 @@ def write():
 
 
 if __name__ == "__main__":
-    initialize_config_and_execute()
+    initialize()
+    strip()
     write()
