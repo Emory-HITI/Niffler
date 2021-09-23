@@ -6,7 +6,6 @@ logging.basicConfig(level=logging.INFO)
 
 
 def initialize_config_and_execute():
-    # Reads the system_json file.
     with open('config.json', 'r') as f:
         config = json.load(f)
 
