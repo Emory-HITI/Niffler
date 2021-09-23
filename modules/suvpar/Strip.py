@@ -9,7 +9,7 @@ def initialize_config_and_execute():
     with open('config.json', 'r') as f:
         config = json.load(f)
 
-    feature_file = config['FeatureFile']
+    feature_file = config['FeaturesetFile']
     filename = config['InputFile']
     output_csv = config['OutputFile']
 
