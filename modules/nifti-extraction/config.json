@@ -1,6 +1,6 @@
 {
-	"DICOMHome": "/Users/ramoncorrea/kidneyProject/ct_uro",
-	"OutputDirectory": "/Users/ramoncorrea/kidneyProject/ct_uro_niffler",
+	"DICOMHome": "/path/to/files",
+	"OutputDirectory": "/path/to/svae",
 	"Depth": 3,
 	"SplitIntoChunks": 3,
 	"PrintImages": true,
@@ -9,5 +9,5 @@
 	"FlattenedToLevel": "patient",
 	"is16Bit":true,
 	"SendEmail": true,
-	"YourEmail": "rlcorre@emory.edu"
+	"YourEmail": "test@test.edu"
 }
