@@ -205,6 +205,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
         pngfile = png_destination+folderName + '/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
         dicom_path = filedata.iloc[i].loc['file']
         image_path = png_destination+folderName+'/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
+        isRGB = filedata.iloc[i].loc['PhotometricInterpretation'] == 'RGB'
         if is16Bit:
             # write the PNG file as a 16-bit greyscale 
             image_2d = ds.pixel_array.astype(np.double) 
@@ -214,7 +215,10 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             shape = ds.pixel_array.shape
             image_2d_scaled = np.uint16(image_2d_scaled) 
             with open(pngfile , 'wb') as png_file:
-                    w = png.Writer(shape[1], shape[0], greyscale=True,bitdepth=16)
+                    if isRGB: 
+                        w = png.Writer(shape[1], shape[0], greyscale=False,bitdepth=16)
+                    else: 
+                        w = png.Writer(shape[1], shape[0], greyscale=True,bitdepth=16)
                     w.write(png_file, image_2d_scaled)
         else: 
             shape = ds.pixel_array.shape
@@ -226,7 +230,10 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             image_2d_scaled = np.uint8(image_2d_scaled)
             # Write the PNG file
             with open(pngfile , 'wb') as png_file:
-                    w = png.Writer(shape[1], shape[0], greyscale=True)
+                    if isRGB: 
+                        w = png.Writer(shape[1], shape[0], greyscale=False)
+                    else: 
+                        w = png.Writer(shape[1], shape[0], greyscale=True)
                     w.write(png_file, image_2d_scaled)
         filemapping = filedata.iloc[i].loc['file'] + ', ' + pngfile + '\n'
     except AttributeError as error:
