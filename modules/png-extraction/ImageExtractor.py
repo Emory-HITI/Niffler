@@ -263,6 +263,8 @@ def fix_mismatch_callback(raw_elem, **kwargs):
                 values.convert_value(vr, raw_elem)
             except ValueError:
                 pass
+            except TypeError:
+                continue
             else:
                 raw_elem = raw_elem._replace(VR=vr)
     return raw_elem
