@@ -124,6 +124,20 @@ def view_data(db_json=None, user_query=None):
     time_taken = round(time.time()-view_time, 2)
     logging.info('Spent {} seconds viewing the data of {}.'.format(time_taken, db_json))
 
+def load_labs_data():
+    '''
+    A buffer function between main and load_data functions for labs data.
+    '''
+    global total_data
+    global UserName
+    global PassCode
+
+    now = datetime.now()
+    logging.info('Loading Labs Data')
+    logging.info(now.strftime('%Y-%m-%d %H:%M:%S'))
+
+    load_data(url=LabsURL, user=UserName, passcode=PassCode, db_json='labs_json', first_index='lab_date', second_index='empi')
+
 def load_meds_data():
     '''
     A buffer function between main and load_data functions for meds data.
@@ -137,6 +151,20 @@ def load_meds_data():
     logging.info(now.strftime('%Y-%m-%d %H:%M:%S'))
 
     load_data(url=MedsURL, user=UserName, passcode=PassCode, db_json='meds_json', first_index='update_dt_tm', second_index='empi')
+
+def load_orders_data():
+    '''
+    A buffer function between main and load_data functions for orders data.
+    '''
+    global total_data
+    global UserName
+    global PassCode
+
+    now = datetime.now()
+    logging.info('Loading Orders Data')
+    logging.info(now.strftime('%Y-%m-%d %H:%M:%S'))
+    
+    load_data(url=OrdersURL, user=UserName, passcode=PassCode, db_json='orders_json', first_index='completed_dt_tm', second_index='empi')
 
 def print_function():
     now = datetime.now()
@@ -181,7 +209,9 @@ if __name__ == "__main__":
     db = client.database
     total_data = []
 
+    schedule.every(Meds_ExtractionFrequency).minutes.do(run_threaded, load_labs_data)
     schedule.every(Meds_ExtractionFrequency).minutes.do(run_threaded, load_meds_data)
+    schedule.every(Meds_ExtractionFrequency).minutes.do(run_threaded, load_orders_data)
 
     while True:
         schedule.run_pending()
