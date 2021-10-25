@@ -35,6 +35,7 @@ import pdb
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 
+# Data Loading Function
 def load_data(url, user, passcode, db_json=None, first_index=None, second_index=None):
     '''
     Loads the json data from labs, meds and orders into corresponsing MongoDB Collection.
@@ -75,6 +76,39 @@ def load_data(url, user, passcode, db_json=None, first_index=None, second_index=
     time_taken = round(time.time()-load_time, 2)
     logging.info('Spent {} seconds loading data into {}.'.format(time_taken, db_json))
 
+# Data Clearing Function
+def clear_data(db_json=None):
+    '''
+    Clears the data which is older than one day from MongoDB Collection.
+    '''
+    # Parameters:
+    # 1. db_json - Name of the MongoDB Collection.
+
+    clear_time = time.time()
+    data_collection = db[db_json]
+    cursor = data_collection.find({})
+
+    if db_json == 'labs_json':
+        date_column = 'lab_date'
+    elif db_json == 'meds_json':
+        date_column = 'update_dt_tm'
+    elif db_json == 'orders_json':
+        date_column = 'completed_dt_tm'
+
+    for document in cursor:
+        previous_time = datetime.now()-timedelta(days=1)
+        previous_date = previous_time.date()
+
+        item_date = datetime.strptime(document[date_column], '%Y-%m-%dT%H:%M:%SZ').date()
+        diff_time = previous_date-item_date
+
+        if (diff_time.total_seconds()>=0):
+            data_collection.delete_one(document)
+
+    time_taken = round(time.time()-clear_time, 2)
+    logging.info('Spent {} seconds clearing the data from {}.'.format(time_taken, db_json))
+
+# Data Viewing and Filtering Function
 def view_data(db_json=None, user_query=None):
     '''
     Display the shape, outliers and value counts of the dataframe.
@@ -166,6 +200,33 @@ def load_orders_data():
     
     load_data(url=OrdersURL, user=UserName, passcode=PassCode, db_json='orders_json', first_index='completed_dt_tm', second_index='empi')
 
+def clear_labs_data():
+    '''
+    A buffer function between main and clear_data functions for labs data.
+    '''
+    now = datetime.now()
+    logging.info('Clearing Labs Data')
+    logging.info(now.strftime('%Y-%m-%d %H:%M:%S'))
+    clear_data(db_json='labs_json')
+
+def clear_meds_data():
+    '''
+    A buffer function between main and clear_data functions for meds data.
+    '''
+    now = datetime.now()
+    logging.info('Clearing Meds Data')
+    logging.info(now.strftime('%Y-%m-%d %H:%M:%S'))
+    clear_data(db_json='meds_json')
+
+def clear_orders_data():
+    '''
+    A buffer function between main and clear_data functions for orders data.
+    '''
+    now = datetime.now()
+    logging.info('Clearing Orders Data')
+    logging.info(now.strftime('%Y-%m-%d %H:%M:%S'))
+    clear_data(db_json='orders_json')
+
 def print_function():
     now = datetime.now()
     print ('Time - {}'.format(now))
@@ -212,6 +273,10 @@ if __name__ == "__main__":
     schedule.every(Meds_ExtractionFrequency).minutes.do(run_threaded, load_labs_data)
     schedule.every(Meds_ExtractionFrequency).minutes.do(run_threaded, load_meds_data)
     schedule.every(Meds_ExtractionFrequency).minutes.do(run_threaded, load_orders_data)
+
+    schedule.every(1).day.at("03:00").do(run_threaded, clear_labs_data)
+    schedule.every(1).day.at("03:15").do(run_threaded, clear_meds_data)
+    schedule.every(1).day.at("03:25").do(run_threaded, clear_orders_data)
 
     while True:
         schedule.run_pending()
