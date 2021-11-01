@@ -23,7 +23,7 @@ def modality_split(cold_extraction_path, modality_split_path):
                 shutil.copy2(src=cold_extraction_path+str(dcm_path), dst=modality_split_path+str(dcm_modality)+'/'+str(dcm_only_folder)+'/'+str(dcm_path.split('/')[-1]))
 
 if __name__ == "__main__":
-    cold_extraction_path = '/home/aredd30/larynx_extract/cold_extraction/' # sys.argv[1]
-    modality_split_path = '/home/aredd30/larynx_extract/modality_split/' # sys.argv[2]
+    cold_extraction_path = sys.argv[1]
+    modality_split_path = sys.argv[2]
     print ('Starting Modality Grouping')
     modality_split(cold_extraction_path, modality_split_path)
