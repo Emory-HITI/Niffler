@@ -144,9 +144,9 @@ def extract_headers(f_list_elem):
     except:
         c = False
     kv = get_tuples(plan)       # gets tuple for field,val pairs for this file. function defined above
-    # dicom images should not have more than 300
+    # dicom images should not have more than 300 dicom tags
     if len(kv)>500:
-        logging.debug(str(len(kv)) + " dicoms produced by " + ff)
+        logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
     kv.append(('file', f_list_elem[1])) # adds my custom field with the original filepath
     kv.append(('has_pix_array',c))   # adds my custom field with if file has image
     if c:
