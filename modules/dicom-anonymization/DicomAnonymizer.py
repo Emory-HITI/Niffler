@@ -15,27 +15,25 @@ import pathlib
 import pickle
 
 
-# def get_dcm_folders(dcm_root_dir):
-#     # get all folders
-#     print('getting all dcm folders')
-#     # speeding it up by checking files within each folder at the start
-#     dcm_flds = []
-#     for x in os.walk(dcm_root_dir):
-#         folder = x[0]
-#         # rejecting some folders that isn't in the accession list (HCC specific)
-#         if 'bk' in folder or 'March5' in folder:
-#             continue
-#         try:
-#             # assumes that all files in the study folder is dcm files
-#             if 'dcm' in os.listdir(folder)[0]:
-#                 dcm_flds.append(folder)
-#         except:
-#             print('no dcm files in folder, skipping')
-#             continue
-#     return dcm_flds
-def get_dcm_paths(dcm_root_dir):
-    paths = glob.glob(os.path.join(dcm_root_dir, "/**/*.dcm"), recursive=True)
-    return paths
+def get_dcm_folders(dcm_root_dir):
+    # get all folders
+    print('getting all dcm folders')
+    # speeding it up by checking files within each folder at the start
+    dcm_flds = []
+    for x in os.walk(dcm_root_dir):
+        folder = x[0]
+        # rejecting some folders that isn't in the accession list (HCC specific)
+        if 'bk' in folder or 'March5' in folder:
+            continue
+        try:
+            # assumes that all files in the study folder is dcm files
+            if 'dcm' in os.listdir(folder)[0]:
+                dcm_flds.append(folder)
+        except:
+            print('no dcm files in folder, skipping')
+            continue
+    return dcm_flds
+
 
 
 # randomly anonymizes the input id
