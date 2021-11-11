@@ -172,7 +172,6 @@ def extract_images(filedata, i, nifti_destination, flattened_to_level, failed, i
     filemapping = ""
     fail_path = ""
     try:
-        imName=os.path.split(filedata.iloc[i].loc['file'])[1][:-4] # get file name ex: IM-0107-0022
         if flattened_to_level == 'patient':
             ID = filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
@@ -188,6 +187,7 @@ def extract_images(filedata, i, nifti_destination, flattened_to_level, failed, i
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(nifti_destination + folderName,exist_ok=True)
+            imName = hashlib.sha224(filedata.iloc[i].loc['SeriesDescription'].encode('utf-8')).hexdigest() 
         else:
             ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             try:
@@ -202,8 +202,7 @@ def extract_images(filedata, i, nifti_destination, flattened_to_level, failed, i
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(nifti_destination + folderName,exist_ok=True)
 
-
-        niftifile = nifti_destination+folderName + '/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.nii.gz'
+        niftifile = nifti_destination+folderName + '/' + imName + '.nii.gz'
         dicom2nifti.dicom_series_to_nifti(str(filedata.iloc[i].loc['file']),niftifile)
         filemapping = filedata.iloc[i].loc['file'] + ',' + niftifile + '\n'
     except AttributeError as error:
@@ -305,15 +304,9 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         #get all the patient folders
         patient_dict = {}
         volume_list  =[]
-        for patient_path  in glob.glob(f'{dicom_home}/*'): #is unique 
-            patient = patient_path.split('/')[-1]
-            patient_studies = {} 
-            for study_path in glob.glob(f"{dicom_home}/{patient}/*"): #is unique 
-                study = study_path.split('/')[-1]
-                volume_list.extend( [ e for e in glob.glob(f"{dicom_home}/{patient}/{study}/*") ] )
-                #patient_studies[study] = volume_dict 
-            #patient_dict[patient] = patient_studies
-        #pickle.dump(patient_dict,open(dict_pickle_file,'wb')) # todo change this to be a list of files names instead. 
+        volume_list  = glob.glob(f'{dicom_home}/**/*.dcm',recursive=True)
+        volume_list = set([os.path.split(e)[0] for e in volume_list])
+        volume_list = list(volume_list)
     file_chunks = np.array_split(volume_list,no_splits)
     logging.info('Number of dicom files: ' + str(len(filelist)))
     try:
