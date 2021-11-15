@@ -145,7 +145,7 @@ def extract_headers(f_list_elem):
         c = False
     kv = get_tuples(plan)       # gets tuple for field,val pairs for this file. function defined above
     # dicom images should not have more than 300 dicom tags
-    if len(kv)>500:
+    if len(kv)>300:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
     kv.append(('file', f_list_elem[1])) # adds my custom field with the original filepath
     kv.append(('has_pix_array',c))   # adds my custom field with if file has image
@@ -184,7 +184,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             except:
                 ID2='ALL-STUDIES'
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
-                         hashlib.sha224(ID2.encode('utf-8')).hexdigest()
+                        hashlib.sha224(ID2.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(png_destination + folderName,exist_ok=True)
         else:
@@ -196,8 +196,8 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
                 ID2='ALL-STUDIES'
                 ID3='ALL-SERIES'
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
-                         hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + \
-                         hashlib.sha224(ID3.encode('utf-8')).hexdigest()
+                        hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + \
+                        hashlib.sha224(ID3.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(png_destination + folderName,exist_ok=True)
 
@@ -379,14 +379,15 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
             total = len(chunk)
             stamp = time.time()
             for i in range(len(filedata)):
-                (fmap,fail_path,err) = extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit)
-                if err:
-                    count +=1
-                    copyfile(fail_path[0],fail_path[1])
-                    err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
-                    logging.error(err_msg)
-                else:
-                    fm.write(fmap)
+                if (filedata.iloc[i].loc['file'] is not np.nan):
+                    (fmap,fail_path,err) = extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit)
+                    if err:
+                        count +=1
+                        copyfile(fail_path[0],fail_path[1])
+                        err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
+                        logging.error(err_msg)
+                    else:
+                        fm.write(fmap)
         fm.close()
         logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
@@ -432,7 +433,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
     merged_meta = pd.concat(meta_list,ignore_index=True)
     merged_meta.to_csv('{}/metadata.csv'.format(output_directory),index=False)
     # getting a single mapping file
-    logging.info('Generatign final mapping file')
+    logging.info('Generating final mapping file')
     mappings = glob.glob("{}/maps/*.csv".format(output_directory))
     map_list = list()
     for mapping in mappings:
