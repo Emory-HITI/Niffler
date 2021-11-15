@@ -184,7 +184,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             except:
                 ID2='ALL-STUDIES'
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
-                        hashlib.sha224(ID2.encode('utf-8')).hexdigest()
+                         hashlib.sha224(ID2.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(png_destination + folderName,exist_ok=True)
         else:
@@ -196,8 +196,8 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
                 ID2='ALL-STUDIES'
                 ID3='ALL-SERIES'
             folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
-                        hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + \
-                        hashlib.sha224(ID3.encode('utf-8')).hexdigest()
+                         hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + \
+                         hashlib.sha224(ID3.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(png_destination + folderName,exist_ok=True)
 
