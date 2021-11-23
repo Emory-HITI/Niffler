@@ -175,6 +175,10 @@ def extract_images(filedata, i, nifti_destination, flattened_to_level, failed, i
         if flattened_to_level == 'patient':
             ID = filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
+            #get the path to the directory containing dicom images 
+            imFold  = os.path.normpath(filedata.iloc[i].loc['file'] )
+            # make sure to only get the direcotry part. Corresponding to seriesID
+            imFold = imFold.split('/')[-1] 
             # check for existence of patient folder. Create if it does not exist.
             os.makedirs(nifti_destination + folderName,exist_ok=True)
         elif flattened_to_level == 'study':
@@ -187,7 +191,6 @@ def extract_images(filedata, i, nifti_destination, flattened_to_level, failed, i
                          hashlib.sha224(ID2.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(nifti_destination + folderName,exist_ok=True)
-            imName = hashlib.sha224(filedata.iloc[i].loc['SeriesDescription'].encode('utf-8')).hexdigest() 
         else:
             ID1=filedata.iloc[i].loc['PatientID']  # Unique identifier for the Patient.
             try:
@@ -201,9 +204,9 @@ def extract_images(filedata, i, nifti_destination, flattened_to_level, failed, i
                          hashlib.sha224(ID3.encode('utf-8')).hexdigest()
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(nifti_destination + folderName,exist_ok=True)
+        folderHash = hashlib.sha224(folderName.encode('utf-8')).hexdigest()
 
-
-        niftifile = nifti_destination+folderName + '/' ID1 +'_' +ID2 +'_' +ID3 + '.nii.gz'
+        niftifile = nifti_destination+folderName + '/' +  folderHash + 'nii.gz'
         dicom2nifti.dicom_series_to_nifti(str(filedata.iloc[i].loc['file']),niftifile)
         filemapping = filedata.iloc[i].loc['file'] + ',' + niftifile + '\n'
     except AttributeError as error:
@@ -297,17 +300,14 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
     if False : #os.path.isfile(pickle_file):
         with open(pickle_file,'rb') as f: 
             filelist=pickle.load(f)
-        with open(dict_pickle_file,'rb') as f: 
-            patient_dict = pickle.load(f)
     else:
         filelist=glob.glob(file_path, recursive=True) # search the folders at the depth we request and finds all dicoms
-        pickle.dump(filelist,open(pickle_file,'wb'))
+        with open(pickle_file,'wb') as pickle_writter: 
+            pickle.dump(filelist,pickle_writter)
         #get all the patient folders
-        patient_dict = {}
-        volume_list  =[]
-        volume_list  = glob.glob(f'{dicom_home}/**/*.dcm',recursive=True)
-        volume_list = set([os.path.split(e)[0] for e in volume_list])
-        volume_list = list(volume_list)
+    volume_list  = glob.glob(f'{dicom_home}/**/*.dcm',recursive=True)
+    volume_list = set([os.path.split(e)[0] for e in volume_list])
+    volume_list = list(volume_list)
     file_chunks = np.array_split(volume_list,no_splits)
     logging.info('Number of dicom files: ' + str(len(filelist)))
     try:
@@ -356,7 +356,6 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # writting of log handled by main process
         if print_images:
             logging.info("Start processing Images")
-            pokemon = open('fail_log.txt','w')
             filedata = data
             total = len(chunk)
             stamp = time.time()
@@ -365,12 +364,11 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
                 if err:
                     count +=1
                     #copyfile(fail_path[0],fail_path[1])
-                    print(f"err:{fail_path[1]}@{fail_path[0]}",file=pokemon)
                     err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
                     logging.error(err_msg)
+                    logging.error(f"err:{fail_path[1]}@{fail_path[0]}")
                 else:
                     fm.write(fmap)
-            pokemon.close()
         fm.close()
         logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
