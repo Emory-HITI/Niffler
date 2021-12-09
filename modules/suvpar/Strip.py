@@ -25,11 +25,13 @@ def initialize():
 
 def strip():
     global df
-    # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
-    df = df[df.Modality == "MR"]
-    # Consider only the ImageType that are true.
-    df = df[df['ImageType'].str.contains("ORIGINAL")]
-
+    try:
+        # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
+        df = df[df.Modality == "MR"]
+        # Consider only the ImageType that are true.
+        df = df[df['ImageType'].str.contains("ORIGINAL")]
+    except ValueError:
+        logging.exception("Empty entry detected")
 
 def write():
     df.to_csv(output_csv)
