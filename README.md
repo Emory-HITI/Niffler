@@ -4,7 +4,7 @@ Niffler is a lightweight framework to facilitate executing machine learning pipe
 
 The Niffler framework consists of:
 - On-demand and real-time retrieval and processing of DICOM images from the PACS environment configured to accept requests from a deployment of Niffler.
-- Acquisition and processing of clinical data from a RIS.
+- Acquisition and processing of clinical data from a RIS, to enable real-time analytics (RTA).
 - Supportive utility functions such as DICOM → PNG conversion, DICOM → NifTi conversion, DICOM anonymization, and a workflow module.
 - Sample applications of the Niffler modules.
 
