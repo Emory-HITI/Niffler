@@ -7,6 +7,7 @@ df = {}
 output_csv = {}
 drop = True
 
+
 def initialize():
     global output_csv, df
     with open('config.json', 'r') as f:
@@ -62,6 +63,13 @@ def strip():
     df['StudyEndTime'] = pandas.to_datetime(df['StudyEndTime'])
     df['StudyDurationInMins'] = (df.StudyEndTime - df.StudyStartTime).dt.seconds / 60.0
 
+    df = df.join(df.groupby('PatientID')['AcquisitionDateTime'].aggregate(['min', 'max']), on='PatientID')
+    df.rename(columns={'min': 'PatientStartTime'}, inplace=True)
+    df.rename(columns={'max': 'PatientEndTime'}, inplace=True)
+    df['PatientStartTime'] = pandas.to_datetime(df['StudyStartTime'])
+    df['PatientEndTime'] = pandas.to_datetime(df['StudyEndTime'])
+    df['PatientDurationInMins'] = (df.PatientEndTime - df.PatientStartTime).dt.seconds / 60.0
+
     df = df.join(df.groupby('DeviceSerialNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
                  on='DeviceSerialNumber')
     # Estimating the last scan as the scanner off.
@@ -71,8 +79,8 @@ def strip():
     df['ScannerOff'] = pandas.to_datetime(df['ScannerOff'])
     df['ScannerTotalOnTimeInMins'] = (df.ScannerOff - df.ScannerOn).dt.seconds / 60.0
 
-    # Sort by "DeviceSerialNumber", then "AccessionNumber", and finally "SeriesInstanceUID"
-    df = df.sort_values(["DeviceSerialNumber", "AccessionNumber", "SeriesInstanceUID"])
+    # Sort by "DeviceSerialNumber" and "SeriesStartTime"
+    df = df.sort_values(["DeviceSerialNumber", "SeriesStartTime"])
 
 
 def write():
