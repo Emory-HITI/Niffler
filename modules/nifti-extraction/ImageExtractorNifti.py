@@ -202,7 +202,8 @@ def extract_images(filedata, i, nifti_destination, flattened_to_level, failed, i
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(nifti_destination + folderName,exist_ok=True)
 
-        niftifile = nifti_destination+folderName + '/' + imName + '.nii.gz'
+
+        niftifile = nifti_destination+folderName + '/' ID1 +'_' +ID2 +'_' +ID3 + '.nii.gz'
         dicom2nifti.dicom_series_to_nifti(str(filedata.iloc[i].loc['file']),niftifile)
         filemapping = filedata.iloc[i].loc['file'] + ',' + niftifile + '\n'
     except AttributeError as error:

@@ -1,6 +1,6 @@
-# The Niffler PNG Extractor
+# The Niffler Nifti Extractor
 
-The PNG Extractor converts a set of DICOM images into png images, extract metadata in a privacy-preserving manner.
+The NIFTI Extractor converts a set of DICOM images into NIFTI images, extract metadata in a privacy-preserving manner.
 
 
 ## Configuring Niffler PNG Extractor
@@ -20,8 +20,6 @@ Find the config.json file in the folder and modify accordingly *for each* Niffle
 * *FlattenedToLevel*: Specify how you want your folder tree to be. Default is, "patient" (produces patient/*.png). 
   You may change this value to "study" (patient/study/*.png) or "series" (patient/study/series/*.png). All IDs are de-identified.
  
-* *is16Bit*:  Specifies whether to save extracted image as 16-bit  image. By default, this is set to true. Please set it to false to run 8-bit extraction.
-  
 * *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
 
 * *YourEmail*: Replace "test@test.test" with a valid email if you would like to receive an email notification. If the SendEmail property is disabled, you can leave this as is.
@@ -42,10 +40,10 @@ The below two fields can be left unmodified for most executions. The default val
 $ python3 ImageExtractor.py
 
 # With Nohup
-$ nohup python3 ImageExtractor.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+$ nohup python3 ImageExtractorNifti.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 
 # With Command Line Arguments
-$ nohup python3 ImageExtractor.py --DICOMHome "/opt/data/new-study" --Depth 0 --PrintImages true --SendEmail true > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+$ nohup python3 ImageExtractorNifti.py --DICOMHome "/opt/data/new-study" --Depth 0 --PrintImages true --SendEmail true > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
 ```
 Check that the extraction is going smooth with no errors, by,
 
@@ -65,12 +63,7 @@ In the OutputDirectory, there will be several sub folders and directories.
 
 * *extracted-images*: The folder that consists of extracted PNG images
 
-* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the PNG images upon the execution of the Niffler PNG Extractor. Failed DICOM images are stored in 4 sub-folders named 1, 2, 3, and 4, categorizing according to their failure reason.
-
-
-## Running the Niffler PNG Extractor with Slurm
-
-There is also an experimental PNG extractor implementation (ImageExtractorSlurm.py) that provides a distributed execution based on Slurm on a cluster.
+* *failed-dicom*: The folder that consists of the DICOM images that failed to produce the Nifti images upon the execution of the Niffler  Extractor. Failed DICOM images are stored in 4 sub-folders named 1, 2, 3, and 4, categorizing according to their failure reason.
 
 
 ## Troubleshooting

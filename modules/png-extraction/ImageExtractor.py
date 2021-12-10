@@ -145,7 +145,7 @@ def extract_headers(f_list_elem):
         c = False
     kv = get_tuples(plan)       # gets tuple for field,val pairs for this file. function defined above
     # dicom images should not have more than 300 dicom tags
-    if len(kv)>500:
+    if len(kv)>300:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
     kv.append(('file', f_list_elem[1])) # adds my custom field with the original filepath
     kv.append(('has_pix_array',c))   # adds my custom field with if file has image
@@ -205,6 +205,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
         pngfile = png_destination+folderName + '/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
         dicom_path = filedata.iloc[i].loc['file']
         image_path = png_destination+folderName+'/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
+        isRGB = filedata.iloc[i].loc['PhotometricInterpretation'] == 'RGB'
         if is16Bit:
             # write the PNG file as a 16-bit greyscale 
             image_2d = ds.pixel_array.astype(np.double) 
@@ -214,7 +215,10 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             shape = ds.pixel_array.shape
             image_2d_scaled = np.uint16(image_2d_scaled) 
             with open(pngfile , 'wb') as png_file:
-                    w = png.Writer(shape[1], shape[0], greyscale=True,bitdepth=16)
+                    if isRGB: 
+                        w = png.Writer(shape[1], shape[0], greyscale=False,bitdepth=16)
+                    else: 
+                        w = png.Writer(shape[1], shape[0], greyscale=True,bitdepth=16)
                     w.write(png_file, image_2d_scaled)
         else: 
             shape = ds.pixel_array.shape
@@ -226,7 +230,10 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             image_2d_scaled = np.uint8(image_2d_scaled)
             # Write the PNG file
             with open(pngfile , 'wb') as png_file:
-                    w = png.Writer(shape[1], shape[0], greyscale=True)
+                    if isRGB: 
+                        w = png.Writer(shape[1], shape[0], greyscale=False)
+                    else: 
+                        w = png.Writer(shape[1], shape[0], greyscale=True)
                     w.write(png_file, image_2d_scaled)
         filemapping = filedata.iloc[i].loc['file'] + ', ' + pngfile + '\n'
     except AttributeError as error:
@@ -379,14 +386,15 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
             total = len(chunk)
             stamp = time.time()
             for i in range(len(filedata)):
-                (fmap,fail_path,err) = extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit)
-                if err:
-                    count +=1
-                    copyfile(fail_path[0],fail_path[1])
-                    err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
-                    logging.error(err_msg)
-                else:
-                    fm.write(fmap)
+                if (filedata.iloc[i].loc['file'] is not np.nan):
+                    (fmap,fail_path,err) = extract_images(filedata, i, png_destination, flattened_to_level, failed, is16Bit)
+                    if err:
+                        count +=1
+                        copyfile(fail_path[0],fail_path[1])
+                        err_msg = str(count) + ' out of ' + str(len(chunk)) + ' dicom images have failed extraction'
+                        logging.error(err_msg)
+                    else:
+                        fm.write(fmap)
         fm.close()
         logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
 
@@ -432,7 +440,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
     merged_meta = pd.concat(meta_list,ignore_index=True)
     merged_meta.to_csv('{}/metadata.csv'.format(output_directory),index=False)
     # getting a single mapping file
-    logging.info('Generatign final mapping file')
+    logging.info('Generating final mapping file')
     mappings = glob.glob("{}/maps/*.csv".format(output_directory))
     map_list = list()
     for mapping in mappings:
