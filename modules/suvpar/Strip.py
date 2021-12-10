@@ -41,7 +41,11 @@ def strip():
     df = df.join(
         df.groupby('AccessionNumber')['AcquisitionTime'].aggregate(['min', 'max']),
         on='AccessionNumber')
+    df.rename(columns={'AcquisitionTime': 'AcquisitionDateTime'}, inplace=True)
+    df.rename(columns={'min': 'MinAcquisitionDateTime'}, inplace=True)
+    df.rename(columns={'max': 'MaxAcquisitionDateTime'}, inplace=True)
     df = df.drop_duplicates('AccessionNumber')
+    df = df.drop(columns=['AcquisitionDate'])
 
 
 def write():
