@@ -20,18 +20,24 @@ def initialize():
     feature_list = text_file.read().split('\n')
 
     df = pandas.read_csv(filename, usecols=lambda x: x in feature_list, sep=',')
-    logging.info(df['ImageType'])
 
 
 def strip():
     global df
-    try:
-        # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
-        df = df[df.Modality == "MR"]
-        # Consider only the ImageType that are true.
-        df = df[df['ImageType'].str.contains("ORIGINAL")]
-    except ValueError:
-        logging.exception("Empty entry detected")
+    # Drop entries without an ImageType, AcquisitionTime, or an AccessionNumber entry.
+    df.dropna(subset=["ImageType"], inplace=True)
+    df.dropna(subset=["AccessionNumber"], inplace=True)
+    df.dropna(subset=["AcquisitionTime"], inplace=True)
+    # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
+    df = df[df['ImageType'].str.contains("ORIGINAL")]
+    df = df[df.Modality == "MR"]
+    # Consider only the ImageType that are ORIGINAL.
+    df['AcquisitionTime'] = pandas.to_datetime(df['AcquisitionTime'], format='%H%M%S')
+    df = df.join(
+        df.groupby('AccessionNumber')['AcquisitionTime'].aggregate(['min', 'max']),
+        on='AccessionNumber')
+    df = df.drop_duplicates('AccessionNumber')
+
 
 def write():
     df.to_csv(output_csv)
