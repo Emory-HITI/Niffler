@@ -56,6 +56,16 @@ def strip():
     df.rename(columns={'min': 'StudyStartTime'}, inplace=True)
     df.rename(columns={'max': 'StudyEndTime'}, inplace=True)
 
+    df = df.join(df.groupby('DeviceSerialNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
+                 on='DeviceSerialNumber')
+    # Estimating the last scan as the scanner off.
+    df.rename(columns={'min': 'ScannerOn'}, inplace=True)
+    df.rename(columns={'max': 'ScannerOff'}, inplace=True)
+    df['ScannerOn'] = pandas.to_datetime(df['ScannerOn'])
+    df['ScannerOff'] = pandas.to_datetime(df['ScannerOff'])
+    df['ScannerTotalOnTimeInMins'] = (df.ScannerOff - df.ScannerOn).dt.seconds / 60.0
+
+    # Sort by "DeviceSerialNumber", then "AccessionNumber", and finally "SeriesInstanceUID"
     df = df.sort_values(["DeviceSerialNumber", "AccessionNumber", "SeriesInstanceUID"])
 
 
