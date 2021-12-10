@@ -56,6 +56,8 @@ def strip():
     df.rename(columns={'min': 'StudyStartTime'}, inplace=True)
     df.rename(columns={'max': 'StudyEndTime'}, inplace=True)
 
+    df = df.sort_values(["DeviceSerialNumber", "AccessionNumber", "SeriesInstanceUID"])
+
 
 def write():
     df.to_csv(output_csv)
