@@ -5,7 +5,7 @@ import json
 logging.basicConfig(level=logging.INFO)
 df = {}
 output_csv = {}
-
+drop = True
 
 def initialize():
     global output_csv, df
@@ -24,9 +24,11 @@ def initialize():
 
 def strip():
     global df
-    # Drop entries without an ImageType, AcquisitionTime, AcquisitionDate, AccessionNumber, or DeviceSerialNumber entry.
+    # Drop entries without an ImageType, AcquisitionTime, SeriesInstanceUID,
+    # AcquisitionDate, AccessionNumber, or DeviceSerialNumber entry.
     df.dropna(subset=["ImageType"], inplace=True)
     df.dropna(subset=["AccessionNumber"], inplace=True)
+    df.dropna(subset=["SeriesInstanceUID"], inplace=True)
     df.dropna(subset=["AcquisitionTime"], inplace=True)
     df.dropna(subset=["AcquisitionDate"], inplace=True)
     df.dropna(subset=["DeviceSerialNumber"], inplace=True)
@@ -34,18 +36,25 @@ def strip():
     df = df[df['ImageType'].str.contains("ORIGINAL")]
     # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
     df = df[df.Modality == "MR"]
-    # Ignore milliseconds
-    df['AcquisitionTime'] = df['AcquisitionDate'].astype(int).astype(str) + \
-                            df['AcquisitionTime'].astype(int).astype(str)
-    df['AcquisitionTime'] = pandas.to_datetime(df['AcquisitionTime'], format='%Y%m%d%H%M%S')
+    df['AcquisitionDateTime'] = df['AcquisitionDate'].astype(int).astype(str) + \
+                            df['AcquisitionTime'].astype(float).astype(str)
+    df['AcquisitionDateTime'] = pandas.to_datetime(df['AcquisitionDateTime'], format='%Y%m%d%H%M%S.%f')
+    df['AcquisitionDateTime'] = df['AcquisitionDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
     df = df.join(
-        df.groupby('AccessionNumber')['AcquisitionTime'].aggregate(['min', 'max']),
-        on='AccessionNumber')
-    df.rename(columns={'AcquisitionTime': 'AcquisitionDateTime'}, inplace=True)
-    df.rename(columns={'min': 'MinAcquisitionDateTime'}, inplace=True)
-    df.rename(columns={'max': 'MaxAcquisitionDateTime'}, inplace=True)
-    df = df.drop_duplicates('AccessionNumber')
-    df = df.drop(columns=['AcquisitionDate'])
+        df.groupby('SeriesInstanceUID')['AcquisitionDateTime'].aggregate(['min', 'max']),
+        on='SeriesInstanceUID')
+    df.rename(columns={'min': 'SeriesStartTime'}, inplace=True)
+    df.rename(columns={'max': 'SeriesEndTime'}, inplace=True)
+
+    if drop:
+        # Keep only one instance per series. 322,866 rows drops to 3,656 in a tested sample, by this step.
+        df = df.drop_duplicates('SeriesInstanceUID')
+        df = df.drop(columns=['AcquisitionDate'])
+        df = df.drop(columns=['AcquisitionTime'])
+
+    df = df.join(df.groupby('AccessionNumber')['AcquisitionDateTime'].aggregate(['min', 'max']), on='AccessionNumber')
+    df.rename(columns={'min': 'StudyStartTime'}, inplace=True)
+    df.rename(columns={'max': 'StudyEndTime'}, inplace=True)
 
 
 def write():
