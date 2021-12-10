@@ -45,6 +45,9 @@ def strip():
         on='SeriesInstanceUID')
     df.rename(columns={'min': 'SeriesStartTime'}, inplace=True)
     df.rename(columns={'max': 'SeriesEndTime'}, inplace=True)
+    df['SeriesStartTime'] = pandas.to_datetime(df['SeriesStartTime'])
+    df['SeriesEndTime'] = pandas.to_datetime(df['SeriesEndTime'])
+    df['SeriesDurationInMins'] = (df.SeriesEndTime - df.SeriesStartTime).dt.seconds / 60.0
 
     if drop:
         # Keep only one instance per series. 322,866 rows drops to 3,656 in a tested sample, by this step.
@@ -55,6 +58,9 @@ def strip():
     df = df.join(df.groupby('AccessionNumber')['AcquisitionDateTime'].aggregate(['min', 'max']), on='AccessionNumber')
     df.rename(columns={'min': 'StudyStartTime'}, inplace=True)
     df.rename(columns={'max': 'StudyEndTime'}, inplace=True)
+    df['StudyStartTime'] = pandas.to_datetime(df['StudyStartTime'])
+    df['StudyEndTime'] = pandas.to_datetime(df['StudyEndTime'])
+    df['StudyDurationInMins'] = (df.StudyEndTime - df.StudyStartTime).dt.seconds / 60.0
 
     df = df.join(df.groupby('DeviceSerialNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
                  on='DeviceSerialNumber')
