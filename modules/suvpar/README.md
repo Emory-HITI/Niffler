@@ -20,5 +20,5 @@ Find the config.json file in the folder and modify accordingly.
 First, to run the script to trim the file.
 
 ````
-$ python3 Strip.py
+$ python3 Suvpar.py
 ````

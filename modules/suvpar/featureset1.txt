@@ -21,3 +21,4 @@ AcquisitionDuration
 Modality
 Manufacturer
 ManufacturerModelName
+SeriesInstanceUID

@@ -45,3 +45,4 @@ SAR
 Modality
 Manufacturer
 ManufacturerModelName
+SeriesInstanceUID
