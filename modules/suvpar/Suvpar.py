@@ -1,6 +1,7 @@
 import pandas
 import logging
 import json
+import numpy
 
 logging.basicConfig(level=logging.INFO)
 df = {}
@@ -32,11 +33,16 @@ def strip():
     df.dropna(subset=["SeriesInstanceUID"], inplace=True)
     df.dropna(subset=["AcquisitionTime"], inplace=True)
     df.dropna(subset=["AcquisitionDate"], inplace=True)
+    df.dropna(subset=["SeriesTime"], inplace=True)
+    df.dropna(subset=["SeriesDate"], inplace=True)
     df.dropna(subset=["DeviceSerialNumber"], inplace=True)
     # Consider only the ImageType that are ORIGINAL.
     df = df[df['ImageType'].str.contains("ORIGINAL")]
     # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
     df = df[df.Modality == "MR"]
+
+    # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips scanners.
+    df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|GE'), True, False)
 
     # Add computed non-DICOM fields and drop a few attributes, if we are producing a final_csv and not an intermediate.
     if final_csv:
@@ -44,11 +50,27 @@ def strip():
                                 df['AcquisitionTime'].astype(float).astype(str)
         df['AcquisitionDateTime'] = pandas.to_datetime(df['AcquisitionDateTime'], format='%Y%m%d%H%M%S.%f')
         df['AcquisitionDateTime'] = df['AcquisitionDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
+
+        df['SeriesDateTime'] = df['SeriesDate'].astype(int).astype(str) + \
+                                df['SeriesTime'].astype(float).astype(str)
+        df['SeriesDateTime'] = pandas.to_datetime(df['SeriesDateTime'], format='%Y%m%d%H%M%S.%f')
+        df['SeriesDateTime'] = df['SeriesDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
+
+        df = df.join(
+            df.groupby('SeriesInstanceUID')['SeriesDateTime'].aggregate(['min', 'max']),
+            on='SeriesInstanceUID')
+        df.rename(columns={'min': 'TSeriesStartTime'}, inplace=True)
+        df.rename(columns={'max': 'TSeriesEndTime'}, inplace=True)
+
         df = df.join(
             df.groupby('SeriesInstanceUID')['AcquisitionDateTime'].aggregate(['min', 'max']),
             on='SeriesInstanceUID')
-        df.rename(columns={'min': 'SeriesStartTime'}, inplace=True)
-        df.rename(columns={'max': 'SeriesEndTime'}, inplace=True)
+        df.rename(columns={'min': 'TAcquisitionStartTime'}, inplace=True)
+        df.rename(columns={'max': 'TAcquisitionEndTime'}, inplace=True)
+
+        df['SeriesStartTime'] = df['TSeriesStartTime'] * df['AltCase'] + df['TAcquisitionStartTime'] * ~df['AltCase']
+        df['SeriesEndTime'] = df['TAcquisitionEndTime'] * df['AltCase'] + df['TSeriesEndTime'] * ~df['AltCase']
+
         df['SeriesStartTime'] = pandas.to_datetime(df['SeriesStartTime'])
         df['SeriesEndTime'] = pandas.to_datetime(df['SeriesEndTime'])
 
@@ -59,6 +81,10 @@ def strip():
         df = df.drop_duplicates('SeriesInstanceUID')
         df = df.drop(columns=['AcquisitionDate'])
         df = df.drop(columns=['AcquisitionTime'])
+        df = df.drop(columns=['TAcquisitionStartTime'])
+        df = df.drop(columns=['TAcquisitionEndTime'])
+        df = df.drop(columns=['TSeriesStartTime'])
+        df = df.drop(columns=['TSeriesEndTime'])
 
         # Compute min and max times for the scan duration at various levels.
         df = df.join(df.groupby('AccessionNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
