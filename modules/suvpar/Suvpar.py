@@ -24,7 +24,7 @@ def initialize():
     df = pandas.read_csv(filename, usecols=lambda x: x in feature_list, sep=',')
 
 
-def strip():
+def suvpar():
     global df
     # Drop entries without an ImageType, AcquisitionTime, SeriesInstanceUID,
     # AcquisitionDate, AccessionNumber, or DeviceSerialNumber entry.
@@ -57,7 +57,7 @@ def strip():
         df['SeriesDateTime'] = df['SeriesDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
 
         # Compute min and max times for the scan duration at various levels.
-        # Series Level
+        # (1) Series Level
         df = df.join(
             df.groupby('SeriesInstanceUID')['SeriesDateTime'].aggregate(['min', 'max']),
             on='SeriesInstanceUID')
@@ -88,38 +88,86 @@ def strip():
         df = df.drop(columns=['TSeriesStartTime'])
         df = df.drop(columns=['TSeriesEndTime'])
 
-        # Study/Accession Level
-        df = df.join(df.groupby('AccessionNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
-                     on='AccessionNumber')
-        df.rename(columns={'min': 'StudyStartTime'}, inplace=True)
-        df.rename(columns={'max': 'StudyEndTime'}, inplace=True)
+        # (2) Study/Accession Level
+        df = df.join(
+            df.groupby('AccessionNumber')['SeriesDateTime'].aggregate(['min', 'max']),
+            on='AccessionNumber')
+        df.rename(columns={'min': 'TSeriesStartTime'}, inplace=True)
+        df.rename(columns={'max': 'TSeriesEndTime'}, inplace=True)
+
+        df = df.join(
+            df.groupby('AccessionNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
+            on='AccessionNumber')
+        df.rename(columns={'min': 'TAcquisitionStartTime'}, inplace=True)
+        df.rename(columns={'max': 'TAcquisitionEndTime'}, inplace=True)
+
+        df['StudyStartTime'] = df['TSeriesStartTime'] * df['AltCase'] + df['TAcquisitionStartTime'] * ~df['AltCase']
+        df['StudyEndTime'] = df['TAcquisitionEndTime'] * df['AltCase'] + df['TSeriesEndTime'] * ~df['AltCase']
+
         df['StudyStartTime'] = pandas.to_datetime(df['StudyStartTime'])
         df['StudyEndTime'] = pandas.to_datetime(df['StudyEndTime'])
 
         # Compute study duration in minutes
         df['StudyDurationInMins'] = (df.StudyEndTime - df.StudyStartTime).dt.seconds / 60.0
 
-        # Patient Level
-        df = df.join(df.groupby('PatientID')['AcquisitionDateTime'].aggregate(['min', 'max']), on='PatientID')
-        df.rename(columns={'min': 'PatientStartTime'}, inplace=True)
-        df.rename(columns={'max': 'PatientEndTime'}, inplace=True)
+        df = df.drop(columns=['TAcquisitionStartTime'])
+        df = df.drop(columns=['TAcquisitionEndTime'])
+        df = df.drop(columns=['TSeriesStartTime'])
+        df = df.drop(columns=['TSeriesEndTime'])
+
+        # (3) Patient Level
+        df = df.join(
+            df.groupby('PatientID')['SeriesDateTime'].aggregate(['min', 'max']),
+            on='PatientID')
+        df.rename(columns={'min': 'TSeriesStartTime'}, inplace=True)
+        df.rename(columns={'max': 'TSeriesEndTime'}, inplace=True)
+
+        df = df.join(
+            df.groupby('PatientID')['AcquisitionDateTime'].aggregate(['min', 'max']),
+            on='PatientID')
+        df.rename(columns={'min': 'TAcquisitionStartTime'}, inplace=True)
+        df.rename(columns={'max': 'TAcquisitionEndTime'}, inplace=True)
+
+        df['PatientStartTime'] = df['TSeriesStartTime'] * df['AltCase'] + df['TAcquisitionStartTime'] * ~df['AltCase']
+        df['PatientEndTime'] = df['TAcquisitionEndTime'] * df['AltCase'] + df['TSeriesEndTime'] * ~df['AltCase']
+
         df['PatientStartTime'] = pandas.to_datetime(df['StudyStartTime'])
         df['PatientEndTime'] = pandas.to_datetime(df['StudyEndTime'])
 
         # Compute patient duration in minutes
         df['PatientDurationInMins'] = (df.PatientEndTime - df.PatientStartTime).dt.seconds / 60.0
 
-        # Scanner Level
-        df = df.join(df.groupby('DeviceSerialNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
-                     on='DeviceSerialNumber')
-        # Estimating the last scan as the scanner off.
-        df.rename(columns={'min': 'ScannerOn'}, inplace=True)
-        df.rename(columns={'max': 'ScannerOff'}, inplace=True)
+        df = df.drop(columns=['TAcquisitionStartTime'])
+        df = df.drop(columns=['TAcquisitionEndTime'])
+        df = df.drop(columns=['TSeriesStartTime'])
+        df = df.drop(columns=['TSeriesEndTime'])
+
+        # (4) Scanner Level
+        df = df.join(
+            df.groupby('DeviceSerialNumber')['SeriesDateTime'].aggregate(['min', 'max']),
+            on='DeviceSerialNumber')
+        df.rename(columns={'min': 'TSeriesStartTime'}, inplace=True)
+        df.rename(columns={'max': 'TSeriesEndTime'}, inplace=True)
+
+        df = df.join(
+            df.groupby('DeviceSerialNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
+            on='DeviceSerialNumber')
+        df.rename(columns={'min': 'TAcquisitionStartTime'}, inplace=True)
+        df.rename(columns={'max': 'TAcquisitionEndTime'}, inplace=True)
+
+        df['ScannerOn'] = df['TSeriesStartTime'] * df['AltCase'] + df['TAcquisitionStartTime'] * ~df['AltCase']
+        df['ScannerOff'] = df['TAcquisitionEndTime'] * df['AltCase'] + df['TSeriesEndTime'] * ~df['AltCase']
+
         df['ScannerOn'] = pandas.to_datetime(df['ScannerOn'])
         df['ScannerOff'] = pandas.to_datetime(df['ScannerOff'])
 
         # Compute scanner on duration in minutes
         df['ScannerTotalOnTimeInMins'] = (df.ScannerOff - df.ScannerOn).dt.seconds / 60.0
+
+        df = df.drop(columns=['TAcquisitionStartTime'])
+        df = df.drop(columns=['TAcquisitionEndTime'])
+        df = df.drop(columns=['TSeriesStartTime'])
+        df = df.drop(columns=['TSeriesEndTime'])
 
         # Sort by "DeviceSerialNumber" and "SeriesStartTime"
         df = df.sort_values(["DeviceSerialNumber", "SeriesStartTime"])
@@ -131,5 +179,5 @@ def write():
 
 if __name__ == "__main__":
     initialize()
-    strip()
+    suvpar()
     write()
