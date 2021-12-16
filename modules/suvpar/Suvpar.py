@@ -56,14 +56,14 @@ def strip():
         df['SeriesDateTime'] = pandas.to_datetime(df['SeriesDateTime'], format='%Y%m%d%H%M%S.%f')
         df['SeriesDateTime'] = df['SeriesDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
 
+        # Compute min and max times for the scan duration at various levels.
+        # Series Level
         df = df.join(
             df.groupby('SeriesInstanceUID')['SeriesDateTime'].aggregate(['min', 'max']),
             on='SeriesInstanceUID')
         df.rename(columns={'min': 'TSeriesStartTime'}, inplace=True)
         df.rename(columns={'max': 'TSeriesEndTime'}, inplace=True)
 
-        # Compute min and max times for the scan duration at various levels.
-        # Series Level
         df = df.join(
             df.groupby('SeriesInstanceUID')['AcquisitionDateTime'].aggregate(['min', 'max']),
             on='SeriesInstanceUID')
