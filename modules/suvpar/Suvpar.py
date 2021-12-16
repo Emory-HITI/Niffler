@@ -62,6 +62,8 @@ def strip():
         df.rename(columns={'min': 'TSeriesStartTime'}, inplace=True)
         df.rename(columns={'max': 'TSeriesEndTime'}, inplace=True)
 
+        # Compute min and max times for the scan duration at various levels.
+        # Series Level
         df = df.join(
             df.groupby('SeriesInstanceUID')['AcquisitionDateTime'].aggregate(['min', 'max']),
             on='SeriesInstanceUID')
@@ -86,7 +88,7 @@ def strip():
         df = df.drop(columns=['TSeriesStartTime'])
         df = df.drop(columns=['TSeriesEndTime'])
 
-        # Compute min and max times for the scan duration at various levels.
+        # Study/Accession Level
         df = df.join(df.groupby('AccessionNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
                      on='AccessionNumber')
         df.rename(columns={'min': 'StudyStartTime'}, inplace=True)
@@ -97,6 +99,7 @@ def strip():
         # Compute study duration in minutes
         df['StudyDurationInMins'] = (df.StudyEndTime - df.StudyStartTime).dt.seconds / 60.0
 
+        # Patient Level
         df = df.join(df.groupby('PatientID')['AcquisitionDateTime'].aggregate(['min', 'max']), on='PatientID')
         df.rename(columns={'min': 'PatientStartTime'}, inplace=True)
         df.rename(columns={'max': 'PatientEndTime'}, inplace=True)
@@ -106,6 +109,7 @@ def strip():
         # Compute patient duration in minutes
         df['PatientDurationInMins'] = (df.PatientEndTime - df.PatientStartTime).dt.seconds / 60.0
 
+        # Scanner Level
         df = df.join(df.groupby('DeviceSerialNumber')['AcquisitionDateTime'].aggregate(['min', 'max']),
                      on='DeviceSerialNumber')
         # Estimating the last scan as the scanner off.
