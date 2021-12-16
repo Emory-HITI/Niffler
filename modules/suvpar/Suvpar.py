@@ -41,7 +41,7 @@ def suvpar():
     # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
     df = df[df.Modality == "MR"]
 
-    # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips scanners.
+    # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips, FONAR, and GE scanners.
     df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|GE|FONAR'), True, False)
 
     # Add computed non-DICOM fields and drop a few attributes, if we are producing a final_csv and not an intermediate.
@@ -51,8 +51,7 @@ def suvpar():
         df['AcquisitionDateTime'] = pandas.to_datetime(df['AcquisitionDateTime'], format='%Y%m%d%H%M%S.%f')
         df['AcquisitionDateTime'] = df['AcquisitionDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
 
-        df['SeriesDateTime'] = df['SeriesDate'].astype(int).astype(str) + \
-                                df['SeriesTime'].astype(float).astype(str)
+        df['SeriesDateTime'] = df['SeriesDate'].astype(int).astype(str) + df['SeriesTime'].astype(float).astype(str)
         df['SeriesDateTime'] = pandas.to_datetime(df['SeriesDateTime'], format='%Y%m%d%H%M%S.%f')
         df['SeriesDateTime'] = df['SeriesDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
 
@@ -109,6 +108,10 @@ def suvpar():
 
         # Compute study duration in minutes
         df['StudyDurationInMins'] = (df.StudyEndTime - df.StudyStartTime).dt.seconds / 60.0
+
+        # Check for the AcquisitionTime = SeriesTime case.
+        df['SeriesDurationInMins'] = numpy.where(df['SeriesDurationInMins'] > df['StudyDurationInMins'], 0,
+                                                 df['SeriesDurationInMins'])
 
         df = df.drop(columns=['TAcquisitionStartTime'])
         df = df.drop(columns=['TAcquisitionEndTime'])
