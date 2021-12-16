@@ -42,7 +42,7 @@ def suvpar():
     df = df[df.Modality == "MR"]
 
     # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips scanners.
-    df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|GE'), True, False)
+    df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|GE|FONAR'), True, False)
 
     # Add computed non-DICOM fields and drop a few attributes, if we are producing a final_csv and not an intermediate.
     if final_csv:
