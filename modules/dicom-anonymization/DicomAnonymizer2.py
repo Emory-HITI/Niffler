@@ -45,6 +45,7 @@ def anonSample(file, idtype, dict):
 
     return anon_id
 
+
 def dcm_anonymize(dcm_files, output_path, stop=None):
     # creates dictionaries for the IDs for look up later
     samplePatientIDs = {}
@@ -102,11 +103,10 @@ def dcm_anonymize(dcm_files, output_path, stop=None):
             n += 1
         except:
             print('Invalid Dicom Error, skipping')
-            print (file)
             skip_file = pydicom.dcmread(file, force=True)
             skipped.append((skip_file.AccessionNumber, skip_file.StudyInstanceUID))
             continue
-        if n == stop or n == len(dcm_files):
+        if n == stop or n == len(dcm_folders):
             pickle.dump(UIDs, open(os.path.join(output_path, "UIDs.pkl"), "wb"))
             exit()
 
@@ -126,4 +126,3 @@ if __name__ == "__main__":
     dcm_folders = get_dcm_paths(data_dir)
     print('Starting DICOM Study Anonymization', flush=True)
     dcm_anonymize(dcm_folders, output_dir, stop=None)
-
