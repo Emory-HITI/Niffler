@@ -2,9 +2,7 @@ from HITI_anon_internal.Anon import EmoryAnon
 import sys
 import pandas as pd
 
-def anonymization(metadata):
-    metadata = metadata.drop(del_cols, axis=1)
-
+def anonymization(metadata, Anon):
     metadata['AccessionNumber'] = metadata.AccessionNumber.map(str)
     metadata['PatientID'] = metadata.PatientID.map(int)
     metadata['StudyDate_modified'] = pd.to_datetime(metadata['StudyDate'], format='%Y%m%d')
@@ -89,5 +87,5 @@ if __name__ == "__main__":
         if (metadata[col].isnull().sum() > (0.90*len(metadata))):
             del_cols.append(col)    
     
-    clean_data = anonymization(metadata)
+    clean_data = anonymization(metadata, Anon)
     clean_data.to_csv(sys.argv[2], index=False)
