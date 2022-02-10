@@ -1,83 +1,126 @@
-from genericpath import exists
-import os, os.path
-import json
-import subprocess
+import os
+import sys
+import logging
+import pandas as pd
+from HITI_anon_internal.Anon import EmoryAnon
 
-def workflow(depth, file_path, master_path, processes, csv_file, total_attributes, first_attribute, first_index, second_attribute, 
-            second_index, email_flag, email, folder_name):
+def cold_extraction():
+    # Cold Extraction
+    logging.info('Starting Cold Extraction')
+    COLD_UPLOAD_FOLDER = '../cold-extraction/'
+    sys.path.append(COLD_UPLOAD_FOLDER)
+    os.chdir(COLD_UPLOAD_FOLDER)
+    import ColdDataRetriever
+    cold_extraction_values = {}
 
-    dicom_images_path = master_path+str(folder_name)+'/cold_extraction_accession_number/'
-    os.makedirs(dicom_images_path, exist_ok=True)
+    NifflerSystem = 'rtniffler.json'
+    file_path = '{00100020}/{0020000D}/{0020000E}/{00080018}.dcm'
+    date_format = '%Y%m%d'
 
-    logs_path = master_path+'logs/'
-    os.makedirs(logs_path, exist_ok=True)
+    cold_extraction_values['NifflerSystem'] = NifflerSystem
+    cold_extraction_values['StorageFolder'] = '/home/aredd30/test/cold_extraction/'
+    cold_extraction_values['FilePath'] = file_path
+    cold_extraction_values['CsvFile'] = '/home/aredd30/test/test_patients.csv'
+    cold_extraction_values['FirstAttr'] = 'PatientID'
+    cold_extraction_values['FirstIndex'] = 0
+    cold_extraction_values['SecondAttr'] = 'AccessionNumber'
+    cold_extraction_values['SecondIndex'] = 1
+    cold_extraction_values['ThirdAttr'] = 'StudyDate'
+    cold_extraction_values['ThirdIndex'] = 2
+    cold_extraction_values['NumberOfQueryAttributes'] = 1
+    cold_extraction_values['DateFormat'] = date_format
+    cold_extraction_values['SendEmail'] = True
+    cold_extraction_values['YourEmail'] = 'aredd30@emory.edu'
 
-    print (dicom_images_path, csv_file)
+    ColdDataRetriever.initialize_config_and_execute(cold_extraction_values)
+    logging.info('Completed Cold Extraction')
 
-    # cold extraction
-    subprocess.call("python3 ../cold-extraction/ColdDataRetriever.py --NifflerSystem {0} --StorageFolder {1} "
-        "--FilePath {2} --CsvFile {3} --NumberOfQueryAttributes {4} --FirstAttr {5} --FirstIndex {6} --SecondAttr {7} "
-        "--SecondIndex {8} --ThirdAttr {9} --ThirdIndex {10} --DateFormat {11} --SendEmail {12} --YourEmail {13}"
-        .format('../cold-extraction/system.json', dicom_images_path, file_path, csv_file, total_attributes, 
-        first_attribute, first_index, second_attribute, second_index, 'StudyDate', 3, '%Y%m%d', email_flag, email), shell=True)
+def png_extraction():
+    # PNG Extraction
+    logging.info('Starting PNG Extraction')
+    PNG_UPLOAD_FOLDER = '../png-extraction/'
+    sys.path.append(PNG_UPLOAD_FOLDER)
+    os.chdir(PNG_UPLOAD_FOLDER)
+    import ImageExtractor
+    png_extraction_values = {}
 
-    # # png extraction
-    # png_path = master_path+folder_name+'/png_images/'
-    # os.makedirs(png_path, exist_ok=True)
+    png_extraction_values['DICOMHome'] = '/home/aredd30/test/modality_grouping/CT/'
+    png_extraction_values['OutputDirectory'] = '/home/aredd30/test/png_extraction/'
+    png_extraction_values['Depth'] = 3
+    png_extraction_values['SplitIntoChunks'] = 1
+    png_extraction_values['PrintImages'] = True
+    png_extraction_values['CommonHeadersOnly'] = True
+    png_extraction_values['UseProcesses'] = 0
+    png_extraction_values['FlattenedToLevel'] = 'series'
+    png_extraction_values['is16Bit'] = True
+    png_extraction_values['SendEmail'] = True
+    png_extraction_values['YourEmail'] = 'aredd30@emory.edu'
 
-    # subprocess.call("python3 ../png-extraction/ImageExtractor.py --DICOMHome {} --OutputDirectory {}, --Depth {} "
-    #     "--PrintImage {} --CommonHeadersOnly {} --UseProcesses {} --FlattenedToLevel {} --is16Bit {} --SendEmail {} "
-    #     "-- YourEmail {} > {}".format(dicom_images_path, png_path, depth, False, True, processes, 
-    #     'series', True, email_flag, 'aredd30@emory.edu', logs_path+'png_extraction_'+folder_name+'.out'), shell=True)
+    ImageExtractor.initialize_config_and_execute(png_extraction_values)
+    logging.info('Completed PNG Extraction')
 
-    # # dicom anonymization
-    # dicom_anon_path = master_path+folder_name+'/dicom_anon/'
-    # os.makedirs(dicom_anon_path, exist_ok=True)
+def modality_grouping():
+    # Modality Grouping
+    logging.info('Starting Modality Grouping')
+    import ModalityGrouping
+    modality_group_values = {}
 
-    # subprocess.call("python3 ../dicom-anonymization/DicomAnonymizer.py {} {} > {}".format(dicom_images_path, 
-    #         dicom_anon_path, logs_path+'dicom_anon_'+folder_name+'.out'), shell=True)
+    modality_group_values['cold_extraction_path'] = '/home/aredd30/test/cold_extraction/'
+    modality_group_values['modality_split_path'] = '/home/aredd30/test/modality_grouping/'
 
-    # # metadata anonymization
-    # metadata_path = png_path+'meta/'
-    # metadata_anon_path = master_path+folder_name+'/metadata_anon/'
-    # os.makedirs(metadata_path, exist_ok=True)
-    # os.makedirs(metadata_anon_path, exist_ok=True)
+    ModalityGrouping.modality_split(modality_group_values['cold_extraction_path'], modality_group_values['modality_split_path'])
+    logging.info('Completed Modality Splitting')
 
-    # for i, file in enumerate(metadata_path):
-    #     metadata_filename = 'metadata_{}.csv'.format(i)
-    #     metadata_filepath = metadata_path+metadata_filename
+def dicom_anonymization():
+    # DICOM Anonymization
+    logging.info('Starting DICOM Anonymization')
+    DICOM_ANON_FOLDER = '../dicom-anonymization/'
+    sys.path.append(DICOM_ANON_FOLDER)
+    os.chdir(DICOM_ANON_FOLDER)
+    import DicomAnonymizer2
+    dicom_anonymization_values = {}
 
-    #     anon_metadata_filename = 'metadata_anon_{}.csv'.format(i)
-    #     anon_metadata_filepath = metadata_anon_path+anon_metadata_filename
+    dicom_anonymization_values['dcm_folders'] = '/home/aredd30/test/cold_extraction/'
+    dicom_anonymization_values['output_dir'] = '/home/aredd30/test/dicom_anonymization/'
 
-    #     subprocess.call("python3 metadata_anonymization.py {} {} > "
-    #         "{}".format(metadata_filepath, anon_metadata_filepath, 
-    #         logs_path+'metadata_anonymization_'+folder_name+'.out'), shell=True)
+    dcm_folders = DicomAnonymizer2.get_dcm_paths(dicom_anonymization_values['dcm_folders'])
+    DicomAnonymizer2.dcm_anonymize(dcm_folders, dicom_anonymization_values['output_dir'])
+    logging.info('Completed DICOM Anonymization')
 
-if __name__ == "__main__":
+def metadata_anonymization():
+    # Metadata Anonymization
+    logging.info('Starting Metadata Anonymization')
+    import metadata_anonymization
+    metadata_anonymization_values = {}
 
-    with open('config.json', 'r') as f:
-        config = json.load(f)
+    metadata_anonymization_values['metadata_path'] = '/home/aredd30/test/png_extraction/metadata.csv'
+    metadata_anonymization_values['anon_metadata_path'] = '/home/aredd30/test/metadata_anon/metadata.csv'
 
-    depth = int(config['Depth'])
-    file_path = config['FilePath']
-    master_path = config['MasterPath']
-    processes = int(config['UseProcesses'])
-    csv_file = config['CsvFile']
-    total_attributes = int(config['NumberOfQueryAttributes'])
-    first_attribute = config['FirstAttr']
-    first_index = config['FirstIndex']
-    second_attribute = config['SecondAttr']
-    second_index = config['SecondIndex']
-    email_flag = config['SendEmail']
-    email = config['YourEmail']
-    folder_name = config['FolderName']
+    Anon = EmoryAnon('/home/Anonymization/PHIAnon/', '/home/Anonymization/textAnon/whitelist.csv')
+    Anon.load_recentMasterKey()
+    metadata_path = metadata_anonymization_values['metadata_path']
+    metadata = pd.read_csv(metadata_path, low_memory=False)
+    del_cols = []
+    for col in metadata.columns:
+        if (metadata[col].isnull().sum() > (0.90*len(metadata))):
+            del_cols.append(col)
 
-    if not os.path.exists(master_path):
-        os.makedirs(master_path, exist_ok=True)
+    metadata = metadata.drop(del_cols, axis=1)
+    clean_data = metadata_anonymization.anonymization(metadata, Anon)
+    clean_data.to_csv(metadata_anonymization_values['anon_metadata_path'], index=False)
+    logging.info('Completed Metadata Anonymization')
 
-    workflow(depth, file_path, master_path, processes, csv_file, total_attributes, first_attribute, first_index, second_attribute, 
-            second_index, email_flag, email, folder_name)
 
+if __name__=="__main__":
+    log_format = '%(levelname)s %(asctime)s - %(message)s'
+    logging.basicConfig(filename='workflow.logs', level=logging.INFO,
+                        format=log_format, filemode='w')
+    logging = logging.getLogger()
+
+    # cold_extraction()
+    modality_grouping()
+    png_extraction()
+    dicom_anonymization()
+    metadata_anonymization()
 
 
