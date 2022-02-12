@@ -107,6 +107,7 @@ def get_tuples(plan, outlist = None, key = ""):
             hasattr(plan,aa)
         except TypeError as e:
             logging.warning('Type Error encountered')
+            continue
         if hasattr(plan, aa) and aa!= 'PixelData':
             value = getattr(plan, aa)
             start = len(outlist)
@@ -264,6 +265,8 @@ def fix_mismatch_callback(raw_elem, **kwargs):
     try:
         if raw_elem.VR: 
             values.convert_value(raw_elem.VR, raw_elem)
+    except TypeError as err:
+        logging.error(err)
     except BaseException as err:
         for vr in kwargs['with_VRs']:
             try:
@@ -287,7 +290,7 @@ def get_path(depth, dicom_home):
 
     
 # Function used by pydicom.
-def fix_mismatch(with_VRs=['PN', 'DS', 'IS']):
+def fix_mismatch(with_VRs=['PN', 'DS', 'IS', 'LO', 'OB']):
     """A callback function to check that RawDataElements are translatable
     with their provided VRs.  If not, re-attempt translation using
     some other translators.
