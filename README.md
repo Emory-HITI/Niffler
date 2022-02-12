@@ -1,6 +1,13 @@
 # Niffler: A DICOM Framework for Machine Learning and Processing Pipelines.
 
-Niffler is an efficient DICOM Framework for machine learning pipelines and processing workflows on metadata. It facilitates efficient transfer of DICOM images on-demand and real-time from PACS to the research environments, to run processing workflows and machine learning pipelines.
+Niffler is a lightweight framework to facilitate executing machine learning pipelines and processing workflows on DICOM images and metadata. Niffler facilitates efficient transfer of DICOM images on-demand and real-time from PACS to the research environments. Niffler is also integrated with the radiology information system (RIS) to get clinical data in real-time. The DICOM images from the PACS and clinical data retrieved from the RIS can be used in conjunction in real-time as well as retrospectively on-demand.
+
+The Niffler framework consists of:
+- On-demand and real-time retrieval and processing of DICOM images from the PACS environment configured to accept requests from a deployment of Niffler.
+- Acquisition and processing of clinical data from a RIS, to enable real-time analytics (RTA).
+- Supportive utility functions such as DICOM → PNG conversion, DICOM → NifTi conversion, DICOM anonymization, and the workflows module.
+- Scanner Usage Visualization with PACS And RIS data algorithm (modules/suvpar).
+- Sample applications of the Niffler modules (modules/app-layer).
 
 Niffler enables receiving DICOM images real-time as a data stream from PACS as well as specific DICOM data based on a series of DICOM C-MOV queries. The Niffler real-time DICOM receiver extracts the metadata free of PHI as the images arrive, store the metadata in a Mongo database, and deletes the images nightly. The on-demand extractor reads a CSV file provided by the user (consisting of a list of values for PatientID, AccessionNumber, or other DICOM keywords), and performs a series of DICOM C-MOVE requests to receive them from the PACS, without manually querying them. Niffler also provides additional features such as converting DICOM images into PNG images, and perform additional computations such as computing scanner utilization and finding scanners with misconfigured clocks.
 
@@ -8,7 +15,7 @@ Emory University develops Niffler with funding from the National Cancer Institut
 
 # Configure Niffler
 
-Niffler consists of 7 modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
+Niffler consists of multiple modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
 
 ## Configure PACS
 

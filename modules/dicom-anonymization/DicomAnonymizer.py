@@ -10,6 +10,8 @@ import os
 import sys
 import pydicom
 import random
+import glob
+import pathlib
 import pickle
 
 
@@ -31,6 +33,7 @@ def get_dcm_folders(dcm_root_dir):
             print('no dcm files in folder, skipping')
             continue
     return dcm_flds
+
 
 
 # randomly anonymizes the input id

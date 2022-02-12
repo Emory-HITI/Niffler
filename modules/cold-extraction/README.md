@@ -234,3 +234,36 @@ $ sudo ps -xa | grep storescp
 
 $ sudo kill 241720
 ```
+
+
+Niffler strives to be stable for at least the latest stable releases. But since it is still an open-source research project by a university research group, it may have bugs at times - which we aim to fix as soon as we spot. But if your extraction fails for some reason, you could rule out whether the issue is really a Niffler bug or whether some other issue such as some problems in the PACS connection. 
+
+Simply start a storescp and movescu clients (in that order) of DCM4CHE from the server where you are attempting to run. If the below commands work, but Niffler still fails (after correctly following the README), it could indicate a Niffler bug.
+
+The requests take the below format.
+
+```
+C-STORE
+
+DCM4CHE_BIN/storescp --accept-unknown --directory storage-folder --filepath "{00100020}/{0020000D}/{0020000E}/{00080018}.dcm" -b QUERY_AET > storescp.out &
+```
+
+The files will be stored in a directory _storage-folder_
+
+```
+C-MOVE
+
+DCM4CHE_BIN/movescu -c SRC_AET -b QUERY_AET -M PatientRoot -m PatientID=EMPI --dest DEST_AET
+```
+
+Replacing with sample values,
+
+```
+C-STORE
+
+nohup /opt/dcm4che-5.22.5/bin/storescp --accept-unknown --directory new-pydicom --filepath "{00100020}/{0020000D}/{0020000E}/{00080018}.dcm" -b "QBNIFFLER:4243" > storescp.out &
+
+
+C-MOVE
+nohup /opt/dcm4che-5.22.5/bin/movescu -c "AE_ARCH2@xx.yy.ww.zz:104" -b "QBNIFFLER:4243" -M PatientRoot -m PatientID=12345678 --dest QBNIFFLER > movescu.out &
+```
