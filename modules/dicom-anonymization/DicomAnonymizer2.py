@@ -106,7 +106,7 @@ def dcm_anonymize(dcm_files, output_path, stop=None):
             skip_file = pydicom.dcmread(file, force=True)
             skipped.append((skip_file.AccessionNumber, skip_file.StudyInstanceUID))
             continue
-        if n == stop or n == len(dcm_folders):
+        if n == stop or n == len(dcm_files):
             pickle.dump(UIDs, open(os.path.join(output_path, "UIDs.pkl"), "wb"))
             exit()
 
