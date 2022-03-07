@@ -73,6 +73,44 @@ In the OutputDirectory, there will be several sub folders and directories.
 There is also an experimental PNG extractor implementation (ImageExtractorSlurm.py) that provides a distributed execution based on Slurm on a cluster.
 
 
+## Running the Niffler PNG Extractor with Docker
+
+To install docker run:
+
+```bash
+
+    # Install docker
+    $ sudo yum install docker
+    # Start docker service
+    $ sudo systemctl enable docker.service --now
+```
+
+To run do:
+
+
+```bash
+
+# To run with default DICOMHome and OutputDirectory
+$ ./png-extraction-docker -r
+
+# To run with custom DICOMHome and OutputDirectory
+$ ./png-extraction-docker -r [DICOMHome] [OutputDirectory]
+
+```
+Edit the python command to be executed in png-extraction-docker script file.  
+For example, to run Niffler with Slurm change :
+
+    cmd="python3 ImageExtractor.py"
+by
+
+    cmd="python3 ImageExtractorSlurm.py"
+
+**Note:** 
+-   Do not set DICOMHome and OutputDirectory in config.json, supply them to script in format available.
+
+-   To configure other options, change them in config.json  
+
+
 ## Troubleshooting
 
 If you encounter your images being ending in the failed-dicom/3 folder (the folder signifying base exception), check the
