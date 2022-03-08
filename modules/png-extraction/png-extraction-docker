@@ -25,7 +25,7 @@ case $1 in
     sed -i.bak "s/DICOMHome.*/DICOMHome\":\ \"dicom_home\",/" config.json
     sed -i "s/OutputDirectory.*/OutputDirectory\":\ \"output\",/" config.json
 
-    sudo docker build -t png-extraction . --no-cache --build-arg DICOMHome=${dicom_home}
+    sudo docker build -t png-extraction . --build-arg DICOMHome=${dicom_home}
     sudo docker run -it png-extraction
     sudo docker cp $(sudo docker ps -a --no-trunc -q -n 1):/png-extraction/output ${output_dir}
 
