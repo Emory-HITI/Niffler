@@ -1,0 +1,74 @@
+#!/bin/sh
+
+cmd="python3 ImageExtractor.py"
+# With Nohup
+# cmd=nohup python3 ImageExtractor.py > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+
+# With Command Line Arguments
+# cmd=nohup python3 ImageExtractor.py --Depth 0 --PrintImages true --SendEmail true > UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out &
+
+dicom_home=${2:-/opt/data/new-study}
+output_dir=${3:-/opt/data/new-study/root}
+
+case $1 in
+
+  -d|--docker)
+
+    echo "EXECUTING ..."
+
+    ${cmd}
+
+    echo "EXITING ..."
+    ;;
+
+  -r|--run)
+    sed -i.bak "s/DICOMHome.*/DICOMHome\":\ \"dicom_home\",/" config.json
+    sed -i "s/OutputDirectory.*/OutputDirectory\":\ \"output\",/" config.json
+
+    sudo docker build -t png-extraction . --build-arg DICOMHome=${dicom_home}
+    sudo docker run -it png-extraction
+    sudo docker cp $(sudo docker ps -a --no-trunc -q -n 1):/png-extraction/output ${output_dir}
+
+    sudo find ${output_dir} -type d -exec chmod 755 {} \;
+    sudo find ${output_dir} -type f -exec chmod 644 {} \;
+    sudo chown -R $USER:users ${output_dir}
+
+    mv config.json.bak config.json
+    ;;
+
+  -h|--help)
+    
+    __usage="
+    Usage: $(basename $0) -r
+                or 
+           $(basename $0) --run [DICOMHome] [OutputDirectory]
+
+    Example:
+    $(basename $0) -r /opt/data/new-study /opt/data/new-study/root
+
+    Defaults: 
+    DICOMHome = /opt/data/new-study
+    OutputDirectory = /opt/data/new-study/root
+
+    Options:
+    -d, --docker                 Meant to be used by docker when building,
+                                                    not to be used by user
+    -h, --help                   Print this help page
+
+    "
+
+    echo "$__usage"
+    ;;
+
+  *)
+    __invalid_arg="
+    Please provide a valid argument.
+    Run following for more help:
+        
+        $(basename $0) --help
+    "
+    echo "$__invalid_arg"
+    ;;
+
+
+esac
