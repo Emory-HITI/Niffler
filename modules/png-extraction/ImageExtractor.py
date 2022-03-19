@@ -25,6 +25,9 @@ from pydicom import values
 import pathlib
 configs = {}
 
+with open('config.json', 'r') as f:
+    niffler = json.load(f)
+    print_only_public_headers = bool(niffler['PublicHeadersOnly'])
 
 def initialize_config_and_execute(config_values):
     global configs
@@ -131,6 +134,14 @@ def get_tuples(plan, outlist = None, key = ""):
                     value = str(value)
                 outlist.append((key + aa, value))
                 # appends name, value pair for this file. these are later concatenated to the dataframe
+    # appends the private tags
+    if not print_only_public_headers:
+        x = plan.keys()
+        x = list(x)
+        for i in x:
+            if i.is_private:
+                outlist.append((plan[i].name, plan[i].value))
+
     return outlist
 
 
@@ -477,6 +488,7 @@ if __name__ == "__main__":
     ap.add_argument("--SplitIntoChunks", default=niffler['SplitIntoChunks'])
     ap.add_argument("--PrintImages", default=niffler['PrintImages'])
     ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
+    ap.add_argument("--PublicHeadersOnly", default=niffler['PublicHeadersOnly'])
     ap.add_argument("--UseProcesses", default=niffler['UseProcesses'])
     ap.add_argument("--FlattenedToLevel", default=niffler['FlattenedToLevel'])
     ap.add_argument("--is16Bit", default=niffler['is16Bit'])
