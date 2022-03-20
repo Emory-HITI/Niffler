@@ -46,6 +46,7 @@ def initialize_config_and_execute(config_values):
     send_email = bool(configs['SendEmail'])
     no_splits = int(configs['SplitIntoChunks'])
     is16Bit = bool(configs['is16Bit']) 
+    publicheadersonly = bool(configs['PublicHeadersOnly'])
     
     metadata_col_freq_threshold = 0.1
 
@@ -102,19 +103,33 @@ def get_tuples(plan, outlist = None, key = ""):
         key =  key + "_"
     if not outlist:
         outlist = []
-    for aa  in plan.dir():
+    headers=[]
+    if(publicheadersonly):
+        for aa in plan.dir():
+            headers.append(plan[aa])
+    else:
+        feature_list = open("featureset.txt").read().splitlines()
+        if len(feature_list)==0:
+            headers=[i for i in plan]
+        else:
+            feature_list.append('PatientID')
+            feature_list.append('SeriesInstanceUID')
+            feature_list.append('PhotometricInterpretation')
+            headers=[plan[i] for i in feature_list]
+    for aa  in headers:
         try:
-            hasattr(plan,aa)
+            hasattr(plan,aa.name)
         except TypeError as e:
             logging.warning('Type Error encountered')
             continue
-        if hasattr(plan, aa) and aa!= 'PixelData':
-            value = getattr(plan, aa)
+        name = aa.name.replace(" ", "").replace("[", "").replace("]", "")
+        if aa.name!= 'Pixel Data':
+            value= aa.value
             start = len(outlist)
             # if dicom sequence extract tags from each element
             if type(value) is dicom.sequence.Sequence:
                 for nn, ss in enumerate(list(value)):
-                    newkey = "_".join([key,("%d"%nn),aa]) if len(key) else "_".join([("%d"%nn),aa])
+                    newkey = "_".join([key,("%d"%nn),name]) if len(key) else "_".join([("%d"%nn),name])
                     candidate = get_tuples(ss,outlist=None,key=newkey)
                     # if extracted tuples are too big condense to a string
                     if len(candidate)>2000:
@@ -130,7 +145,10 @@ def get_tuples(plan, outlist = None, key = ""):
                     value = tuple(value)
                 elif type(value) is dicom.uid.UID:
                     value = str(value)
-                outlist.append((key + aa, value))
+                if(not isinstance(value,str)):
+                    outlist.append((key + name, value))
+                if( isinstance(value,str) and len(value)<300):
+                    outlist.append((key + name, value))
                 # appends name, value pair for this file. these are later concatenated to the dataframe
     return outlist
 
@@ -380,7 +398,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # find common fields
         # make dataframe containing all fields and all files minus those removed in previous block
         # export csv file of final dataframe
-        export_csv = data.to_csv(csv_destination, index = None, header=True)
+        export_csv = data.loc[:,~data.columns.isin(['SeriesInstanceUID','PhotometricInterpretation','PatientID'])].to_csv(csv_destination, index = None, header=True)
         fields=data.keys()
         count = 0 # potential painpoint
         # writting of log handled by main process
@@ -486,6 +504,7 @@ if __name__ == "__main__":
     ap.add_argument("--is16Bit", default=niffler['is16Bit'])
     ap.add_argument("--SendEmail", default=niffler['SendEmail'])
     ap.add_argument("--YourEmail", default=niffler['YourEmail'])
+    ap.add_argument("--PublicHeadersOnly",default=niffler['PublicHeadersOnly'])
 
     args = vars(ap.parse_args())
 
