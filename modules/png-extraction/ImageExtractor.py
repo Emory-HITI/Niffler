@@ -46,6 +46,7 @@ def initialize_config_and_execute(config_values):
     send_email = bool(configs['SendEmail'])
     no_splits = int(configs['SplitIntoChunks'])
     is16Bit = bool(configs['is16Bit']) 
+    global publicheadersonly
     publicheadersonly = bool(configs['PublicHeadersOnly'])
     
     metadata_col_freq_threshold = 0.1
@@ -112,10 +113,13 @@ def get_tuples(plan, outlist = None, key = ""):
         if len(feature_list)==0:
             headers=[i for i in plan]
         else:
-            feature_list.append('PatientID')
-            feature_list.append('SeriesInstanceUID')
-            feature_list.append('PhotometricInterpretation')
-            headers=[plan[i] for i in feature_list]
+            headers.append(plan['PatientID'])
+            headers.append(plan['SeriesInstanceUID'])
+            headers.append(plan['PhotometricInterpretation'])
+            headers.append(plan['StudyInstanceUID'])
+            for i in feature_list:
+                if plan[i] not in headers:
+                    headers.append(plan[i])
     for aa  in headers:
         try:
             hasattr(plan,aa.name)
@@ -389,6 +393,8 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # start up a multi processing pool
         # for every item in filelist send data to a subprocess and run extract_headers func
         # output is then added to headerlist as they are completed (no ordering is done)
+        global feature_list
+        feature_list = open("featureset.txt").read().splitlines()
         with Pool(core_count) as p:
             res= p.imap_unordered(extract_headers, enumerate(chunk))
             for i,e in enumerate(res):
@@ -398,7 +404,10 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # find common fields
         # make dataframe containing all fields and all files minus those removed in previous block
         # export csv file of final dataframe
-        export_csv = data.loc[:,~data.columns.isin(['SeriesInstanceUID','PhotometricInterpretation','PatientID'])].to_csv(csv_destination, index = None, header=True)
+        if (not publicheadersonly) and len(feature_list)>0:
+                           export_csv = data.loc[:,data.columns.isin(feature_list)].to_csv(csv_destination, index = None, header=True)
+        else:                   
+                           export_csv = data.to_csv(csv_destination, index = None, header=True)
         fields=data.keys()
         count = 0 # potential painpoint
         # writting of log handled by main process
