@@ -26,6 +26,8 @@ Find the config.json file in the folder and modify accordingly *for each* Niffle
 
 * *YourEmail*: Replace "test@test.test" with a valid email if you would like to receive an email notification. If the SendEmail property is disabled, you can leave this as is.
 
+* *PublicHeadersOnly*: If this value is set to true only pulic attributes are extracted. If you want only certain attributes to be extracted set this value to false and write the attributes you need in featureset.txt. If you want all the attributes(both public and private) set this value to false and leave the featureset.txt empty.
+
 
 ### Print the Images or Limit the Extraction to Include only the Common DICOM Attributes
 
