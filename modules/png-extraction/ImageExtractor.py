@@ -28,6 +28,9 @@ configs = {}
 
 def initialize_config_and_execute(config_values):
     global configs
+    global publicheadersonly
+    global feature_list
+    
     configs = config_values
     # Applying checks for paths
     
@@ -46,7 +49,6 @@ def initialize_config_and_execute(config_values):
     send_email = bool(configs['SendEmail'])
     no_splits = int(configs['SplitIntoChunks'])
     is16Bit = bool(configs['is16Bit']) 
-    global publicheadersonly
     publicheadersonly = bool(configs['PublicHeadersOnly'])
     
     metadata_col_freq_threshold = 0.1
@@ -393,7 +395,6 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # start up a multi processing pool
         # for every item in filelist send data to a subprocess and run extract_headers func
         # output is then added to headerlist as they are completed (no ordering is done)
-        global feature_list
         feature_list = open("featureset.txt").read().splitlines()
         with Pool(core_count) as p:
             res= p.imap_unordered(extract_headers, enumerate(chunk))
