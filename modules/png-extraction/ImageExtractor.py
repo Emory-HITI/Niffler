@@ -25,7 +25,6 @@ from pydicom import values
 import pathlib
 configs = {}
 
-
 def initialize_config_and_execute(config_values):
     global configs
     configs = config_values
@@ -39,6 +38,7 @@ def initialize_config_and_execute(config_values):
 
     print_images = bool(configs['PrintImages'])
     print_only_common_headers = bool(configs['CommonHeadersOnly'])
+    print_only_public_headers = bool(configs['PublicHeadersOnly'])
     depth = int(configs['Depth'])
     processes = int(configs['UseProcesses']) # how many processes to use.
     flattened_to_level = configs['FlattenedToLevel']
@@ -90,7 +90,7 @@ def initialize_config_and_execute(config_values):
         os.makedirs(failed + "/4")
 
     logging.info("------- Values Initialization DONE -------")
-    final_res = execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
+    final_res = execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, print_only_public_headers, depth,
                         processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
         failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
     return final_res
@@ -132,11 +132,20 @@ def get_tuples(plan, outlist = None, key = ""):
                     value = str(value)
                 outlist.append((key + aa, value))
                 # appends name, value pair for this file. these are later concatenated to the dataframe
+    # appends the private tags
+    if not public_headers_bool:
+        x = plan.keys()
+        x = list(x)
+        for i in x:
+            if i.is_private:
+                outlist.append((plan[i].name, plan[i].value))
+
     return outlist
 
 
 def extract_headers(f_list_elem):
-    nn,ff = f_list_elem # unpack enumerated list
+    global public_headers_bool
+    nn,ff, public_headers_bool = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
     c=True
@@ -311,7 +320,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS', 'LO', 'OB']):
     }    
 
 
-def execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
+def execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, print_only_public_headers, depth,
             processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
     failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start):
     err = None
@@ -372,7 +381,9 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # for every item in filelist send data to a subprocess and run extract_headers func
         # output is then added to headerlist as they are completed (no ordering is done)
         with Pool(core_count) as p:
-            res= p.imap_unordered(extract_headers, enumerate(chunk))
+            # we send here print_only_public_headers bool value
+            file_chunks_list = [tups + (print_only_public_headers,) for tups in enumerate(chunk)]
+            res= p.imap_unordered(extract_headers, file_chunks_list)
             for i,e in enumerate(res):
                 headerlist.append(e)
         data = pd.DataFrame(headerlist)
@@ -481,6 +492,7 @@ if __name__ == "__main__":
     ap.add_argument("--SplitIntoChunks", default=niffler['SplitIntoChunks'])
     ap.add_argument("--PrintImages", default=niffler['PrintImages'])
     ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
+    ap.add_argument("--PublicHeadersOnly", default=niffler['PublicHeadersOnly'])
     ap.add_argument("--UseProcesses", default=niffler['UseProcesses'])
     ap.add_argument("--FlattenedToLevel", default=niffler['FlattenedToLevel'])
     ap.add_argument("--is16Bit", default=niffler['is16Bit'])

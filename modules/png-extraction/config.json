@@ -5,6 +5,7 @@
 	"SplitIntoChunks": 1,
 	"PrintImages": true,
 	"CommonHeadersOnly": false,
+	"PublicHeadersOnly": true,
 	"UseProcesses": 0,
 	"FlattenedToLevel": "patient",
 	"is16Bit":true,

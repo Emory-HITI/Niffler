@@ -35,6 +35,8 @@ The below two fields can be left unmodified for most executions. The default val
 
 * *CommonHeadersOnly*: Do you want the resulting dataframe csv to contain only the common headers? Finds if less than 10% of the rows are missing this column field. To extract all the headers, default is set as _false_.
 
+* *PublicHeadersOnly*: Do you want the resulting dataframe csv to contain only the public headers? Then set it as _true_(default). For extract all the private headers set as _false_.
+
 
 ## Running the Niffler PNG Extractor
 ```bash
