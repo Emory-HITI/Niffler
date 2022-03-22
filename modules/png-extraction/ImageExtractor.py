@@ -111,14 +111,29 @@ def get_tuples(plan, outlist = None, key = ""):
         for aa in plan.dir():
             headers.append(plan[aa])
     else:
-        feature_list = open("featureset.txt").read().splitlines()
         if len(feature_list)==0:
             headers=[i for i in plan]
         else:
-            headers.append(plan['PatientID'])
-            headers.append(plan['SeriesInstanceUID'])
-            headers.append(plan['PhotometricInterpretation'])
-            headers.append(plan['StudyInstanceUID'])
+                        try:
+                headers.append(plan['PatientID'])
+            except:
+                plan.PatientId = ""
+                headers.append(plan['PatientId'])
+            try:
+                headers.append(plan['SeriesInstanceUID'])
+            except:
+                plan.SeriesInstanceUID = ""
+                headers.append(plan['SeriesInstanceUID'])
+            try:
+                headers.append(plan['PhotometricInterpretation'])
+            except:
+                plan.PhotometricInterpretation = ""
+                headers.append(plan['PhotometricInterpretation'])
+            try:
+                headers.append(plan['StudyInstanceUID'])
+            except:
+                plan.StudyInstanceUID = ""
+                headers.append(plan['StudyInstanceUID'])
             for i in feature_list:
                 if plan[i] not in headers:
                     headers.append(plan[i])
@@ -395,7 +410,12 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # start up a multi processing pool
         # for every item in filelist send data to a subprocess and run extract_headers func
         # output is then added to headerlist as they are completed (no ordering is done)
-        feature_list = open("featureset.txt").read().splitlines()
+        try:
+            global feature_list
+            feature_list= open("featureset.txt").read().splitlines()
+        except:
+            logging.info("featureset.txt not found. Extracting all the attributes")
+            feature_list=[]
         with Pool(core_count) as p:
             res= p.imap_unordered(extract_headers, enumerate(chunk))
             for i,e in enumerate(res):
