@@ -6,9 +6,11 @@
 	"PrintImages": true,
 	"CommonHeadersOnly": false,
 	"PublicHeadersOnly": true,
+	"SpecificHeadersOnly": false
 	"UseProcesses": 0,
 	"FlattenedToLevel": "patient",
 	"is16Bit":true,
 	"SendEmail": true,
-	"YourEmail": "test@test.test"
+	"YourEmail": "test@test.test",
+
 }
