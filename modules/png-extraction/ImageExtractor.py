@@ -38,7 +38,10 @@ def initialize_config_and_execute(config_values):
 
     print_images = bool(configs['PrintImages'])
     print_only_common_headers = bool(configs['CommonHeadersOnly'])
-    print_only_public_headers = bool(configs['PublicHeadersOnly'])
+    global public_headers_bool
+    public_headers_bool = bool(configs['PublicHeadersOnly'])
+    global SpecificHeadersOnly
+    SpecificHeadersOnly = bool(configs['SpecificHeadersOnly'])
     depth = int(configs['Depth'])
     processes = int(configs['UseProcesses']) # how many processes to use.
     flattened_to_level = configs['FlattenedToLevel']
@@ -90,7 +93,7 @@ def initialize_config_and_execute(config_values):
         os.makedirs(failed + "/4")
 
     logging.info("------- Values Initialization DONE -------")
-    final_res = execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, print_only_public_headers, depth,
+    final_res = execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
                         processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
         failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
     return final_res
@@ -102,19 +105,54 @@ def get_tuples(plan, outlist = None, key = ""):
         key =  key + "_"
     if not outlist:
         outlist = []
-    for aa  in plan.dir():
+    headers=[]
+    if(SpecificHeadersOnly):
+        if(len(feature_list)==0):
+            logging.error("featureset.txt is empty")
+            sys.exit()
         try:
-            hasattr(plan,aa)
+            headers.append(plan['PatientID'])
+        except:
+            plan.PatientId = ""
+            headers.append(plan['PatientId'])
+        try:
+            headers.append(plan['SeriesInstanceUID'])
+        except:
+            plan.SeriesInstanceUID = ""
+            headers.append(plan['SeriesInstanceUID'])
+        try:
+            headers.append(plan['PhotometricInterpretation'])
+        except:
+            plan.PhotometricInterpretation = ""
+            headers.append(plan['PhotometricInterpretation'])
+        try:
+            headers.append(plan['StudyInstanceUID'])
+        except:
+            plan.StudyInstanceUID = ""
+            headers.append(plan['StudyInstanceUID'])
+        for i in feature_list:
+            if plan[i] not in headers:
+                headers.append(plan[i])
+    else:
+        if (public_headers_bool):
+            for aa in plan.dir():
+                headers.append(plan[aa])
+        else:
+            headers = [i for i in plan]
+    for aa  in headers:
+        try:
+            hasattr(plan,aa.name)
         except TypeError as e:
             logging.warning('Type Error encountered')
             continue
-        if hasattr(plan, aa) and aa!= 'PixelData':
-            value = getattr(plan, aa)
+        name = aa.name.replace(" ", "").replace("[", "").replace("]", "")
+        if name!= 'PixelData':
+            value = aa.value
             start = len(outlist)
             # if dicom sequence extract tags from each element
             if type(value) is dicom.sequence.Sequence:
                 for nn, ss in enumerate(list(value)):
-                    newkey = "_".join([key,("%d"%nn),aa]) if len(key) else "_".join([("%d"%nn),aa])
+                    newkey = "_".join([key,("%d"%nn),name]) if len(key) else "_".join([("%d"%nn),name])
                     candidate = get_tuples(ss,outlist=None,key=newkey)
                     # if extracted tuples are too big condense to a string
                     if len(candidate)>2000:
@@ -130,22 +168,15 @@ def get_tuples(plan, outlist = None, key = ""):
                     value = tuple(value)
                 elif type(value) is dicom.uid.UID:
                     value = str(value)
-                outlist.append((key + aa, value))
-                # appends name, value pair for this file. these are later concatenated to the dataframe
-    # appends the private tags
-    if not public_headers_bool:
-        x = plan.keys()
-        x = list(x)
-        for i in x:
-            if i.is_private:
-                outlist.append((plan[i].name, plan[i].value))
-
+                if (not isinstance(value, str)):
+                    outlist.append((key + name, value))
+                if (isinstance(value, str) and len(value) < 300):
+                    outlist.append((key + name, value))
     return outlist
 
 
 def extract_headers(f_list_elem):
-    global public_headers_bool
-    nn,ff, public_headers_bool = f_list_elem # unpack enumerated list
+    nn,ff = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
     c=True
@@ -320,7 +351,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS', 'LO', 'OB']):
     }    
 
 
-def execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, print_only_public_headers, depth,
+def execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
             processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
     failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start):
     err = None
@@ -380,10 +411,16 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # start up a multi processing pool
         # for every item in filelist send data to a subprocess and run extract_headers func
         # output is then added to headerlist as they are completed (no ordering is done)
+        try:
+            global feature_list
+            feature_list = open("featureset.txt").read().splitlines()
+        except:
+            logging.error("featureset.txt not found")
+            feature_list=[]
+
         with Pool(core_count) as p:
             # we send here print_only_public_headers bool value
-            file_chunks_list = [tups + (print_only_public_headers,) for tups in enumerate(chunk)]
-            res= p.imap_unordered(extract_headers, file_chunks_list)
+            res = p.imap_unordered(extract_headers, enumerate(chunk))
             for i,e in enumerate(res):
                 headerlist.append(e)
         data = pd.DataFrame(headerlist)
@@ -391,7 +428,11 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # find common fields
         # make dataframe containing all fields and all files minus those removed in previous block
         # export csv file of final dataframe
-        export_csv = data.to_csv(csv_destination, index = None, header=True)
+        if (SpecificHeadersOnly):
+            export_csv = data.loc[:, data.columns.isin(feature_list)].to_csv(csv_destination, index=None, header=True)
+        else:
+            export_csv = data.to_csv(csv_destination, index=None, header=True)
+
         fields=data.keys()
         count = 0 # potential painpoint
         # writting of log handled by main process
@@ -493,6 +534,7 @@ if __name__ == "__main__":
     ap.add_argument("--PrintImages", default=niffler['PrintImages'])
     ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
     ap.add_argument("--PublicHeadersOnly", default=niffler['PublicHeadersOnly'])
+    ap.add_argument("--SpecificHeadersOnly", default=niffler['SpecificHeadersOnly'])
     ap.add_argument("--UseProcesses", default=niffler['UseProcesses'])
     ap.add_argument("--FlattenedToLevel", default=niffler['FlattenedToLevel'])
     ap.add_argument("--is16Bit", default=niffler['is16Bit'])
