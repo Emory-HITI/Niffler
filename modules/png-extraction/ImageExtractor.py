@@ -428,7 +428,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # find common fields
         # make dataframe containing all fields and all files minus those removed in previous block
         # export csv file of final dataframe
-        if (not public_headers_bool) and len(feature_list) > 0:
+        if (SpecificHeadersOnly):
             export_csv = data.loc[:, data.columns.isin(feature_list)].to_csv(csv_destination, index=None, header=True)
         else:
             export_csv = data.to_csv(csv_destination, index=None, header=True)
