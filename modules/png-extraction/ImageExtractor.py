@@ -21,6 +21,7 @@ import png
 from pydicom import config
 from pydicom import datadict
 from pydicom import values 
+np.seterr(invalid='ignore')
 
 import pathlib
 configs = {}
