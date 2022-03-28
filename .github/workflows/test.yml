@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@master
       - name: Install Python 3
         run: |
+          sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+          sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
           yum update -y -q
           yum install -q -y python3 
           yum install -q -y python3-pip unzip
@@ -33,6 +35,8 @@ jobs:
       - uses: actions/checkout@master
       - name: Install Python 3
         run: |
+          sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+          sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
           yum update -y -q
           yum install -q -y python3 
           yum install -q -y python3-pip unzip
