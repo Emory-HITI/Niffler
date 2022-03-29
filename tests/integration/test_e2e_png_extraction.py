@@ -66,6 +66,8 @@ class TestExecute:
             'LOG_FILENAME': str(out_dir / 'ImageExtractor.out'),
             'metadata_col_freq_threshold': 0.1,
             't_start': time.time()
+            'SpecificHeadersOnly': False
+            'PublicHeadersOnly' : True
         }
         kwargs_dict.update(**kwargs)
         return kwargs_dict
