@@ -146,7 +146,7 @@ class TestExtractImages:
         Test Setup
         """
         header_list = [ImageExtractor.extract_headers(
-            (0, self.test_dcm_file))]
+            (0, self.test_dcm_file,False,True))]
         self.file_data = pd.DataFrame(header_list)
         self.index = 0
         self.invalid_file_data = pd.DataFrame([
