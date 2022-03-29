@@ -99,14 +99,14 @@ class TestExtractHeaders:
         Test for invalid image
         """
         headers = ImageExtractor.extract_headers(
-            self.invalid_test_dcm_file)
+            self.invalid_test_dcm_file,False,True)
         assert headers['has_pix_array'] is False
 
     def test_valid_image(self):
         """
         Test for a valid image
         """
-        headers = ImageExtractor.extract_headers(self.valid_test_dcm_file)
+        headers = ImageExtractor.extract_headers(self.valid_test_dcm_file,False,True)
         assert headers['has_pix_array'] is True
 
     # TODO large dcm files
@@ -125,7 +125,7 @@ class TestGetTuples:
         Verifies first key
         """
         first_key = self.test_valid_plan.dir()[0]
-        tuple_list = ImageExtractor.get_tuples(self.test_valid_plan)
+        tuple_list = ImageExtractor.get_tuples(self.test_valid_plan,Fasle,True)
         assert tuple_list[0][0] == first_key
 
     # TODO hasattr error
