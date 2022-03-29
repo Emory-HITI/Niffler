@@ -39,9 +39,7 @@ def initialize_config_and_execute(config_values):
 
     print_images = bool(configs['PrintImages'])
     print_only_common_headers = bool(configs['CommonHeadersOnly'])
-    global public_headers_bool
-    public_headers_bool = bool(configs['PublicHeadersOnly'])
-    global SpecificHeadersOnly
+    PublicHeadersOnly = bool(configs['PublicHeadersOnly'])
     SpecificHeadersOnly = bool(configs['SpecificHeadersOnly'])
     depth = int(configs['Depth'])
     processes = int(configs['UseProcesses']) # how many processes to use.
@@ -96,12 +94,12 @@ def initialize_config_and_execute(config_values):
     logging.info("------- Values Initialization DONE -------")
     final_res = execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
                         processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
-        failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
+        failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start,SpecificHeadersOnly,PublicHeadersOnly)
     return final_res
 
 
 # Function for getting tuple for field,val pairs
-def get_tuples(plan, outlist = None, key = ""):
+def get_tuples(plan,SpecificHeadersOnly,PublicHeadersOnly, outlist = None, key = ""):
     if len(key)>0:
         key =  key + "_"
     if not outlist:
@@ -135,7 +133,7 @@ def get_tuples(plan, outlist = None, key = ""):
             if plan[i] not in headers:
                 headers.append(plan[i])
     else:
-        if (public_headers_bool):
+        if (PublicHeadersOnly):
             for aa in plan.dir():
                 headers.append(plan[aa])
         else:
@@ -154,7 +152,7 @@ def get_tuples(plan, outlist = None, key = ""):
             if type(value) is dicom.sequence.Sequence:
                 for nn, ss in enumerate(list(value)):
                     newkey = "_".join([key,("%d"%nn),name]) if len(key) else "_".join([("%d"%nn),name])
-                    candidate = get_tuples(ss,outlist=None,key=newkey)
+                    candidate = get_tuples(ss,SpecificHeadersOnly,PublicHeadersOnly,outlist=None,key=newkey)
                     # if extracted tuples are too big condense to a string
                     if len(candidate)>2000:
                         outlist.append((newkey,str(candidate)))
@@ -177,7 +175,7 @@ def get_tuples(plan, outlist = None, key = ""):
 
 
 def extract_headers(f_list_elem):
-    nn,ff = f_list_elem # unpack enumerated list
+    nn,ff,SpecificHeadersOnly,PublicHeadersOnly = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
     c=True
@@ -185,7 +183,7 @@ def extract_headers(f_list_elem):
         check = plan.pixel_array # throws error if dicom file has no image
     except:
         c = False
-    kv = get_tuples(plan)       # gets tuple for field,val pairs for this file. function defined above
+    kv = get_tuples(plan,SpecificHeadersOnly,PublicHeadersOnly)       # gets tuple for field,val pairs for this file. function defined above
     # dicom images should not have more than 300 dicom tags
     if len(kv)>300:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
@@ -354,7 +352,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS', 'LO', 'OB']):
 
 def execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
             processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
-    failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start):
+    failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start,SpecificHeadersOnly,PublicHeadersOnly):
     err = None
     fix_mismatch()
     if processes == 0.5:  # use half the cores to avoid  high ram usage
@@ -421,7 +419,8 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
 
         with Pool(core_count) as p:
             # we send here print_only_public_headers bool value
-            res = p.imap_unordered(extract_headers, enumerate(chunk))
+            chunks_list=[tups + (SpecificHeadersOnly,PublicHeadersOnly,) for tups in enumerate(chunk)]
+            res = p.imap_unordered(extract_headers, chunks_list)
             for i,e in enumerate(res):
                 headerlist.append(e)
         data = pd.DataFrame(headerlist)
