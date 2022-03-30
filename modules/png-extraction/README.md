@@ -37,7 +37,7 @@ The below two fields can be left unmodified for most executions. The default val
 
 * *PublicHeadersOnly*: Do you want the resulting dataframe csv to contain only the public headers? Then set it as _true_(default). For extract all the private headers set as _false_.
 
-*  *SpecificHeadersOnly* : If you want only certain attributes in extracted csv, Then set this value to true and write the required attribute names in featureset.txt. Default value is false. Do not delete the featureset.txt even if you don't want this only specific headers
+*  *SpecificHeadersOnly* : If you want only certain attributes in extracted csv, Then set this value to true and write the required attribute names in featureset.txt. Default value is _false_. Do not delete the featureset.txt even if you don't want this only specific headers
 
 
 ## Running the Niffler PNG Extractor
