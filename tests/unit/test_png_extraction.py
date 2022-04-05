@@ -90,9 +90,9 @@ class TestExtractHeaders:
     Test ImageExtractor.extract_headers
     """
     valid_test_dcm_file = 0, str(
-        pytest.data_dir / 'png-extraction' / 'input' / 'test-img.dcm')
+        pytest.data_dir / 'png-extraction' / 'input' / 'test-img.dcm'), False , True
     invalid_test_dcm_file = 0, str(
-        pytest.data_dir / 'png-extraction' / 'input' / 'no-img.dcm')
+        pytest.data_dir / 'png-extraction' / 'input' / 'no-img.dcm'), False, True
 
     def test_no_image(self):
         """
@@ -125,7 +125,7 @@ class TestGetTuples:
         Verifies first key
         """
         first_key = self.test_valid_plan.dir()[0]
-        tuple_list = ImageExtractor.get_tuples(self.test_valid_plan)
+        tuple_list = ImageExtractor.get_tuples(self.test_valid_plan,False,True)
         assert tuple_list[0][0] == first_key
 
     # TODO hasattr error
@@ -146,7 +146,7 @@ class TestExtractImages:
         Test Setup
         """
         header_list = [ImageExtractor.extract_headers(
-            (0, self.test_dcm_file))]
+            (0, self.test_dcm_file,False,True))]
         self.file_data = pd.DataFrame(header_list)
         self.index = 0
         self.invalid_file_data = pd.DataFrame([
