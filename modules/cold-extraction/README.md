@@ -209,7 +209,7 @@ If you find an error such as: "IndexError: list index out of range", that indica
 
 Fix them and restart your Python process, by first finding and killing your python process and then starting Niffler as before.
 ```
-$ ps -xa | grep python
+$ sudo ps -xa | grep python
 
 1866 ?    Ss   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
 
@@ -219,7 +219,7 @@ $ ps -xa | grep python
 
 3384 pts/0  S+   0:00 grep --color=auto python
 
-$ kill 2926
+$ sudo kill 2926
 ```
 You might need to run the above command with sudo to find others' Niffler processes.
 
