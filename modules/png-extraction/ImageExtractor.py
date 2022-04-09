@@ -91,6 +91,9 @@ def initialize_config_and_execute(config_values):
     if not os.path.exists(failed + "/4"):
         os.makedirs(failed + "/4")
 
+    if not os.path.exists(failed + "/5"):
+        os.makedirs(failed + "/5")
+
     logging.info("------- Values Initialization DONE -------")
     final_res = execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
                         processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
@@ -173,8 +176,18 @@ def get_tuples(plan,SpecificHeadersOnly,PublicHeadersOnly, outlist = None, key =
                     outlist.append((key + name, value))
     return outlist
 
+def unpack_args(func):
+    from functools import wraps
+    @wraps(func)
+    def wrapper(args):
+        if isinstance(args, dict):
+            return func(**args)
+        else:
+            return func(*args)
+    return wrapper
 
-def extract_headers(f_list_elem):
+@unpack_args
+def extract_headers(f_list_elem, output_directory):
     nn,ff,SpecificHeadersOnly,PublicHeadersOnly = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
@@ -187,6 +200,7 @@ def extract_headers(f_list_elem):
     # dicom images should not have more than 300 dicom tags
     if len(kv)>300:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
+        copyfile(ff, output_directory+'/failed-dicom/5/'+ '/'.join(ff.split()[-3:]))
     else:
         kv.append(('file', f_list_elem[1])) # adds my custom field with the original filepath
         kv.append(('has_pix_array',c))   # adds my custom field with if file has image
@@ -420,7 +434,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         with Pool(core_count) as p:
             # we send here print_only_public_headers bool value
             chunks_list=[tups + (SpecificHeadersOnly,PublicHeadersOnly,) for tups in enumerate(chunk)]
-            res = p.imap_unordered(extract_headers, chunks_list)
+            res = p.imap_unordered(extract_headers, zip(chunks_list, output_directory))
             for i,e in enumerate(res):
                 headerlist.append(e)
         data = pd.DataFrame(headerlist)
