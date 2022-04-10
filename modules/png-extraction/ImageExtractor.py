@@ -102,60 +102,24 @@ def initialize_config_and_execute(config_values):
 
 
 # Function for getting tuple for field,val pairs
-def get_tuples(plan,SpecificHeadersOnly,PublicHeadersOnly, outlist = None, key = ""):
+def get_tuples(plan,PublicHeadersOnly, outlist = None, key = ""):
     if len(key)>0:
         key =  key + "_"
     if not outlist:
         outlist = []
-    headers=[]
-    if(SpecificHeadersOnly):
-        if(len(feature_list)==0):
-            logging.error("featureset.txt is empty")
-            sys.exit()
+    for aa  in plan.dir():
         try:
-            headers.append(plan['PatientID'])
-        except:
-            plan.PatientId = ""
-            headers.append(plan['PatientId'])
-        try:
-            headers.append(plan['SeriesInstanceUID'])
-        except:
-            plan.SeriesInstanceUID = ""
-            headers.append(plan['SeriesInstanceUID'])
-        try:
-            headers.append(plan['PhotometricInterpretation'])
-        except:
-            plan.PhotometricInterpretation = ""
-            headers.append(plan['PhotometricInterpretation'])
-        try:
-            headers.append(plan['StudyInstanceUID'])
-        except:
-            plan.StudyInstanceUID = ""
-            headers.append(plan['StudyInstanceUID'])
-        for i in feature_list:
-            if plan[i] not in headers:
-                headers.append(plan[i])
-    else:
-        if (PublicHeadersOnly):
-            for aa in plan.dir():
-                headers.append(plan[aa])
-        else:
-            headers = [i for i in plan]
-    for aa  in headers:
-        try:
-            hasattr(plan,aa.name)
+            hasattr(plan,aa)
         except TypeError as e:
             logging.warning('Type Error encountered')
-            continue
-        name = aa.name.replace(" ", "").replace("[", "").replace("]", "")
-        if name!= 'PixelData':
-            value = aa.value
+        if hasattr(plan, aa) and aa!= 'PixelData':
+            value = getattr(plan, aa)
             start = len(outlist)
             # if dicom sequence extract tags from each element
             if type(value) is dicom.sequence.Sequence:
                 for nn, ss in enumerate(list(value)):
-                    newkey = "_".join([key,("%d"%nn),name]) if len(key) else "_".join([("%d"%nn),name])
-                    candidate = get_tuples(ss,SpecificHeadersOnly,PublicHeadersOnly,outlist=None,key=newkey)
+                    newkey = "_".join([key,("%d"%nn),aa]) if len(key) else "_".join([("%d"%nn),aa])
+                    candidate = get_tuples(ss,PublicHeadersOnly,outlist=None,key=newkey)
                     # if extracted tuples are too big condense to a string
                     if len(candidate)>2000:
                         outlist.append((newkey,str(candidate)))
@@ -170,10 +134,16 @@ def get_tuples(plan,SpecificHeadersOnly,PublicHeadersOnly, outlist = None, key =
                     value = tuple(value)
                 elif type(value) is dicom.uid.UID:
                     value = str(value)
-                if (not isinstance(value, str)):
-                    outlist.append((key + name, value))
-                if (isinstance(value, str) and len(value) < 300):
-                    outlist.append((key + name, value))
+                outlist.append((key + aa, value))
+                # appends name, value pair for this file. these are later concatenated to the dataframe
+    # appends the private tags
+    if not PublicHeadersOnly:
+        x = plan.keys()
+        x = list(x)
+        for i in x:
+            if i.is_private:
+                outlist.append((plan[i].name, plan[i].value))
+
     return outlist
 
 def unpack_args(func):
@@ -188,7 +158,7 @@ def unpack_args(func):
 
 @unpack_args
 def extract_headers(f_list_elem, output_directory):
-    nn,ff,SpecificHeadersOnly,PublicHeadersOnly = f_list_elem # unpack enumerated list
+    nn,ff,PublicHeadersOnly = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
     c=True
@@ -196,7 +166,7 @@ def extract_headers(f_list_elem, output_directory):
         check = plan.pixel_array # throws error if dicom file has no image
     except:
         c = False
-    kv = get_tuples(plan,SpecificHeadersOnly,PublicHeadersOnly)       # gets tuple for field,val pairs for this file. function defined above
+    kv = get_tuples(plan,PublicHeadersOnly)       # gets tuple for field,val pairs for this file. function defined above
     # dicom images should not have more than 300 dicom tags
     if len(kv)>300:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
@@ -424,30 +394,32 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # start up a multi processing pool
         # for every item in filelist send data to a subprocess and run extract_headers func
         # output is then added to headerlist as they are completed (no ordering is done)
-        try:
-            global feature_list
-            feature_list = open("featureset.txt").read().splitlines()
-        except:
-            logging.error("featureset.txt not found")
-            feature_list=[]
 
         with Pool(core_count) as p:
             # we send here print_only_public_headers bool value
-            chunks_list=[tups + (SpecificHeadersOnly,PublicHeadersOnly,) for tups in enumerate(chunk)]
+            chunks_list=[tups + (PublicHeadersOnly,) for tups in enumerate(chunk)]
             res = p.imap_unordered(extract_headers, zip(chunks_list, output_directory))
             for i,e in enumerate(res):
                 headerlist.append(e)
         data = pd.DataFrame(headerlist)
         logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(data.columns)))
-        # find common fields
-        # make dataframe containing all fields and all files minus those removed in previous block
         # export csv file of final dataframe
-        if (SpecificHeadersOnly):
-            export_csv = data.loc[:, data.columns.isin(feature_list)].to_csv(csv_destination, index=None, header=True)
+        if(SpecificHeadersOnly):
+            try:
+                feature_list = open("featureset.txt").read().splitlines()
+                features = []
+                for j in feature_list:
+                    if j in data.columns:
+                        features.append(j)
+                meta_data = data[features]
+            except:
+                meta_data = data
+                logging.error("featureset.txt not found")
         else:
-            export_csv = data.to_csv(csv_destination, index=None, header=True)
-
+            meta_data = data
+ 
         fields=data.keys()
+        export_csv = meta_data.to_csv(csv_destination, index = None, header=True)
         count = 0 # potential painpoint
         # writting of log handled by main process
         if print_images:
