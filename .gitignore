@@ -9,4 +9,5 @@ __pycache__
 htmlcov
 .coverage
 coverage.xml
+**/*.log
 /tests/data
