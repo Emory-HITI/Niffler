@@ -571,7 +571,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
 
 
 if __name__ == "__main__":
-    with open('/home/zzaiman/niffler_test_sandbox/config.json', 'r') as f:
+    with open('config.json', 'r') as f:
         niffler = json.load(f)
 
     # CLI Argument Parser
