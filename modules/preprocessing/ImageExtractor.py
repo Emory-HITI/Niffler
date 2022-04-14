@@ -188,14 +188,7 @@ def extract_headers(f_list_elem, output_directory, DAnon):
     # checks if this file has an image
 
     #anonymize dicom before the extraction process finishes
-    if anonymize_dicom:
-        try:
-            DAnon.run(plan)
-        except Exception as e:
-            logging.warning('DICOM anonymization failed on file {}'.format(ff))
-            logging.error(e)
-
-
+   
     c=True
     try:
         check = plan.pixel_array # throws error if dicom file has no image
@@ -209,18 +202,22 @@ def extract_headers(f_list_elem, output_directory, DAnon):
     else:
         kv.append(('file', f_list_elem[1])) # adds my custom field with the original filepath
         kv.append(('has_pix_array',c))   # adds my custom field with if file has image
+        
+        #only anonymize if less than 300 tags
+        if anonymize_dicom:
+            try:
+                DAnon.run(plan,  './dicom_anon.out')
+            except Exception as e:
+                logging.warning('DICOM anonymization failed on file {}'.format(ff))
+                logging.error(e)
+
     if c:
         # adds my custom category field - useful if classifying images before processing
         kv.append(('category','uncategorized'))
     else:
         kv.append(('category','no image'))      # adds my custom category field, makes note as imageless
 
-    if anonymize_dicom:
-        try:
-            DAnon.run(plan)
-        except Exception as e:
-            logging.warning('DICOM anonymization failed on file {}'.format(ff))
-            logging.error(e)
+    
 
             
     return dict(kv)
@@ -571,7 +568,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
 
 
 if __name__ == "__main__":
-    with open('config.json', 'r') as f:
+    with open('/home/zzaiman/niffler_test_sandbox/config.json', 'r') as f:
         niffler = json.load(f)
 
     # CLI Argument Parser
