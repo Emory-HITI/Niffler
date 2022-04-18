@@ -99,7 +99,7 @@ def initialize_config_and_execute(valuesDict):
     else:
         cfind_add = ' -x stid.csv.xsl '
         out_folder = '.'
-    print("hello")
+        
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
     logging.basicConfig(filename=niffler_log, level=logging.INFO)
