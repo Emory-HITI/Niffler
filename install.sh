@@ -64,6 +64,7 @@ SERVICE=`head -n 1 init/service.out`
 if [ "$SERVICE" = false ] ; then
     echo "Installing Niffler Frontend"
     pip install -r modules/frontend/requirements.txt
+    pip install -i https://test.pypi.org/simple/ HITI-anon-internal
     chmod +x modules/frontend/service/frontend_service.sh
     sudo cp modules/frontend/service/niffler.service /etc/systemd/system/
     sudo systemctl daemon-reload
