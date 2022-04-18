@@ -90,9 +90,9 @@ class TestExtractHeaders:
     Test ImageExtractor.extract_headers
     """
     valid_test_dcm_file = 0, str(
-        pytest.data_dir / 'png-extraction' / 'input' / 'test-img.dcm'), False , True
+        pytest.data_dir / 'png-extraction' / 'input' / 'test-img.dcm'), True
     invalid_test_dcm_file = 0, str(
-        pytest.data_dir / 'png-extraction' / 'input' / 'no-img.dcm'), False, True
+        pytest.data_dir / 'png-extraction' / 'input' / 'no-img.dcm'), True
 
     def test_no_image(self):
         """
@@ -146,7 +146,7 @@ class TestExtractImages:
         Test Setup
         """
         header_list = [ImageExtractor.extract_headers(
-            (0, self.test_dcm_file,False,True))]
+            (0, self.test_dcm_file,True))]
         self.file_data = pd.DataFrame(header_list)
         self.index = 0
         self.invalid_file_data = pd.DataFrame([
