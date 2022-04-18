@@ -45,6 +45,7 @@ def initialize_config_and_execute(valuesDict):
     system_json = valuesDict['NifflerSystem']
 
     # Reads the system_json file.
+    
     try:
         with open(system_json, 'r') as f:
     	    niffler = json.load(f)
@@ -70,6 +71,7 @@ def initialize_config_and_execute(valuesDict):
         IS_EXTRACTION_NOT_RUNNING = True
         NIFFLER_ID = int(valuesDict['NifflerID'])
         MAX_PROCESSES = int(valuesDict['MaxNifflerProcesses'])
+
     SEPARATOR = ','
 
     firsts = []
@@ -99,7 +101,7 @@ def initialize_config_and_execute(valuesDict):
     else:
         cfind_add = ' -x stid.csv.xsl '
         out_folder = '.'
-        
+
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
     logging.basicConfig(filename=niffler_log, level=logging.INFO)
@@ -147,7 +149,7 @@ def check_kill_process():
             logging.warning("Once killed, restart Niffler as before.")
             logging.error("Your current Niffler process terminates now. You or someone with sudo privilege must kill "
                           "the idling storescp process first...")
-            sys.exit(1)
+            sys.exit(1)                
 
 
 def initialize():
@@ -171,7 +173,7 @@ def initialize():
         sys.exit(0)
 
     if storescp_processes >= niffler_processes:
-        logging.info('Killing the idling storescp processes')
+        logging.info('Killing the idling storescp processes')       
         check_kill_process()
 
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
@@ -241,7 +243,7 @@ def run_retrieval():
     """
     global IS_EXTRACTION_NOT_RUNNING
     if IS_EXTRACTION_NOT_RUNNING:
-        IS_EXTRACTION_NOT_RUNNING = False
+        IS_EXTRACTION_NOT_RUNNING = False   
         logging.info('Starting the extractions...')
         initialize()
         retrieve()
@@ -390,7 +392,7 @@ def retrieve():
         merge_temp_files()
 
     # Kill the running storescp process of Niffler.
-    check_kill_process()
+    check_kill_process() 
 
     if send_email:
         subprocess.call('echo "Niffler has successfully completed the DICOM retrieval" | mail -s "The DICOM retrieval '
@@ -504,7 +506,7 @@ def run_cold_extraction():
     """
     read_csv()
     # The thread scheduling
-    schedule.every(1).minutes.do(run_threaded, run_retrieval)
+    schedule.every(1).minutes.do(run_threaded, run_retrieval)    
     schedule.every(10).minutes.do(run_threaded, update_pickle)
 
     # Keep running in a loop.
