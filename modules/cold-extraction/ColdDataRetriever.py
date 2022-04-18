@@ -45,21 +45,31 @@ def initialize_config_and_execute(valuesDict):
     system_json = valuesDict['NifflerSystem']
 
     # Reads the system_json file.
-    with open(system_json, 'r') as f:
-        niffler = json.load(f)
- 
-    # Get constants from system.json
-    DCM4CHE_BIN = niffler['DCM4CHEBin']
-    SRC_AET = niffler['SrcAet']
-    QUERY_AET = niffler['QueryAet']
-    DEST_AET = niffler['DestAet']
-    NIGHTLY_ONLY = niffler['NightlyOnly']
-    START_HOUR = niffler['StartHour']
-    END_HOUR = niffler['EndHour']
-    IS_EXTRACTION_NOT_RUNNING = True
-    NIFFLER_ID = niffler['NifflerID']
-    MAX_PROCESSES = niffler['MaxNifflerProcesses']
-
+    try:
+        with open(system_json, 'r') as f:
+    	    niffler = json.load(f)
+    	# Get constants from system.json
+        DCM4CHE_BIN = niffler['DCM4CHEBin']
+        SRC_AET = niffler['SrcAet']
+        QUERY_AET = niffler['QueryAet']
+        DEST_AET = niffler['DestAet']
+        NIGHTLY_ONLY = niffler['NightlyOnly']
+        START_HOUR = niffler['StartHour']
+        END_HOUR = niffler['EndHour']
+        IS_EXTRACTION_NOT_RUNNING = True
+        NIFFLER_ID = niffler['NifflerID']
+        MAX_PROCESSES = niffler['MaxNifflerProcesses']
+    except:
+        DCM4CHE_BIN = valuesDict['DCM4CHEBin']
+        SRC_AET = valuesDict['SrcAet']
+        QUERY_AET = valuesDict['QueryAet']
+        DEST_AET = valuesDict['DestAet']
+        NIGHTLY_ONLY = False
+        START_HOUR = int(valuesDict['StartHour'])
+        END_HOUR = int(valuesDict['EndHour'])
+        IS_EXTRACTION_NOT_RUNNING = True
+        NIFFLER_ID = int(valuesDict['NifflerID'])
+        MAX_PROCESSES = int(valuesDict['MaxNifflerProcesses'])
     SEPARATOR = ','
 
     firsts = []
@@ -89,7 +99,7 @@ def initialize_config_and_execute(valuesDict):
     else:
         cfind_add = ' -x stid.csv.xsl '
         out_folder = '.'
-
+    print("hello")
     niffler_log = 'niffler' + str(NIFFLER_ID) + '.log'
 
     logging.basicConfig(filename=niffler_log, level=logging.INFO)
@@ -137,7 +147,7 @@ def check_kill_process():
             logging.warning("Once killed, restart Niffler as before.")
             logging.error("Your current Niffler process terminates now. You or someone with sudo privilege must kill "
                           "the idling storescp process first...")
-            sys.exit(1)                
+            sys.exit(1)
 
 
 def initialize():
@@ -161,7 +171,7 @@ def initialize():
         sys.exit(0)
 
     if storescp_processes >= niffler_processes:
-        logging.info('Killing the idling storescp processes')       
+        logging.info('Killing the idling storescp processes')
         check_kill_process()
 
     logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
@@ -231,7 +241,7 @@ def run_retrieval():
     """
     global IS_EXTRACTION_NOT_RUNNING
     if IS_EXTRACTION_NOT_RUNNING:
-        IS_EXTRACTION_NOT_RUNNING = False   
+        IS_EXTRACTION_NOT_RUNNING = False
         logging.info('Starting the extractions...')
         initialize()
         retrieve()
@@ -380,7 +390,7 @@ def retrieve():
         merge_temp_files()
 
     # Kill the running storescp process of Niffler.
-    check_kill_process() 
+    check_kill_process()
 
     if send_email:
         subprocess.call('echo "Niffler has successfully completed the DICOM retrieval" | mail -s "The DICOM retrieval '
@@ -494,7 +504,7 @@ def run_cold_extraction():
     """
     read_csv()
     # The thread scheduling
-    schedule.every(1).minutes.do(run_threaded, run_retrieval)    
+    schedule.every(1).minutes.do(run_threaded, run_retrieval)
     schedule.every(10).minutes.do(run_threaded, update_pickle)
 
     # Keep running in a loop.
@@ -511,45 +521,71 @@ def run_cold_extraction():
 if __name__ == "__main__":
     config = defaultdict(lambda: None)
     # Read Default config.json file
-    with open('config.json', 'r') as f:
-        tmp_config = json.load(f)
-        config.update(tmp_config)
+    try:
+        with open('config.json', 'r') as f:
+            tmp_config = json.load(f)
+            config.update(tmp_config)
 
     # CLI Argument Parser
-    ap = argparse.ArgumentParser()
+        ap = argparse.ArgumentParser()
 
-    ap.add_argument("--NifflerSystem", default=config['NifflerSystem'],
+        ap.add_argument("--NifflerSystem", default=config['NifflerSystem'],
                     help="Path to json file with Niffler System Information.")
-    ap.add_argument("--StorageFolder",
+        ap.add_argument("--StorageFolder",
                     default=config['StorageFolder'], help="StoreSCP config: Storage Folder. Refer Readme.md")
-    ap.add_argument("--FilePath", default=config['FilePath'],
+        ap.add_argument("--FilePath", default=config['FilePath'],
                     help="StoreSCP config: FilePath, Refer configuring config.json in Readme.md.")
-    ap.add_argument("--CsvFile", default=config['CsvFile'],
+        ap.add_argument("--CsvFile", default=config['CsvFile'],
                     help="Path to CSV file for extraction. Refer Readme.md.")
-    ap.add_argument("--NumberOfQueryAttributes", default=config['NumberOfQueryAttributes'], type=int,
+        ap.add_argument("--NumberOfQueryAttributes", default=config['NumberOfQueryAttributes'], type=int,
                     help="How many DICOM Attributes do you want to filter with for your retrieval. Default is 1.")
-    ap.add_argument("--FirstAttr", default=config['FirstAttr'],
+        ap.add_argument("--FirstAttr", default=config['FirstAttr'],
                     help="What is the first attribute you like to query with. Refer Readme.md.")
-    ap.add_argument("--FirstIndex", default=config['FirstIndex'], type=int,
+        ap.add_argument("--FirstIndex", default=config['FirstIndex'], type=int,
                     help="Set the CSV column index of the first query attribute.")
-    ap.add_argument("--SecondAttr", default=config['SecondAttr'],
+        ap.add_argument("--SecondAttr", default=config['SecondAttr'],
                     help="What is the second attribute you like to query with. Refer Readme.md. "
                          "Required only if the number of query attributes are 2 or 3")
-    ap.add_argument("--SecondIndex", default=config['SecondIndex'], type=int,
+        ap.add_argument("--SecondIndex", default=config['SecondIndex'], type=int,
                     help="Set the CSV column index of second query attribute. "
                          "Required only if the number of query attributes are 2 or 3")
-    ap.add_argument("--ThirdAttr", default=config['ThirdAttr'],
+        ap.add_argument("--ThirdAttr", default=config['ThirdAttr'],
                     help="What is the third attribute you like to query with. Refer Readme.md. "
                          "Required only if the number of query attributes is 3")
-    ap.add_argument("--ThirdIndex", default=config['ThirdIndex'], type=int,
+        ap.add_argument("--ThirdIndex", default=config['ThirdIndex'], type=int,
                     help="Set the CSV column index of third index query attribute. "
                          "Required only if the number of query attributes is 3")
-    ap.add_argument("--DateFormat", default=config['DateFormat'],
+        ap.add_argument("--DateFormat", default=config['DateFormat'],
                     help="DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. Refer Readme.md.")
-    ap.add_argument("--SendEmail", default=config['SendEmail'], type=bool,
+        ap.add_argument("--SendEmail", default=config['SendEmail'], type=bool,
                     help="Send email when extraction is complete. Default false")
-    ap.add_argument("--YourEmail", default=config['YourEmail'],
+        ap.add_argument("--YourEmail", default=config['YourEmail'],
                     help="A valid email, if send email is enabled.")
+    except:
+        ap = argparse.ArgumentParser()
+        ap.add_argument("--NifflerSystem")
+        ap.add_argument("--StorageFolder")
+        ap.add_argument("--FilePath")
+        ap.add_argument("--CsvFile")
+        ap.add_argument("--NumberOfQueryAttributes",  type=int)
+        ap.add_argument("--FirstAttr")
+        ap.add_argument("--FirstIndex", type=int)
+        ap.add_argument("--SecondAttr")
+        ap.add_argument("--SecondIndex",  type=int)
+        ap.add_argument("--ThirdAttr")
+        ap.add_argument("--ThirdIndex", type=int)
+        ap.add_argument("--DateFormat")
+        ap.add_argument("--SendEmail",  type=bool)
+        ap.add_argument("--YourEmail")
+        ap.add_argument("--DCM4CHEBin")
+        ap.add_argument("--SrcAet")
+        ap.add_argument("--QueryAet")
+        ap.add_argument("--DestAet")
+        ap.add_argument("--NightlyOnly", type=bool)
+        ap.add_argument("--StartHour", type=int)
+        ap.add_argument("--EndHour", type=int)
+        ap.add_argument("--NifflerID", type=int)
+        ap.add_argument("--MaxNifflerProcesses", type=int)
 
     args = vars(ap.parse_args())
 
