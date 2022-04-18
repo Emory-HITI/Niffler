@@ -21,3 +21,18 @@ The module currently do not offer felixbility to run all the above mentioned mod
 ```
 
 PS - Though the cold extraction module is integrated in the workflow module. It is currently causing issues by messing with the flow of other modules and is not being used in this module.
+
+# cold_png_suvpar: 
+cold_png_suvpar is a workflow that executes Cold_extraction, Png_extration, Suvrpar sequentially. 
+
+Steps to use this workflow:
+  1. Modify nextflow.config.
+  2. run the command ``` nextflow run cold_png_suvpar.nf ```
+  
+Make sure that nextflow is installed. If you have run ./install then nextflow would be installed in you computer if not run the following commands:
+ ```
+ wget -qO- https://get.nextflow.io | bash
+ ```
+ ```
+ sudo mv nextflow /usr/local/bin
+ ```

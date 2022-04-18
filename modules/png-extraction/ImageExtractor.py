@@ -47,7 +47,8 @@ def initialize_config_and_execute(config_values):
     email = configs['YourEmail']
     send_email = bool(configs['SendEmail'])
     no_splits = int(configs['SplitIntoChunks'])
-    is16Bit = bool(configs['is16Bit']) 
+    is16Bit = bool(configs['is16Bit'])
+    featureset=configs['FeaturesetFile']
     
     metadata_col_freq_threshold = 0.1
 
@@ -395,7 +396,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # export csv file of final dataframe
         if(SpecificHeadersOnly):
             try:
-                feature_list = open("featureset.txt").read().splitlines()
+                feature_list = open(featureset).read().splitlines()
                 features = []
                 for j in feature_list:
                     if j in data.columns:
@@ -496,25 +497,42 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
 
 
 if __name__ == "__main__":
-    with open('config.json', 'r') as f:
-        niffler = json.load(f)
-
-    # CLI Argument Parser
     ap = argparse.ArgumentParser()
+    try:
+        with open('config.json', 'r') as f:
+            niffler = json.load(f)
 
-    ap.add_argument("--DICOMHome", default=niffler['DICOMHome'])
-    ap.add_argument("--OutputDirectory", default=niffler['OutputDirectory'])
-    ap.add_argument("--Depth", default=niffler['Depth'])
-    ap.add_argument("--SplitIntoChunks", default=niffler['SplitIntoChunks'])
-    ap.add_argument("--PrintImages", default=niffler['PrintImages'])
-    ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
-    ap.add_argument("--PublicHeadersOnly", default=niffler['PublicHeadersOnly'])
-    ap.add_argument("--SpecificHeadersOnly", default=niffler['SpecificHeadersOnly'])
-    ap.add_argument("--UseProcesses", default=niffler['UseProcesses'])
-    ap.add_argument("--FlattenedToLevel", default=niffler['FlattenedToLevel'])
-    ap.add_argument("--is16Bit", default=niffler['is16Bit'])
-    ap.add_argument("--SendEmail", default=niffler['SendEmail'])
-    ap.add_argument("--YourEmail", default=niffler['YourEmail'])
+        # CLI Argument Parser
+
+
+        ap.add_argument("--DICOMHome", default=niffler['DICOMHome'])
+        ap.add_argument("--OutputDirectory", default=niffler['OutputDirectory'])
+        ap.add_argument("--Depth", default=niffler['Depth'])
+        ap.add_argument("--SplitIntoChunks", default=niffler['SplitIntoChunks'])
+        ap.add_argument("--PrintImages", default=niffler['PrintImages'])
+        ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
+        ap.add_argument("--PublicHeadersOnly", default=niffler['PublicHeadersOnly'])
+        ap.add_argument("--SpecificHeadersOnly", default=niffler['SpecificHeadersOnly'])
+        ap.add_argument("--UseProcesses", default=niffler['UseProcesses'])
+        ap.add_argument("--FlattenedToLevel", default=niffler['FlattenedToLevel'])
+        ap.add_argument("--is16Bit", default=niffler['is16Bit'])
+        ap.add_argument("--SendEmail", default=niffler['SendEmail'])
+        ap.add_argument("--YourEmail", default=niffler['YourEmail'])
+    except:
+        ap.add_argument("--SpecificHeadersOnly")
+        ap.add_argument("--DICOMHome")
+        ap.add_argument("--OutputDirectory")
+        ap.add_argument("--Depth")
+        ap.add_argument("--SplitIntoChunks")
+        ap.add_argument("--PrintImages")
+        ap.add_argument("--CommonHeadersOnly")
+        ap.add_argument("--UseProcesses")
+        ap.add_argument("--FlattenedToLevel")
+        ap.add_argument("--is16Bit")
+        ap.add_argument("--SendEmail")
+        ap.add_argument("--YourEmail")
+        ap.add_argument("--PublicHeadersOnly")
+        ap.add_argument("--FeaturesetFile")
 
     args = vars(ap.parse_args())
 

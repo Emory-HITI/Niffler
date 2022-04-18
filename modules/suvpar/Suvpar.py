@@ -2,6 +2,7 @@ import pandas
 import logging
 import json
 import numpy
+import argparse
 
 logging.basicConfig(level=logging.INFO)
 df = {}
@@ -9,11 +10,13 @@ output_csv = {}
 final_csv = True
 
 
-def initialize():
+def initialize(valuesdict):
     global output_csv, df
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-
+    try:
+        with open('config.json', 'r') as f:
+            config = json.load(f)
+    except:
+        config=valuesdict
     feature_file = config['FeaturesetFile']
     filename = config['InputFile']
     output_csv = config['OutputFile']
@@ -211,6 +214,12 @@ def write():
 
 
 if __name__ == "__main__":
-    initialize()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--InputFile")
+    ap.add_argument("--OutputFile")
+    ap.add_argument("--FeaturesetFile")
+    args = vars(ap.parse_args())
+
+    initialize(args)
     suvpar()
     write()
