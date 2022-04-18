@@ -12,6 +12,6 @@ pytest
 pytest-mock
 pytest-cov
 tqdm
-HITI-anon-internal==2022.4.12
+HITI-anon-internal==2022.4.15
 pycryptodomex
 SQLAlchemy
