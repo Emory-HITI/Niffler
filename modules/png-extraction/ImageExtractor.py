@@ -146,19 +146,9 @@ def get_tuples(plan,PublicHeadersOnly, outlist = None, key = ""):
 
     return outlist
 
-def unpack_args(func):
-    from functools import wraps
-    @wraps(func)
-    def wrapper(args):
-        if isinstance(args, dict):
-            return func(**args)
-        else:
-            return func(*args)
-    return wrapper
-
-@unpack_args
-def extract_headers(f_list_elem, output_directory):
-    nn,ff,PublicHeadersOnly = f_list_elem # unpack enumerated list
+def extract_headers(f_list_elem):
+    global failed
+    nn,ff,PublicHeadersOnly, output_directory = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
     c=True
@@ -170,7 +160,7 @@ def extract_headers(f_list_elem, output_directory):
     # dicom images should not have more than 300 dicom tags
     if len(kv)>300:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
-        copyfile(ff, output_directory+'/failed-dicom/5/'+ '/'.join(ff.split()[-3:]))
+        copyfile(ff, output_directory+'/failed-dicom/5/'+'/'.join(ff.split()[-3:]))
     else:
         kv.append(('file', f_list_elem[1])) # adds my custom field with the original filepath
         kv.append(('has_pix_array',c))   # adds my custom field with if file has image
@@ -397,8 +387,8 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
 
         with Pool(core_count) as p:
             # we send here print_only_public_headers bool value
-            chunks_list=[tups + (PublicHeadersOnly,) for tups in enumerate(chunk)]
-            res = p.imap_unordered(extract_headers, zip(chunks_list, output_directory))
+            chunks_list=[tups + (PublicHeadersOnly,) + (output_directory,) for tups in enumerate(chunk)]
+            res = p.imap_unordered(extract_headers, chunks_list)
             for i,e in enumerate(res):
                 headerlist.append(e)
         data = pd.DataFrame(headerlist)
