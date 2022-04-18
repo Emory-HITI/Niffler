@@ -523,14 +523,12 @@ def run_cold_extraction():
 if __name__ == "__main__":
     config = defaultdict(lambda: None)
     # Read Default config.json file
+    ap = argparse.ArgumentParser()
     try:
         with open('config.json', 'r') as f:
             tmp_config = json.load(f)
             config.update(tmp_config)
-
-    # CLI Argument Parser
-        ap = argparse.ArgumentParser()
-
+            
         ap.add_argument("--NifflerSystem", default=config['NifflerSystem'],
                     help="Path to json file with Niffler System Information.")
         ap.add_argument("--StorageFolder",
@@ -564,7 +562,6 @@ if __name__ == "__main__":
         ap.add_argument("--YourEmail", default=config['YourEmail'],
                     help="A valid email, if send email is enabled.")
     except:
-        ap = argparse.ArgumentParser()
         ap.add_argument("--NifflerSystem")
         ap.add_argument("--StorageFolder")
         ap.add_argument("--FilePath")
