@@ -147,8 +147,7 @@ def get_tuples(plan,PublicHeadersOnly, outlist = None, key = ""):
     return outlist
 
 def extract_headers(f_list_elem):
-    global failed
-    nn,ff,PublicHeadersOnly, output_directory = f_list_elem # unpack enumerated list
+    nn,ff,PublicHeadersOnly,output_directory = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
     c=True
