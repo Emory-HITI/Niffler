@@ -1,5 +1,6 @@
 import png
 import sys
+import pdb
 import pytest
 import shutil
 import numpy as np
@@ -90,9 +91,9 @@ class TestExtractHeaders:
     Test ImageExtractor.extract_headers
     """
     valid_test_dcm_file = 0, str(
-        pytest.data_dir / 'png-extraction' / 'input' / 'test-img.dcm'), True
+        pytest.data_dir / 'png-extraction' / 'input' / 'test-img.dcm'), True, str(pytest.data_dir / 'png-extraction' / 'output')
     invalid_test_dcm_file = 0, str(
-        pytest.data_dir / 'png-extraction' / 'input' / 'no-img.dcm'), True
+        pytest.data_dir / 'png-extraction' / 'input' / 'no-img.dcm'), True, str(pytest.data_dir / 'png-extraction' / 'output')
 
     def test_no_image(self):
         """
@@ -125,7 +126,7 @@ class TestGetTuples:
         Verifies first key
         """
         first_key = self.test_valid_plan.dir()[0]
-        tuple_list = ImageExtractor.get_tuples(self.test_valid_plan,False,True)
+        tuple_list = ImageExtractor.get_tuples(self.test_valid_plan,False)
         assert tuple_list[0][0] == first_key
 
     # TODO hasattr error
@@ -146,7 +147,7 @@ class TestExtractImages:
         Test Setup
         """
         header_list = [ImageExtractor.extract_headers(
-            (0, self.test_dcm_file,True))]
+            (0, self.test_dcm_file,True, str(pytest.data_dir / 'png-extraction' / 'output')))]
         self.file_data = pd.DataFrame(header_list)
         self.index = 0
         self.invalid_file_data = pd.DataFrame([
