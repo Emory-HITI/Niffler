@@ -156,8 +156,8 @@ def extract_headers(f_list_elem):
     except:
         c = False
     kv = get_tuples(plan,PublicHeadersOnly)       # gets tuple for field,val pairs for this file. function defined above
-    # dicom images should not have more than 500 dicom tags
-    if len(kv) > 500:
+    # dicom images should not have more than 800 dicom tags
+    if len(kv) > 800:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
         copyfile(ff, failed + '/5/' + os.path.basename(ff))
     else:
