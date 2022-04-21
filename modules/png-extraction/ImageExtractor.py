@@ -159,7 +159,7 @@ def extract_headers(f_list_elem):
     # dicom images should not have more than 800 dicom tags
     if len(kv) > 800:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
-        copyfile(ff, failed + '/5/' + os.path.basename(ff))
+        copyfile(ff, output_directory + '/failed-dicom/5/' + os.path.basename(ff))
     else:
         kv.append(('file', f_list_elem[1])) # adds my custom field with the original filepath
         kv.append(('has_pix_array',c))   # adds my custom field with if file has image
