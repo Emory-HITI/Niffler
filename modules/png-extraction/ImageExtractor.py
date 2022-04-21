@@ -8,7 +8,7 @@ import json
 import sys
 import subprocess
 import logging
-from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool as Pool
 import pdb
 import time
 import pickle
