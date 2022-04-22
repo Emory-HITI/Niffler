@@ -2,6 +2,9 @@
 echo "Configuring Niffler"
 sudo chmod -R 777 .
 
+wget -qO- https://get.nextflow.io | bash
+sudo mv nextflow /usr/local/bin
+
 PIP=`head -n 1 init/pip.out`
 if [ "$PIP" = false ] ; then
     sudo yum install -y python3
