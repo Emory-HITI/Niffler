@@ -1,5 +1,5 @@
 # cold_png_suvpar: 
-cold_png_suvpar is a workflow that executes Cold_extraction, Png_extration, Suvrpar sequentially. 
+cold_png_suvpar is a workflow that executes Cold_extraction, Png_extration, Suvpar sequentially. 
 
 Steps to use this workflow:
   1. Modify nextflow.config.
