@@ -150,6 +150,19 @@ def extract_headers(f_list_elem):
     nn,ff,PublicHeadersOnly,output_directory = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
+    
+
+    #checks all dicom fields to make sure they are valid 
+    #if an error occurs, will delete it from the data structure 
+    dcm_dict_copy = list(plan._dict.keys())
+
+    for tag in dcm_dict_copy:
+        try:
+            plan[tag]
+        except: 
+            logging.warning("dropped fatal DICOM tag {}".format(tag))
+            del plan[tag]
+
     c=True
     try:
         check = plan.pixel_array # throws error if dicom file has no image
