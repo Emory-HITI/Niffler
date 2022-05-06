@@ -8,7 +8,7 @@ import json
 import sys
 import subprocess
 import logging
-from multiprocessing import Pool
+from multiprocessing.pool import ThreadPool as Pool
 import pdb
 import time
 import pickle
@@ -21,10 +21,10 @@ import png
 from pydicom import config
 from pydicom import datadict
 from pydicom import values 
+np.seterr(invalid='ignore')
 
 import pathlib
 configs = {}
-
 
 def initialize_config_and_execute(config_values):
     global configs
@@ -39,6 +39,8 @@ def initialize_config_and_execute(config_values):
 
     print_images = bool(configs['PrintImages'])
     print_only_common_headers = bool(configs['CommonHeadersOnly'])
+    PublicHeadersOnly = bool(configs['PublicHeadersOnly'])
+    SpecificHeadersOnly = bool(configs['SpecificHeadersOnly'])
     depth = int(configs['Depth'])
     processes = int(configs['UseProcesses']) # how many processes to use.
     flattened_to_level = configs['FlattenedToLevel']
@@ -89,15 +91,18 @@ def initialize_config_and_execute(config_values):
     if not os.path.exists(failed + "/4"):
         os.makedirs(failed + "/4")
 
+    if not os.path.exists(failed + "/5"):
+        os.makedirs(failed + "/5")
+
     logging.info("------- Values Initialization DONE -------")
     final_res = execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
                         processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
-        failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start)
+        failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start,SpecificHeadersOnly,PublicHeadersOnly)
     return final_res
 
 
 # Function for getting tuple for field,val pairs
-def get_tuples(plan, outlist = None, key = ""):
+def get_tuples(plan,PublicHeadersOnly, outlist = None, key = ""):
     if len(key)>0:
         key =  key + "_"
     if not outlist:
@@ -107,7 +112,6 @@ def get_tuples(plan, outlist = None, key = ""):
             hasattr(plan,aa)
         except TypeError as e:
             logging.warning('Type Error encountered')
-            continue
         if hasattr(plan, aa) and aa!= 'PixelData':
             value = getattr(plan, aa)
             start = len(outlist)
@@ -115,7 +119,7 @@ def get_tuples(plan, outlist = None, key = ""):
             if type(value) is dicom.sequence.Sequence:
                 for nn, ss in enumerate(list(value)):
                     newkey = "_".join([key,("%d"%nn),aa]) if len(key) else "_".join([("%d"%nn),aa])
-                    candidate = get_tuples(ss,outlist=None,key=newkey)
+                    candidate = get_tuples(ss,PublicHeadersOnly,outlist=None,key=newkey)
                     # if extracted tuples are too big condense to a string
                     if len(candidate)>2000:
                         outlist.append((newkey,str(candidate)))
@@ -132,22 +136,48 @@ def get_tuples(plan, outlist = None, key = ""):
                     value = str(value)
                 outlist.append((key + aa, value))
                 # appends name, value pair for this file. these are later concatenated to the dataframe
+    # appends the private tags
+    if not PublicHeadersOnly:
+        x = plan.keys()
+        x = list(x)
+        for i in x:
+            if i.is_private:
+                outlist.append((plan[i].name, plan[i].value))
+
     return outlist
 
-
 def extract_headers(f_list_elem):
-    nn,ff = f_list_elem # unpack enumerated list
+    nn,ff,PublicHeadersOnly,output_directory = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
+    
+
+    #checks all dicom fields to make sure they are valid 
+    #if an error occurs, will delete it from the data structure 
+    dcm_dict_copy = list(plan._dict.keys())
+
+    for tag in dcm_dict_copy:
+        try:
+            plan[tag]
+        except: 
+            logging.warning("dropped fatal DICOM tag {}".format(tag))
+            del plan[tag]
+
     c=True
     try:
         check = plan.pixel_array # throws error if dicom file has no image
     except:
         c = False
-    kv = get_tuples(plan)       # gets tuple for field,val pairs for this file. function defined above
-    # dicom images should not have more than 300 dicom tags
-    if len(kv)>300:
+    kv = get_tuples(plan,PublicHeadersOnly)       # gets tuple for field,val pairs for this file. function defined above
+
+    if PublicHeadersOnly:
+        dicom_tags_limit = 300
+    else:
+        dicom_tags_limit = 800
+
+    if len(kv) > dicom_tags_limit:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
+        copyfile(ff, output_directory + '/failed-dicom/5/' + os.path.basename(ff))
     else:
         kv.append(('file', f_list_elem[1])) # adds my custom field with the original filepath
         kv.append(('has_pix_array',c))   # adds my custom field with if file has image
@@ -313,7 +343,7 @@ def fix_mismatch(with_VRs=['PN', 'DS', 'IS', 'LO', 'OB']):
 
 def execute(pickle_file, dicom_home, output_directory, print_images, print_only_common_headers, depth,
             processes, flattened_to_level, email, send_email, no_splits, is16Bit, png_destination,
-    failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start):
+    failed, maps_directory, meta_directory, LOG_FILENAME, metadata_col_freq_threshold, t_start,SpecificHeadersOnly,PublicHeadersOnly):
     err = None
     fix_mismatch()
     if processes == 0.5:  # use half the cores to avoid  high ram usage
@@ -371,17 +401,32 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         # start up a multi processing pool
         # for every item in filelist send data to a subprocess and run extract_headers func
         # output is then added to headerlist as they are completed (no ordering is done)
+
         with Pool(core_count) as p:
-            res= p.imap_unordered(extract_headers, enumerate(chunk))
+            # we send here print_only_public_headers bool value
+            chunks_list=[tups + (PublicHeadersOnly,) + (output_directory,) for tups in enumerate(chunk)]
+            res = p.imap_unordered(extract_headers, chunks_list)
             for i,e in enumerate(res):
                 headerlist.append(e)
         data = pd.DataFrame(headerlist)
         logging.info('Chunk ' + str(i) + ' Number of fields per file : ' + str(len(data.columns)))
-        # find common fields
-        # make dataframe containing all fields and all files minus those removed in previous block
         # export csv file of final dataframe
-        export_csv = data.to_csv(csv_destination, index = None, header=True)
+        if(SpecificHeadersOnly):
+            try:
+                feature_list = open("featureset.txt").read().splitlines()
+                features = []
+                for j in feature_list:
+                    if j in data.columns:
+                        features.append(j)
+                meta_data = data[features]
+            except:
+                meta_data = data
+                logging.error("featureset.txt not found")
+        else:
+            meta_data = data
+ 
         fields=data.keys()
+        export_csv = meta_data.to_csv(csv_destination, index = None, header=True)
         count = 0 # potential painpoint
         # writting of log handled by main process
         if print_images:
@@ -481,6 +526,8 @@ if __name__ == "__main__":
     ap.add_argument("--SplitIntoChunks", default=niffler['SplitIntoChunks'])
     ap.add_argument("--PrintImages", default=niffler['PrintImages'])
     ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
+    ap.add_argument("--PublicHeadersOnly", default=niffler['PublicHeadersOnly'])
+    ap.add_argument("--SpecificHeadersOnly", default=niffler['SpecificHeadersOnly'])
     ap.add_argument("--UseProcesses", default=niffler['UseProcesses'])
     ap.add_argument("--FlattenedToLevel", default=niffler['FlattenedToLevel'])
     ap.add_argument("--is16Bit", default=niffler['is16Bit'])
