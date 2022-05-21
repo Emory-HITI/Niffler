@@ -388,6 +388,9 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
                 logging.debug(str(entry))
 
     for i,chunk in enumerate(file_chunks):
+
+        chunk_timestamp = time.time()
+
         csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
         mappings = "{}/maps/mapping_{}.csv".format(output_directory,i)
         fm = open(mappings, "w+")
@@ -445,7 +448,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
                     else:
                         fm.write(fmap)
         fm.close()
-        logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
+        logging.info('Chunk run time: %s %s', time.time() - chunk_timestamp, ' seconds!')
 
     logging.info('Generating final metadata file')
 
