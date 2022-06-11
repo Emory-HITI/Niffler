@@ -150,14 +150,32 @@ def extract_headers(f_list_elem):
     nn,ff,PublicHeadersOnly,output_directory = f_list_elem # unpack enumerated list
     plan = dicom.dcmread(ff, force=True)  # reads in dicom file
     # checks if this file has an image
+    
+
+    #checks all dicom fields to make sure they are valid 
+    #if an error occurs, will delete it from the data structure 
+    dcm_dict_copy = list(plan._dict.keys())
+
+    for tag in dcm_dict_copy:
+        try:
+            plan[tag]
+        except: 
+            logging.warning("dropped fatal DICOM tag {}".format(tag))
+            del plan[tag]
+
     c=True
     try:
         check = plan.pixel_array # throws error if dicom file has no image
     except:
         c = False
     kv = get_tuples(plan,PublicHeadersOnly)       # gets tuple for field,val pairs for this file. function defined above
-    # dicom images should not have more than 800 dicom tags
-    if len(kv) > 800:
+
+    if PublicHeadersOnly:
+        dicom_tags_limit = 300
+    else:
+        dicom_tags_limit = 800
+
+    if len(kv) > dicom_tags_limit:
         logging.debug(str(len(kv)) + " dicom tags produced by " + ff)
         copyfile(ff, output_directory + '/failed-dicom/5/' + os.path.basename(ff))
     else:
@@ -370,6 +388,9 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
                 logging.debug(str(entry))
 
     for i,chunk in enumerate(file_chunks):
+
+        chunk_timestamp = time.time()
+
         csv_destination = "{}/meta/metadata_{}.csv".format(output_directory,i)
         mappings = "{}/maps/mapping_{}.csv".format(output_directory,i)
         fm = open(mappings, "w+")
@@ -427,7 +448,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
                     else:
                         fm.write(fmap)
         fm.close()
-        logging.info('Chunk run time: %s %s', time.time() - t_start, ' seconds!')
+        logging.info('Chunk run time: %s %s', time.time() - chunk_timestamp, ' seconds!')
 
     logging.info('Generating final metadata file')
 
