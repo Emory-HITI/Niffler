@@ -202,6 +202,27 @@ def suvpar():
         df = df.drop(columns=['TCSeriesStartTime'])
         df = df.drop(columns=['TCSeriesEndTime'])
 
+        # (5) Study Level Scanner Utilization
+
+        # sum of the SeriesDurationInMins
+        df1 = df.groupby(['StudyDate', 'DeviceSerialNumber', 'AccessionNumber']).SeriesDurationInMins.agg(
+            [sum]).reset_index()
+
+        # mean of the StudyDurationInMins
+        df2 = df.groupby(['StudyDate', 'DeviceSerialNumber', 'AccessionNumber']).StudyDurationInMins.agg(
+            "mean").reset_index()
+        df2 = df2.drop(columns=['StudyDate', 'DeviceSerialNumber'])
+
+        df1 = pandas.merge(df1, df2, on='AccessionNumber')
+        df1.rename(columns={'sum': 'SeriesDurationInMinsTotal'}, inplace=True)
+        df1.rename(columns={'StudyDurationInMins': 'StudyDurationInMean'}, inplace=True)
+
+        df1['StudyLevelScannerUtilization'] = df1['SeriesDurationInMinsTotal'] / df1['StudyDurationInMean']
+        df1 = df1.drop(columns=['StudyDate', 'DeviceSerialNumber'])
+
+        # merge with the original dataframe
+        df = pandas.merge(df, df1, on='AccessionNumber')
+
         # Sort by "DeviceSerialNumber" and "SeriesStartTime"
         df = df.sort_values(["DeviceSerialNumber", "SeriesStartTime"])
 
