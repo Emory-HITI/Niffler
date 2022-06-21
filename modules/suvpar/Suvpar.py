@@ -76,7 +76,7 @@ def suvpar():
     # Add computed non-DICOM fields and drop a few attributes, if we are producing a final_csv and not an intermediate.
     if final_csv:
         df['AcquisitionDateTime'] = df['AcquisitionDate'].astype(int).astype(str) + \
-                                df['AcquisitionTime'].astype(float).astype(str)
+                                    df['AcquisitionTime'].astype(float).astype(str)
         df['AcquisitionDateTime'] = pandas.to_datetime(df['AcquisitionDateTime'], format='%Y%m%d%H%M%S.%f')
         df['AcquisitionDateTime'] = df['AcquisitionDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
 
@@ -219,10 +219,53 @@ def suvpar():
         # Compute scanner on duration in minutes
         df['ScannerTotalOnTimeInMins'] = (df.ScannerOff - df.ScannerOn).dt.seconds / 60.0
 
-        df = df.drop(columns=['TCAcquisitionStartTime'])
-        df = df.drop(columns=['TCAcquisitionEndTime'])
-        df = df.drop(columns=['TCSeriesStartTime'])
-        df = df.drop(columns=['TCSeriesEndTime'])
+        df = df.drop(
+            columns=['TCAcquisitionStartTime', 'TCAcquisitionEndTime', 'TCSeriesStartTime', 'TCSeriesEndTime', ])
+
+        # (5) Study Level Scanner Utilization
+        df_temp1 = df.groupby(['StudyDate', 'DeviceSerialNumber', 'AccessionNumber']).SeriesDurationInMins.agg(
+            [sum]).reset_index()
+        df_temp2 = df.groupby(['StudyDate', 'DeviceSerialNumber', 'AccessionNumber']).StudyDurationInMins.agg(
+            "mean").reset_index().drop(columns=['StudyDate', 'DeviceSerialNumber'])
+
+        df_study = pandas.merge(df_temp1, df_temp2, on='AccessionNumber')
+        df_study.rename(columns={'StudyDurationInMins': 'StudyDurationInMean', 'sum': 'SeriesDurationInMinsTotal'},
+                        inplace=True)
+        df_study['StudyLevelScannerUtilization'] = df_study['SeriesDurationInMinsTotal'] / df_study[
+            'StudyDurationInMean']
+        # In df_study consist six columns ('StudyDate', 'DeviceSerialNumber', 'AccessionNumber',
+        # 'StudyLevelScannerUtilization', 'SeriesDurationInMinsTotal','StudyDurationInMean']
+
+        # (6) scanner utilization
+        df_temp = df.groupby(['StudyDate', 'DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
+            "mean").reset_index().drop(
+            columns=['StudyDate'])
+        # Now add the DeviceSerialNumber column in df_study
+        df_study = pandas.merge(df_study, df_temp, on='DeviceSerialNumber')
+
+        # adding the total StudyDuration by particular scanner
+        df_temp = df_study.groupby(['DeviceSerialNumber']).StudyDurationInMean.agg(
+            [sum]).reset_index()
+        df_temp1 = df_study.groupby(['DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
+            "mean").reset_index()
+        df_scanner = pandas.merge(df_temp, df_temp1, on='DeviceSerialNumber')
+
+        df_scanner.rename(
+            columns={'sum': 'StudyDurationInMeanSum', 'ScannerTotalOnTimeInMins': 'ScannerTotalOnTimeInMinsMean'},
+            inplace=True)
+
+        df_scanner['ScannerUtilization'] = (df_scanner['StudyDurationInMeanSum'] / df_scanner[
+            'ScannerTotalOnTimeInMinsMean']) * 100
+
+        # merge df_study with df_scanner
+        df_utilizer = pandas.merge(df_study, df_scanner, on='DeviceSerialNumber')
+
+        # drop duplicate columns
+        df_utilizer = df_utilizer.drop(
+            columns=['StudyDate', 'DeviceSerialNumber', 'SeriesDurationInMinsTotal', 'StudyDurationInMean',
+                     'ScannerTotalOnTimeInMins', 'StudyDurationInMeanSum', 'ScannerTotalOnTimeInMinsMean'])
+        # merge with main dataset
+        df = pandas.merge(df, df_utilizer, on='AccessionNumber')
 
         # Sort by "DeviceSerialNumber" and "SeriesStartTime"
         df = df.sort_values(["DeviceSerialNumber", "SeriesStartTime"])
