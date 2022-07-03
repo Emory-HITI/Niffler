@@ -229,41 +229,94 @@ def suvpar():
             "mean").reset_index().drop(columns=['StudyDate', 'DeviceSerialNumber'])
 
         df_study = pandas.merge(df_temp1, df_temp2, on='AccessionNumber')
-        df_study.rename(columns={'StudyDurationInMins': 'StudyDurationInMean', 'sum': 'SeriesDurationInMinsTotal'},
+        df_study.rename(columns={'StudyDurationInMins': 'TotalStudyDurationInMins', 'sum': 'SeriesDurationInMinsTotal'},
                         inplace=True)
+        df_study = df_study.drop_duplicates('AccessionNumber')
         df_study['StudyLevelScannerUtilization'] = df_study['SeriesDurationInMinsTotal'] / df_study[
-            'StudyDurationInMean']
+            'TotalStudyDurationInMins']
+        df_temp = df[['AccessionNumber', 'PatientID']].drop_duplicates('AccessionNumber')
+        df_study = pandas.merge(df_study, df_temp, on='AccessionNumber')
+        df_study =df_study.drop(columns=['DeviceSerialNumber', 'PatientID'])
         # In df_study consist six columns ('StudyDate', 'DeviceSerialNumber', 'AccessionNumber',
-        # 'StudyLevelScannerUtilization', 'SeriesDurationInMinsTotal','StudyDurationInMean']
+        # 'StudyLevelScannerUtilization', 'SeriesDurationInMinsTotal','StudyDurationInMean','PatientID']
 
-        # (6) scanner utilization
+        # (6) Multi Study Duration Encounter
+        df_multi = df[['DeviceSerialNumber', 'AccessionNumber', 'PatientID', 'StudyStartTime', 'StudyEndTime',
+                       'StudyDurationInMins']]
+        df_multi = df_multi.drop_duplicates('AccessionNumber')
+        df_multi = df_multi.sort_values(["DeviceSerialNumber", 'StudyStartTime', 'PatientID'])
+
+        m_pid = []          # PatientID come under the multi study duration
+        n_m_pid = []        # PatientID come under the non-multi study duration
+        for i in range(0, len(df_multi) - 1):
+            if df_multi.iloc[i, 2] == df_multi.iloc[i + 1, 2]:
+                if ((df_multi.iloc[i + 1, 3] - df_multi.iloc[i, 4]).total_seconds() / 60) < 20:
+                    m_pid.append(df_multi.iloc[i, 2])
+            else:
+                n_m_pid.append(df_multi.iloc[i, 2])
+
+        for i in m_pid:
+            if i in n_m_pid:
+                n_m_pid.remove(i)
+        df_multi_study = df_multi.loc[df['PatientID'].isin(m_pid)]
+        df_non_multi_study = df_multi.loc[df['PatientID'].isin(n_m_pid)]
+
+        df_multi_study = df_multi_study.join(
+            df_multi_study.groupby('PatientID')['StudyStartTime'].aggregate(['min']),
+            on='PatientID')
+        df_multi_study = df_multi_study.join(
+            df_multi_study.groupby('PatientID')['StudyEndTime'].aggregate(['max']),
+            on='PatientID')
+        df_multi_study.rename(columns={'min': 'StudyStartTimeMin'}, inplace=True)
+        df_multi_study.rename(columns={'max': 'StudyEndTimeMax'}, inplace=True)
+
+        df_multi_study['StudyStartTimeMin'] = pandas.to_datetime(df_multi_study['StudyStartTimeMin'])
+        df_multi_study['StudyEndTimeMax'] = pandas.to_datetime(df_multi_study['StudyEndTimeMax'])
+
+        # Compute multi StudyDuration Time
+        df_multi_study['StudyDurationInMins'] = (df_multi_study.StudyEndTimeMax - df_multi_study.StudyStartTimeMin).dt.seconds / 60.0
+
+        df_multi_study = df_multi_study.drop(
+            columns=['StudyEndTimeMax', 'StudyStartTimeMin'])
+
+        # connect both table df_multi_study and df_non_multi_study
+        df_multi_study = pandas.concat([df_multi_study, df_non_multi_study])
+        df_multi_study = df_multi_study.drop_duplicates('AccessionNumber')
+        df_study = pandas.merge(df_multi_study, df_study, on='AccessionNumber')
+
+        # (7) scanner utilization
         df_temp = df.groupby(['StudyDate', 'DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
             "mean").reset_index().drop(
             columns=['StudyDate'])
         # Now add the DeviceSerialNumber column in df_study
         df_study = pandas.merge(df_study, df_temp, on='DeviceSerialNumber')
 
-        # adding the total StudyDuration by particular scanner
-        df_temp = df_study.groupby(['DeviceSerialNumber']).StudyDurationInMean.agg(
+        # adding the total StudyDuration by particular scanner and PatientID
+        df_temp = df_study.groupby(['DeviceSerialNumber', 'PatientID']).StudyDurationInMins.agg(
+            "mean").reset_index()
+        df_temp = df_temp.groupby(['DeviceSerialNumber']).StudyDurationInMins.agg(
             [sum]).reset_index()
+
+        # mean duration time of the that scanner
         df_temp1 = df_study.groupby(['DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
             "mean").reset_index()
         df_scanner = pandas.merge(df_temp, df_temp1, on='DeviceSerialNumber')
-
         df_scanner.rename(
-            columns={'sum': 'StudyDurationInMeanSum', 'ScannerTotalOnTimeInMins': 'ScannerTotalOnTimeInMinsMean'},
+            columns={'sum': 'StudyDurationInMinsSum', 'ScannerTotalOnTimeInMins': 'ScannerTotalOnTimeInMinsMean'},
             inplace=True)
 
-        df_scanner['ScannerUtilization'] = (df_scanner['StudyDurationInMeanSum'] / df_scanner[
+        df_scanner['ScannerUtilization'] = (df_scanner['StudyDurationInMinsSum'] / df_scanner[
             'ScannerTotalOnTimeInMinsMean']) * 100
 
         # merge df_study with df_scanner
         df_utilizer = pandas.merge(df_study, df_scanner, on='DeviceSerialNumber')
 
         # drop duplicate columns
-        df_utilizer = df_utilizer.drop(
-            columns=['StudyDate', 'DeviceSerialNumber', 'SeriesDurationInMinsTotal', 'StudyDurationInMean',
-                     'ScannerTotalOnTimeInMins', 'StudyDurationInMeanSum', 'ScannerTotalOnTimeInMinsMean'])
+        df_utilizer = df_utilizer.drop(columns={'StudyDate', 'DeviceSerialNumber', 'SeriesDurationInMinsTotal',
+                                                'TotalStudyDurationInMins',
+                                                'ScannerTotalOnTimeInMins', 'ScannerTotalOnTimeInMinsMean', 'PatientID',
+                                                'StudyStartTime', 'StudyEndTime',
+                                                'StudyDurationInMins', 'StudyDurationInMinsSum'})
         # merge with main dataset
         df = pandas.merge(df, df_utilizer, on='AccessionNumber')
 
