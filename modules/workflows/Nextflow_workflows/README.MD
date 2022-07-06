@@ -1,11 +1,28 @@
-# cold_png_suvpar: 
-cold_png_suvpar is a workflow that executes Cold_extraction, Png_extration, Suvpar sequentially. 
+# Mega-workflow: 
+Mega-workflow chains Cold_extraction, Png_extraction, Suvpar, DicomAnonymization and MetaDataAnonymization together. Mega-workflow contains 8 different workflows. User can choose the workflow by changing the workflow parameter in nextflow.config as mentioned below:
+
+* Cold_extraction->Png_extraction->Suvpar->DicomAnonymization->MetaDataAnonymization = 1
+
+* Cold_extraction->Png_extraction->Suvpar = 2
+
+* Cold_extraction->Png_extraction->DicomAnonymization = 3
+
+* Cold_extraction->Png_extraction->MetaDataAnonymization = 4
+
+* Png_extraction->Suvpar->DicomAnonymization->MetaDataAnonymization = 5
+
+* Png_extraction->Suvpar = 6
+
+* Png_extraction->DicomAnonymization = 7
+
+* Png_extraction->MetaDataAnonymization = 8
+
 
 Steps to use this workflow:
   1. Modify nextflow.config.
-  2. Run the command ``` nextflow run cold_png_suvpar.nf ```
+  3. Run the command ``` nextflow run cold_png_suvpar.nf ```
 
-Make sure that nextflow is installed. If you have run ./install then nextflow would be installed in you computer if not run the following commands:
+Make sure that nextflow is installed. If you have run ./install then nextflow would be installed in your computer if not run the following commands:
  ```
  wget -qO- https://get.nextflow.io | bash
  ```
