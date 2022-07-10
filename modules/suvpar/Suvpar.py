@@ -11,22 +11,24 @@ final_csv = True
 
 
 def initialize():
-    global output_csv, df
+    global output_csv, df, device_SN
     with open('config.json', 'r') as f:
         config = json.load(f)
 
     feature_file = config['FeaturesetFile']
     filename = config['InputFile']
     output_csv = config['OutputFile']
-
+    scanner_csv = config['ScannerDetails']
     text_file = open(feature_file, "r")
     feature_list = text_file.read().split('\n')
-
+    scanner_df = pandas.read_csv(scanner_csv, sep=',')
+    # Consider some Device Serial Number and remove other.
+    device_SN = scanner_df['DeviceSerialNumber'].tolist()
     df = pandas.read_csv(filename, usecols=lambda x: x in feature_list, sep=',')
 
 
 def suvpar():
-    global df
+    global df, device_SN
     # 0x0051100F
     # 0x0051100C
     # 0x00090010
@@ -48,14 +50,8 @@ def suvpar():
     df = df[df['ImageType'].str.contains("ORIGINAL")]
     # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
     df = df[df.Modality == "MR"]
-    # Consider some Device Serial Number and remove other.
-    DSN = ['26356', '35386', '31130', '69618', '25992', '41546', '41563', '145596', '141301', '45988', '145384',
-     '141638', '000000000000GEMS',
-     '000000404251EOMR', '000000678474JCMR', '00000678474JCMR2', '42458', '00ALLIANCESIG479', '25285', '25240',
-     '142105', '000000404256AMR1', '145624', '141780', '141676']
     # Dataset after removing unwanted Device Serial Number
-    df = df.loc[df['DeviceSerialNumber'].isin(DSN)]
-    df = df[df.Modality == "MR"]
+    df = df.loc[df['DeviceSerialNumber'].isin(device_SN)]
     # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips and FONAR scanners.
     df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|FONAR'), True, False)
 
