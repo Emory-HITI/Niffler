@@ -1,6 +1,6 @@
 {
   "InputFile": "sample.csv",
   "OutputFile": "output.csv",
+  "ScannerDetails": "scanners.csv",
   "FeaturesetFile": "featureset.txt"
-
 }
