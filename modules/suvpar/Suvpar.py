@@ -11,24 +11,25 @@ final_csv = True
 
 
 def initialize():
-    global output_csv, df, device_SN
+    global output_csv, df, device_SN, scanner_filter
     with open('config.json', 'r') as f:
         config = json.load(f)
 
     feature_file = config['FeaturesetFile']
     filename = config['InputFile']
     output_csv = config['OutputFile']
-    scanner_csv = config['ScannerDetails']
+    scanner_file = config['ScannerDetails']
+    scanner_filter = bool(config['ScannerFilter'])
     text_file = open(feature_file, "r")
     feature_list = text_file.read().split('\n')
-    scanner_df = pandas.read_csv(scanner_csv, sep=',')
     # Consider some Device Serial Number and remove other.
-    device_SN = scanner_df['DeviceSerialNumber'].tolist()
+    scanner_file = open(scanner_file, "r")
+    device_SN = scanner_file.read().split('\n')
     df = pandas.read_csv(filename, usecols=lambda x: x in feature_list, sep=',')
 
 
 def suvpar():
-    global df, device_SN
+    global df
     # 0x0051100F
     # 0x0051100C
     # 0x00090010
@@ -51,7 +52,8 @@ def suvpar():
     # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
     df = df[df.Modality == "MR"]
     # Dataset after removing unwanted Device Serial Number
-    df = df.loc[df['DeviceSerialNumber'].isin(device_SN)]
+    if scanner_filter:
+        df = df.loc[df['DeviceSerialNumber'].isin(device_SN)]
     # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips and FONAR scanners.
     df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|FONAR'), True, False)
 
