@@ -3,5 +3,7 @@
   "OutputFile": "output.csv",
   "ScannerDetails": "scanner.txt",
   "ScannerFilter": false,
-  "FeaturesetFile": "featureset.txt"
+  "FeaturesetFile": "featureset.txt",
+  "IsStatistics": false,
+  "Statistics_File": "statistic.csv"
 }
