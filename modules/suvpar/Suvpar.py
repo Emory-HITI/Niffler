@@ -6,12 +6,14 @@ import hashlib
 
 logging.basicConfig(level=logging.INFO)
 df = {}
+sta = {}
+statistics_csv = {}
 output_csv = {}
 final_csv = True
 
 
 def initialize():
-    global output_csv, df, device_SN, scanner_filter
+    global output_csv, df, device_SN, scanner_filter, statistics_csv, isStatistics
     with open('config.json', 'r') as f:
         config = json.load(f)
 
@@ -20,6 +22,8 @@ def initialize():
     output_csv = config['OutputFile']
     scanner_file = config['ScannerDetails']
     scanner_filter = bool(config['ScannerFilter'])
+    statistics_csv = config['Statistics_File']
+    isStatistics = bool(config['IsStatistics'])
     text_file = open(feature_file, "r")
     feature_list = text_file.read().split('\n')
     # Consider some Device Serial Number and remove other.
@@ -29,7 +33,7 @@ def initialize():
 
 
 def suvpar():
-    global df
+    global df, sta
     # 0x0051100F
     # 0x0051100C
     # 0x00090010
@@ -339,10 +343,16 @@ def suvpar():
         # Sort by "DeviceSerialNumber" and "SeriesStartTime"
         df = df.sort_values(["DeviceSerialNumber", "SeriesStartTime"])
 
+        # it will fill the nan values as well as give the symbol for weird cases.
+        df = df.fillna(-1)
+        # Statistics of the dataset
+        sta = df.describe()
 
 def write():
+    global isStatistics
     df.to_csv(output_csv)
-
+    if isStatistics:
+        sta.to_csv(statistics_csv)
 
 if __name__ == "__main__":
     initialize()
