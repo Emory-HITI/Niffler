@@ -6,18 +6,18 @@ The module currently do not offer felixbility to run all the above mentioned mod
 
 # Configuring the Workflow File
 
-* Configuring Cold Extraction - https://github.com/Emory-HITI/Niffler/blob/master/modules/cold-extraction/README.md
-* Configuring Modality Splitting
-```
-**cold_extraction_path** : Set the path of the extracted DICOMs. These DICOMs are usually extracted using cold extraction module.
-**modality_split_path** : Set the path of the resulting files. After the extraction, this folder will have mutiple sub-folders.
-```
-* Configuring PNG Extraction - https://github.com/Emory-HITI/Niffler/blob/master/modules/png-extraction/README.md
-* Configuring DICOM Anonymization - https://github.com/Emory-HITI/Niffler/blob/master/modules/dicom-anonymization/README.md
-* Configuring Metadata Anonymization
-```
-**metadata_path** : Set the complete path of the metadata file to be anonymized. The file should be in CSV format.
-**anon_metadata_path** : Set the path of the resulting anonymized metadata file.
-```
+1. Configuring Cold Extraction - https://github.com/Emory-HITI/Niffler/blob/master/modules/cold-extraction/README.md
+2. Configuring Modality Splitting
+
+* *cold_extraction_path* : Set the path of the extracted DICOMs. These DICOMs are usually extracted using cold extraction module.
+* *modality_split_path* : Set the path of the resulting files. After the extraction, this folder will have mutiple sub-folders.
+
+3. Configuring PNG Extraction - https://github.com/Emory-HITI/Niffler/blob/master/modules/png-extraction/README.md
+4. Configuring DICOM Anonymization - https://github.com/Emory-HITI/Niffler/blob/master/modules/dicom-anonymization/README.md
+5. Configuring Metadata Anonymization
+
+* *metadata_path* : Set the complete path of the metadata file to be anonymized. The file should be in CSV format.
+* *anon_metadata_path* : Set the path of the resulting anonymized metadata file.
+
 
 PS - Though the cold extraction module is integrated in the workflow module. It is currently causing issues by messing with the flow of other modules and is not being used in this module.

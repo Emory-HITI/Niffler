@@ -7,14 +7,14 @@ jobs:
   run_unit_tests:
     name: Run Unit Tests
     runs-on: ubuntu-latest
-    container: "centos:latest"
+    container: "ubuntu:latest"
     steps:
       - uses: actions/checkout@master
       - name: Install Python 3
         run: |
-          yum update -y -q
-          yum install -q -y python3 
-          yum install -q -y python3-pip unzip
+          apt-get update -y -q
+          apt-get install -q -y python3 
+          apt-get install -q -y python3-pip unzip
       - name: Install Dependencies
         run: |
           pip3 install -U pip
@@ -28,14 +28,14 @@ jobs:
   run_integration_tests:
     name: Run Integration Tests
     runs-on: ubuntu-latest
-    container: "centos:latest"
+    container: "ubuntu:latest"
     steps:
       - uses: actions/checkout@master
       - name: Install Python 3
         run: |
-          yum update -y -q
-          yum install -q -y python3 
-          yum install -q -y python3-pip unzip
+          apt-get update -y -q
+          apt-get install -q -y python3 
+          apt-get install -q -y python3-pip unzip
       - name: Install Dependencies
         run: |
           pip3 install -U pip

@@ -1,6 +1,9 @@
 {
   "InputFile": "sample.csv",
   "OutputFile": "output.csv",
-  "FeaturesetFile": "featureset.txt"
-
+  "ScannerDetails": "scanner.txt",
+  "ScannerFilter": false,
+  "FeaturesetFile": "featureset.txt",
+  "IsStatistics": false,
+  "Statistics_File": "statistic.csv"
 }

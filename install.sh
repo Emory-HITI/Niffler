@@ -2,6 +2,9 @@
 echo "Configuring Niffler"
 sudo chmod -R 777 .
 
+wget -qO- https://get.nextflow.io | bash
+sudo mv nextflow /usr/local/bin
+
 PIP=`head -n 1 init/pip.out`
 if [ "$PIP" = false ] ; then
     sudo yum install -y python3
@@ -64,6 +67,7 @@ SERVICE=`head -n 1 init/service.out`
 if [ "$SERVICE" = false ] ; then
     echo "Installing Niffler Frontend"
     pip install -r modules/frontend/requirements.txt
+    pip install -i https://test.pypi.org/simple/ HITI-anon-internal
     chmod +x modules/frontend/service/frontend_service.sh
     sudo cp modules/frontend/service/niffler.service /etc/systemd/system/
     sudo systemctl daemon-reload
