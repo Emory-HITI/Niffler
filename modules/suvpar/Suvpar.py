@@ -245,7 +245,7 @@ def suvpar():
             'TotalStudyDurationInMins']
         df_temp = df[['AccessionNumber', 'PatientID']].drop_duplicates('AccessionNumber')
         df_study = pandas.merge(df_study, df_temp, on='AccessionNumber')
-        df_study =df_study.drop(columns=['DeviceSerialNumber', 'PatientID'])
+        df_study = df_study.drop(columns=['DeviceSerialNumber', 'PatientID'])
         # In df_study consist six columns ('StudyDate', 'DeviceSerialNumber', 'AccessionNumber',
         # 'StudyLevelScannerUtilization', 'SeriesDurationInMinsTotal','StudyDurationInMean','PatientID']
 
@@ -255,8 +255,8 @@ def suvpar():
         df_multi = df_multi.drop_duplicates('AccessionNumber')
         df_multi = df_multi.sort_values(["DeviceSerialNumber", 'StudyStartTime', 'PatientID'])
 
-        m_pid = []          # PatientID come under the multi study duration
-        n_m_pid = []        # PatientID come under the non-multi study duration
+        m_pid = []  # PatientID come under the multi study duration
+        n_m_pid = []  # PatientID come under the non-multi study duration
         for i in range(0, len(df_multi) - 1):
             if df_multi.iloc[i, 2] == df_multi.iloc[i + 1, 2]:
                 if ((df_multi.iloc[i + 1, 3] - df_multi.iloc[i, 4]).total_seconds() / 60) < 20:
@@ -287,7 +287,8 @@ def suvpar():
         df_multi_study['StudyEndTimeMax'] = pandas.to_datetime(df_multi_study['StudyEndTimeMax'])
 
         # Compute multi StudyDuration Time
-        df_multi_study['StudyDurationInMins'] = (df_multi_study.StudyEndTimeMax - df_multi_study.StudyStartTimeMin).dt.seconds / 60.0
+        df_multi_study['StudyDurationInMins'] = (
+                                                        df_multi_study.StudyEndTimeMax - df_multi_study.StudyStartTimeMin).dt.seconds / 60.0
 
         df_multi_study = df_multi_study.drop(
             columns=['StudyEndTimeMax', 'StudyStartTimeMin'])
@@ -310,14 +311,14 @@ def suvpar():
         df_study = pandas.merge(df_study, df_temp, on='DeviceSerialNumber')
 
         # adding the total StudyDuration by particular scanner and PatientID
-        df_temp = df_study.groupby(['StudyDate','DeviceSerialNumber', 'PatientID']).StudyDurationInMins.agg(
+        df_temp = df_study.groupby(['StudyDate', 'DeviceSerialNumber', 'PatientID']).StudyDurationInMins.agg(
             "mean").reset_index()
-        df_temp = df_temp.groupby(['StudyDate','DeviceSerialNumber']).StudyDurationInMins.agg(
+        df_temp = df_temp.groupby(['StudyDate', 'DeviceSerialNumber']).StudyDurationInMins.agg(
             [sum]).reset_index().drop(
             columns=['StudyDate'])
 
         # mean duration time of the that scanner
-        df_temp1 = df_study.groupby(['StudyDate','DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
+        df_temp1 = df_study.groupby(['StudyDate', 'DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
             "mean").reset_index().drop(
             columns=['StudyDate'])
         df_scanner = pandas.merge(df_temp, df_temp1, on='DeviceSerialNumber')
@@ -347,12 +348,15 @@ def suvpar():
         df = df.fillna(-1)
         # Statistics of the dataset
         sta = df.describe()
+        sta.loc['count', 'MultiStudyEncounter'] = df[df['MultiStudyEncounter'] == True]['InstanceNumber'].count()
+
 
 def write():
     global isStatistics
     df.to_csv(output_csv)
     if isStatistics:
         sta.to_csv(statistics_csv)
+
 
 if __name__ == "__main__":
     initialize()
