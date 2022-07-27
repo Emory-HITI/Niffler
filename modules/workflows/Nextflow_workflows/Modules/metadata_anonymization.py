@@ -77,7 +77,7 @@ def anonymization(metadata, Anon):
 
 if __name__ == "__main__":
 
-    Anon = EmoryAnon('/home/kmit/pavan/Anon', '/home/kmit/pavan/whitelist.csv')
+    Anon = EmoryAnon('/path/to/anon_keys', '/path/to/whitelist')
     Anon.load_recentMasterKey()
 
     metadata_path = sys.argv[1]
