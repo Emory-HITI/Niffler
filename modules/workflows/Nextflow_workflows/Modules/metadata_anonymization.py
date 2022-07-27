@@ -12,7 +12,7 @@ def anonymization(metadata, Anon):
     metadata.reset_index(inplace=True, drop=True)
 
     metadata['StudyDate'] = metadata.StudyDate.astype(str)
-    metadata['StudyDate_formatted'] = (metadata.StudyDate.str.slice(0,4))+'-'+(metadata.StudyDate.str.slice(4,6))+'-'+(metadata.StudyDate.str.slice(6,8))
+  
 
     metadata = Anon.col_norm(metadata)
     metadata['empi_anon'] = Anon.IDanon(metadata['PatientID'], data_type='empi')
