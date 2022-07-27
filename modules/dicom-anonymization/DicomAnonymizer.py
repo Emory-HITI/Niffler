@@ -13,7 +13,6 @@ import random
 import glob
 import pathlib
 import pickle
-import pdb 
 import pydicom.valuerep as pydicom_types
 
 def get_dcm_folders(dcm_root_dir):
@@ -134,6 +133,7 @@ def dcm_anonymize(dcm_folders, output_path, stop=None):
             n += 1
             print('total folders anonymized: {}/{}. Study: {}'.format(n, len(dcm_folders), study_folder), flush=True)
         except:
+            print('Invalid Dicom Error, skipping')
             skip_file = pydicom.dcmread(test_file_path, force=True)
             skipped.append((skip_file.AccessionNumber, skip_file.StudyInstanceUID))
             continue
