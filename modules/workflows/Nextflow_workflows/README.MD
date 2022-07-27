@@ -21,7 +21,7 @@ Mega-workflow chains Cold_extraction, Png_extraction, Suvpar, DicomAnonymization
 
 Steps to use this workflow:
   1. ```pip install requirements.txt``` 
-  2. Modify nextflow.config. DICOMHome parameter is only needed for workflows 5,6,7,8.
+  2. Modify nextflow.config. DICOMHome and depth parameters is only needed for workflows 5,6,7,8.
   3. Run the command ``` nextflow run cold_png_suvpar.nf ```
 
 Make sure that nextflow is installed. If you have run ./install.sh then nextflow would be installed on your computer if not run the following commands:
