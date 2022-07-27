@@ -19,13 +19,15 @@ Mega-workflow chains Cold_extraction, Png_extraction, Suvpar, DicomAnonymization
 
 
 Steps to use this workflow:
-  1. Modify nextflow.config.
+  1. ```pip install requirements.txt``` 
+  2. Modify nextflow.config.
   3. Run the command ``` nextflow run cold_png_suvpar.nf ```
 
-Make sure that nextflow is installed. If you have run ./install then nextflow would be installed in your computer if not run the following commands:
+Make sure that nextflow is installed. If you have run ./install.sh then nextflow would be installed on your computer if not run the following commands:
  ```
  wget -qO- https://get.nextflow.io | bash
  ```
  ```
  sudo mv nextflow /usr/local/bin
  ```
+ If HITI_anon_internal is not installed, run ``` pip install -i https://test.pypi.org/simple/ HITI-anon-internal ```
