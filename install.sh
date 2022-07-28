@@ -2,12 +2,16 @@
 echo "Configuring Niffler"
 sudo chmod -R 777 .
 
+wget -qO- https://get.nextflow.io | bash
+sudo mv nextflow /usr/local/bin
+
 PIP=`head -n 1 init/pip.out`
 if [ "$PIP" = false ] ; then
     sudo yum install -y python3
     echo "Installing pip"
     sudo yum install python3-pip
     pip install -r requirements.txt
+    pip install -i https://test.pypi.org/simple/ HITI-anon-internal
     wget https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
     sh Anaconda3-2020.11-Linux-x86_64.sh -u
     source ~/.bashrc
@@ -64,6 +68,7 @@ SERVICE=`head -n 1 init/service.out`
 if [ "$SERVICE" = false ] ; then
     echo "Installing Niffler Frontend"
     pip install -r modules/frontend/requirements.txt
+    pip install -i https://test.pypi.org/simple/ HITI-anon-internal
     chmod +x modules/frontend/service/frontend_service.sh
     sudo cp modules/frontend/service/niffler.service /etc/systemd/system/
     sudo systemctl daemon-reload

@@ -65,7 +65,9 @@ class TestExecute:
             'meta_directory': str(out_dir / 'meta') + '/',
             'LOG_FILENAME': str(out_dir / 'ImageExtractor.out'),
             'metadata_col_freq_threshold': 0.1,
-            't_start': time.time()
+            't_start': time.time(),
+            'SpecificHeadersOnly': False,
+            'PublicHeadersOnly' : True
         }
         kwargs_dict.update(**kwargs)
         return kwargs_dict
@@ -142,7 +144,9 @@ class TestImageExtractorModule:
             "FlattenedToLevel": "patient",
             "is16Bit": True,
             "SendEmail": False,
-            "YourEmail": "test@test.test"
+            "YourEmail": "test@test.test",
+            'SpecificHeadersOnly' : False,
+            'PublicHeadersOnly': True
         }
         config.update(**kwargs)
         return config

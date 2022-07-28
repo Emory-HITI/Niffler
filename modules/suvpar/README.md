@@ -14,6 +14,13 @@ Find the config.json file in the folder and modify accordingly.
 
 * *FeaturesetFile*: The subset of the properties that must be stored in the OutputFile.
 
+* *ScannerDetails*: The subset of the DeviceSerialNumber or Scanners, which will be considered in the Output File.(.txt file take as input)
+
+* *ScannerFilter*:  Do you want the resulting dataframe csv to contain only ScannerDetails that you have provided? Then set it as true, and for all scanners details set as false(default).
+
+* *Statistics_File*: This file contains  statistics of the dataset.
+
+* *IsStatistics*: If you want the statistics then set it as true otherwise false(default).
 
 # Running Niffler SUVPaR
 

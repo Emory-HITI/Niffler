@@ -71,12 +71,18 @@ AAAAA,BBBBBYYBBBBB
 
 [3]
 PatientID,AccessionNumber,StudyDate
-AAAAA,BBBBBYYBBBBB,CCCCCC
-AAAAA,BBBBBYYBBBBB,CCCCCC 
-AAAAA,BBBBBYYBBBBB,CCCCCC
+AAAAA,BBBBBYYBBBBB,YYYYMMDD
+AAAAA,BBBBBYYBBBBB,YYYYMMDD
+AAAAA,BBBBBYYBBBBB,YYYYMMDD
 
 
-```
+[4]
+PatientID,AccessionNumber,StudyMonth
+AAAAA,BBBBBYYBBBBB,YYYYMM
+AAAAA,BBBBBYYBBBBB,YYYYMM
+AAAAA,BBBBBYYBBBBB,YYYYMM
+
+``` 
 
 ## Configuring Extraction Profile with config.json.
 
@@ -100,6 +106,7 @@ Example: `python3 ./ColdDataRetriever.py --NumberOfQueryAttributes 1 --FirstAttr
 **Please note:** It is important to use the correct DICOM keywords such as, "PatientID", "AccessionNumber", "StudyInstanceUID", and "StudyDate".
   Please refer to the DICOM Standard for more information on the DICOM header attributes/keywords.
   Please note, the correct keyword is "AccessionNumber" and not "Accession" or "Accessions". Similarly, it is "PatientID" - neither "EMPI" nor "Patient-ID" (although they all are indeed the same in practice).
+  Though "StudyMonth" is a non-DICOM attribute, the current version of Niffler supports "StudyMonth" attribute and works similar to "StudyDate" attribute.
   
 Please refer to the DICOM standards to ensure you spell the [DICOM keyword](http://dicom.nema.org/dicom/2013/output/chtml/part06/chapter_6.html) correctly, if in doubt.
 
@@ -115,7 +122,7 @@ Please refer to the DICOM standards to ensure you spell the [DICOM keyword](http
 
 * *ThirdIndex*: Set the CSV column index of third Attribute. By default, 2. This field is ignored when NumberOfQueryAttributes is 1 or 2.
 
-* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. This field is ignored for extractions that do not use a Date as one of their extraction attributes. We have tested with StudyDate. Leave this entry unmodified for such cases. The default is %Y%m%d and works for most cases.
+* *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. This field is ignored for extractions that do not use a Date as one of their extraction attributes. We have tested with StudyDate. Leave this entry unmodified for such cases. The default is %Y%m%d and works for most cases. When using StudyMonth attribute, the default is %Y-%m-%d.
 
 * *SendEmail*: Do you want to send an email notification when the extraction completes? The default is true. You may disable this if you do not want to receive an email upon the completion.
 
@@ -154,14 +161,14 @@ Try again later. Once there is no other process, then you can run your own extra
 
 
 ## Check the Progress
-
+ 
 After some time (may take a few hours to a few days, depending on the length of the CSV file), check whether the extraction is complete.
 ```
 $ tail -f niffler.log
 
 INFO:root:[EXTRACTION COMPLETE] 2020-09-21 17:42:38.465501: Niffler Extraction to /opt/data/new-study Completes. Terminating the completed storescp process.
 ```
-A pickle file tracks the progress. The pickle file is created by appending ".pickle" to the csv file name in the same directory as the csv file. A sample pickle line is as below:
+Apart from the original CSV file, a modified version of the CSV file is created depending on the attributes and a pickle file tracks the progress. The pickle file is created by appending ".pickle" to the modified csv file name in the same directory as the csv file. A sample pickle line is as below:
 
 ```
 <8c>^X1234, 000056789<94>
@@ -209,7 +216,7 @@ If you find an error such as: "IndexError: list index out of range", that indica
 
 Fix them and restart your Python process, by first finding and killing your python process and then starting Niffler as before.
 ```
-$ ps -xa | grep python
+$ sudo ps -xa | grep python
 
 1866 ?    Ss   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
 
@@ -219,7 +226,7 @@ $ ps -xa | grep python
 
 3384 pts/0  S+   0:00 grep --color=auto python
 
-$ kill 2926
+$ sudo kill 2926
 ```
 You might need to run the above command with sudo to find others' Niffler processes.
 
