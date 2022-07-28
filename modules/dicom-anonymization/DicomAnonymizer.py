@@ -13,7 +13,7 @@ import random
 import glob
 import pathlib
 import pickle
-
+import pydicom.valuerep as pydicom_types
 
 def get_dcm_folders(dcm_root_dir):
     # get all folders
@@ -91,7 +91,7 @@ def dcm_anonymize(dcm_folders, output_path, stop=None):
                  'PhysiciansOfRecord', 'PerformingPhysicianName', 'OperatorsName', 'PatientName', 'PatientID',
                  'IssuerOfPatientID', 'PatientBirthDate', 'PatientSex', 'OtherPatientIDs', 'PatientAge', 'PatientSize',
                  'PatientWeight', 'PatientAddress', 'EthnicGroup', 'PregnancyStatus', 'RequestingPhysician',
-                 'PerformedProcedureStepStartDate', 'PerformedProcedureStepStartTime', 'PerformedProcedureStepID']
+                 'PerformedProcedureStepStartDate', 'PerformedProcedureStepStartTime', 'PerformedProcedureStepID',"PatientTelephoneNumbers"]
 
     # for upto 200 dcm folders
     n = 0
@@ -125,7 +125,9 @@ def dcm_anonymize(dcm_folders, output_path, stop=None):
                             dcm_file.data_element(tag).value = 'N/A'
                         elif type(dcm_file.data_element(tag).value) == int:
                             dcm_file.data_element(tag).value = 0
-                        else:
+                        elif type(dcm_file.data_element(tag).value) == pydicom_types.PersonName:
+                            dcm_file.data_element(tag).value = 'N/A'
+                        else: 
                             dcm_file.data_element(tag).value = 0.0
                 dcm_file.save_as(os.path.join(study_folder, new_filename + '.dcm'))
             n += 1
