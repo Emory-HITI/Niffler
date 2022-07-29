@@ -6,5 +6,6 @@
   "FeaturesetFile": "featureset1.txt",
   "IsStatistics": false,
   "Statistics_File": "statistic.csv",
-  "IsFinalCSV": true
+  "IsFinalCSV": true,
+  "IsAnonymized": true
 }
