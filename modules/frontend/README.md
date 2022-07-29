@@ -1,8 +1,14 @@
 # A Frontend Framework for Niffler
 
+```diff
+- This is an experimental module. You are advised against using it.
+- Please use the relevant modules (cold-extraction, meta-extraction, and png-extraction) directly from their backend.
+
+```
+
 This is a frontend module for Niffler which consists 2 modules:
-a. On-Demand Extracion or Cold-Extraction
-b. PNG-Extraction
+a. On-Demand Extracion or Cold-Extraction (cold-extraction)
+b. PNG-Extraction (png-extraction)
 This module is using **Flask** as a backend engine to run all the frontend.
 
 ## Install Requirements
