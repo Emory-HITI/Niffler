@@ -9,11 +9,10 @@ df = {}
 sta = {}
 statistics_csv = {}
 output_csv = {}
-final_csv = True
 
 
 def initialize():
-    global output_csv, df, device_SN, scanner_filter, statistics_csv, isStatistics
+    global output_csv, df, device_SN, scanner_filter, statistics_csv, isStatistics, final_csv
     with open('config.json', 'r') as f:
         config = json.load(f)
 
@@ -24,6 +23,7 @@ def initialize():
     scanner_filter = bool(config['ScannerFilter'])
     statistics_csv = config['Statistics_File']
     isStatistics = bool(config['IsStatistics'])
+    final_csv = bool(config['IsFinalCSV'])
     text_file = open(feature_file, "r")
     feature_list = text_file.read().split('\n')
     # Consider some Device Serial Number and remove other.
