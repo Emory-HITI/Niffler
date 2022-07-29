@@ -9,7 +9,7 @@ greenlet==1.1.0
 itsdangerous==2.0.1
 Jinja2==3.0.1
 MarkupSafe==2.0.1
-numpy==1.21.0
+numpy==1.22.0
 pandas==1.2.4
 Pillow==9.0.1
 pydicom==2.1.2

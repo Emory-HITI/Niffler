@@ -11,6 +11,7 @@ if [ "$PIP" = false ] ; then
     echo "Installing pip"
     sudo yum install python3-pip
     pip install -r requirements.txt
+    pip install -i https://test.pypi.org/simple/ HITI-anon-internal
     wget https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
     sh Anaconda3-2020.11-Linux-x86_64.sh -u
     source ~/.bashrc

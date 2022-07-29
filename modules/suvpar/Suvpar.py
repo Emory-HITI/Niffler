@@ -6,27 +6,34 @@ import hashlib
 
 logging.basicConfig(level=logging.INFO)
 df = {}
+sta = {}
+statistics_csv = {}
 output_csv = {}
 final_csv = True
 
 
 def initialize():
-    global output_csv, df
+    global output_csv, df, device_SN, scanner_filter, statistics_csv, isStatistics
     with open('config.json', 'r') as f:
         config = json.load(f)
 
     feature_file = config['FeaturesetFile']
     filename = config['InputFile']
     output_csv = config['OutputFile']
-
+    scanner_file = config['ScannerDetails']
+    scanner_filter = bool(config['ScannerFilter'])
+    statistics_csv = config['Statistics_File']
+    isStatistics = bool(config['IsStatistics'])
     text_file = open(feature_file, "r")
     feature_list = text_file.read().split('\n')
-
+    # Consider some Device Serial Number and remove other.
+    scanner_file = open(scanner_file, "r")
+    device_SN = scanner_file.read().split('\n')
     df = pandas.read_csv(filename, usecols=lambda x: x in feature_list, sep=',')
 
 
 def suvpar():
-    global df
+    global df, sta
     # 0x0051100F
     # 0x0051100C
     # 0x00090010
@@ -48,7 +55,9 @@ def suvpar():
     df = df[df['ImageType'].str.contains("ORIGINAL")]
     # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
     df = df[df.Modality == "MR"]
-
+    # Dataset after removing unwanted Device Serial Number
+    if scanner_filter:
+        df = df.loc[df['DeviceSerialNumber'].isin(device_SN)]
     # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips and FONAR scanners.
     df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|FONAR'), True, False)
 
@@ -229,50 +238,124 @@ def suvpar():
             "mean").reset_index().drop(columns=['StudyDate', 'DeviceSerialNumber'])
 
         df_study = pandas.merge(df_temp1, df_temp2, on='AccessionNumber')
-        df_study.rename(columns={'StudyDurationInMins': 'StudyDurationInMean', 'sum': 'SeriesDurationInMinsTotal'},
+        df_study.rename(columns={'StudyDurationInMins': 'TotalStudyDurationInMins', 'sum': 'SeriesDurationInMinsTotal'},
                         inplace=True)
+        df_study = df_study.drop_duplicates('AccessionNumber')
         df_study['StudyLevelScannerUtilization'] = df_study['SeriesDurationInMinsTotal'] / df_study[
-            'StudyDurationInMean']
+            'TotalStudyDurationInMins']
+        df_temp = df[['AccessionNumber', 'PatientID']].drop_duplicates('AccessionNumber')
+        df_study = pandas.merge(df_study, df_temp, on='AccessionNumber')
+        df_study = df_study.drop(columns=['DeviceSerialNumber', 'PatientID'])
         # In df_study consist six columns ('StudyDate', 'DeviceSerialNumber', 'AccessionNumber',
-        # 'StudyLevelScannerUtilization', 'SeriesDurationInMinsTotal','StudyDurationInMean']
+        # 'StudyLevelScannerUtilization', 'SeriesDurationInMinsTotal','StudyDurationInMean','PatientID']
 
-        # (6) scanner utilization
+        # (6) Multi Study Duration Encounter
+        df_multi = df[['DeviceSerialNumber', 'AccessionNumber', 'PatientID', 'StudyStartTime', 'StudyEndTime',
+                       'StudyDurationInMins']]
+        df_multi = df_multi.drop_duplicates('AccessionNumber')
+        df_multi = df_multi.sort_values(["DeviceSerialNumber", 'StudyStartTime', 'PatientID'])
+
+        m_pid = []  # PatientID come under the multi study duration
+        n_m_pid = []  # PatientID come under the non-multi study duration
+        for i in range(0, len(df_multi) - 1):
+            if df_multi.iloc[i, 2] == df_multi.iloc[i + 1, 2]:
+                if ((df_multi.iloc[i + 1, 3] - df_multi.iloc[i, 4]).total_seconds() / 60) < 20:
+                    m_pid.append(df_multi.iloc[i, 2])
+            else:
+                n_m_pid.append(df_multi.iloc[i, 2])
+
+        for i in m_pid:
+            if i in n_m_pid:
+                n_m_pid.remove(i)
+
+        # row contain multi-study encounter
+        df_multi_study = df_multi.loc[df['PatientID'].isin(m_pid)]
+        # row contain non multi-study encounter
+        df_non_multi_study = df_multi.loc[df['PatientID'].isin(n_m_pid)]
+
+        df_multi_study = df_multi_study.join(
+            df_multi_study.groupby('PatientID')['StudyStartTime'].aggregate(['min']),
+            on='PatientID')
+        df_multi_study = df_multi_study.join(
+            df_multi_study.groupby('PatientID')['StudyEndTime'].aggregate(['max']),
+            on='PatientID')
+        df_multi_study['MultiStudyEncounter'] = True
+        df_multi_study.rename(columns={'min': 'StudyStartTimeMin'}, inplace=True)
+        df_multi_study.rename(columns={'max': 'StudyEndTimeMax'}, inplace=True)
+
+        df_multi_study['StudyStartTimeMin'] = pandas.to_datetime(df_multi_study['StudyStartTimeMin'])
+        df_multi_study['StudyEndTimeMax'] = pandas.to_datetime(df_multi_study['StudyEndTimeMax'])
+
+        # Compute multi StudyDuration Time
+        df_multi_study['StudyDurationInMins'] = (
+                                                        df_multi_study.StudyEndTimeMax - df_multi_study.StudyStartTimeMin).dt.seconds / 60.0
+
+        df_multi_study = df_multi_study.drop(
+            columns=['StudyEndTimeMax', 'StudyStartTimeMin'])
+
+        # connect both table df_multi_study and df_non_multi_study
+        df_multi_study = pandas.concat([df_multi_study, df_non_multi_study])
+
+        # Fill the other MultiStudyEncounter values with false
+        df_multi_study["MultiStudyEncounter"].fillna(False, inplace=True)
+
+        # Drope the duplicate AccessionNumbers
+        df_multi_study = df_multi_study.drop_duplicates('AccessionNumber')
+        df_study = pandas.merge(df_multi_study, df_study, on='AccessionNumber')
+
+        # (7) scanner utilization
         df_temp = df.groupby(['StudyDate', 'DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
             "mean").reset_index().drop(
             columns=['StudyDate'])
         # Now add the DeviceSerialNumber column in df_study
         df_study = pandas.merge(df_study, df_temp, on='DeviceSerialNumber')
 
-        # adding the total StudyDuration by particular scanner
-        df_temp = df_study.groupby(['DeviceSerialNumber']).StudyDurationInMean.agg(
-            [sum]).reset_index()
-        df_temp1 = df_study.groupby(['DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
+        # adding the total StudyDuration by particular scanner and PatientID
+        df_temp = df_study.groupby(['StudyDate', 'DeviceSerialNumber', 'PatientID']).StudyDurationInMins.agg(
             "mean").reset_index()
-        df_scanner = pandas.merge(df_temp, df_temp1, on='DeviceSerialNumber')
+        df_temp = df_temp.groupby(['StudyDate', 'DeviceSerialNumber']).StudyDurationInMins.agg(
+            [sum]).reset_index().drop(
+            columns=['StudyDate'])
 
+        # mean duration time of the that scanner
+        df_temp1 = df_study.groupby(['StudyDate', 'DeviceSerialNumber']).ScannerTotalOnTimeInMins.agg(
+            "mean").reset_index().drop(
+            columns=['StudyDate'])
+        df_scanner = pandas.merge(df_temp, df_temp1, on='DeviceSerialNumber')
         df_scanner.rename(
-            columns={'sum': 'StudyDurationInMeanSum', 'ScannerTotalOnTimeInMins': 'ScannerTotalOnTimeInMinsMean'},
+            columns={'sum': 'StudyDurationInMinsSum', 'ScannerTotalOnTimeInMins': 'ScannerTotalOnTimeInMinsMean'},
             inplace=True)
 
-        df_scanner['ScannerUtilization'] = (df_scanner['StudyDurationInMeanSum'] / df_scanner[
+        df_scanner['ScannerUtilization'] = (df_scanner['StudyDurationInMinsSum'] / df_scanner[
             'ScannerTotalOnTimeInMinsMean']) * 100
 
         # merge df_study with df_scanner
         df_utilizer = pandas.merge(df_study, df_scanner, on='DeviceSerialNumber')
 
         # drop duplicate columns
-        df_utilizer = df_utilizer.drop(
-            columns=['StudyDate', 'DeviceSerialNumber', 'SeriesDurationInMinsTotal', 'StudyDurationInMean',
-                     'ScannerTotalOnTimeInMins', 'StudyDurationInMeanSum', 'ScannerTotalOnTimeInMinsMean'])
+        df_utilizer = df_utilizer.drop(columns={'StudyDate', 'DeviceSerialNumber', 'SeriesDurationInMinsTotal',
+                                                'TotalStudyDurationInMins',
+                                                'ScannerTotalOnTimeInMins', 'ScannerTotalOnTimeInMinsMean', 'PatientID',
+                                                'StudyStartTime', 'StudyEndTime',
+                                                'StudyDurationInMins', 'StudyDurationInMinsSum'})
         # merge with main dataset
         df = pandas.merge(df, df_utilizer, on='AccessionNumber')
 
         # Sort by "DeviceSerialNumber" and "SeriesStartTime"
         df = df.sort_values(["DeviceSerialNumber", "SeriesStartTime"])
 
+        # it will fill the nan values as well as give the symbol for weird cases.
+        df = df.fillna(-1)
+        # Statistics of the dataset
+        sta = df.describe()
+        sta.loc['count', 'MultiStudyEncounter'] = df[df['MultiStudyEncounter'] == True]['InstanceNumber'].count()
+
 
 def write():
+    global isStatistics
     df.to_csv(output_csv)
+    if isStatistics:
+        sta.to_csv(statistics_csv)
 
 
 if __name__ == "__main__":
