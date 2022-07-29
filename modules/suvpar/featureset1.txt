@@ -22,3 +22,4 @@ Modality
 Manufacturer
 ManufacturerModelName
 SeriesInstanceUID
+[SliceMeasurementDuration]
