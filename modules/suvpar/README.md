@@ -22,6 +22,10 @@ Find the config.json file in the folder and modify accordingly.
 
 * *IsStatistics*: If you want the statistics then set it as true otherwise false(default).
 
+* *IsFinalCSV*: Do you want to drop the intermediate fields and produce the final csv. By default, true. If false, only pre-processing of data to anonymize the data and prepare an intermediate file that is ready for Suvpar processing.
+
+* *IsAnonymized*: Do you want to anonymize certain sensitive PHI headers. By default, true.
+
 # Running Niffler SUVPaR
 
 First, to run the script to trim the file.
