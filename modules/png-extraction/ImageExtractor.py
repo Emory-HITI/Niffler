@@ -493,6 +493,13 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         m = pd.read_csv(meta,dtype='str',usecols=loadable_names)
         meta_list.append(m)
     merged_meta = pd.concat(meta_list,ignore_index=True)
+
+    # if CommonHeadersOnly are false
+    if not print_only_common_headers:
+        merged_meta = pd.DataFrame()
+        for meta in metas:
+            merged_meta = pd.concat([merged_meta, pd.read_csv(meta)])
+
     merged_meta.to_csv('{}/metadata.csv'.format(output_directory),index=False)
     # getting a single mapping file
     logging.info('Generating final mapping file')
@@ -501,10 +508,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
     for mapping in mappings:
         map_list.append(pd.read_csv(mapping,dtype='str'))
     merged_maps = pd.concat(map_list,ignore_index=True)
-    if print_only_common_headers:
-        mask_common_fields = merged_maps.isnull().mean() < 0.1
-        common_fields = set(np.asarray(merged_maps.columns)[mask_common_fields])
-        merged_maps = merged_maps[common_fields]
+
     merged_maps.to_csv('{}/mapping.csv'.format(output_directory),index=False)
 
     if send_email:
