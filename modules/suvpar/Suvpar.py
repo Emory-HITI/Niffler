@@ -58,6 +58,12 @@ def suvpar():
     df = df[df.Modality == "MR"]
     # Dataset after removing unwanted Device Serial Number
     if scanner_filter:
+        temp_sn = list()
+        # sometimes DeviceSerialNumber are int data type
+        for SN in device_SN:
+            if SN.isdigit():
+                temp_sn.append(int(SN))
+        device_SN.extend(temp_sn)
         df = df.loc[df['DeviceSerialNumber'].isin(device_SN)]
     # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips and FONAR scanners.
     df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|FONAR'), True, False)
@@ -258,7 +264,7 @@ def suvpar():
         df_multi = df_multi.sort_values(["DeviceSerialNumber", 'StudyStartTime', 'PatientID'])
 
         m_pid = []  # PatientID come under the multi study duration
-        n_m_pid = []  # PatientID come under the non-multi study duration
+        n_m_pid = [df_multi.iloc[-1, 2]]  # PatientID come under the non-multi study duration
         for i in range(0, len(df_multi) - 1):
             if df_multi.iloc[i, 2] == df_multi.iloc[i + 1, 2]:
                 if ((df_multi.iloc[i + 1, 3] - df_multi.iloc[i, 4]).total_seconds() / 60) < 20:
