@@ -1,6 +1,8 @@
 import os
 import sys
+from charset_normalizer import logging
 import pytest
+import pdb
 
 from io import StringIO
 from pathlib import Path
@@ -73,6 +75,7 @@ class TestUpdatePickle:
         Setup
         """
         CDR.csv_file = None
+        CDR.mod_csv_file = None
         CDR.extracted_ones = None
 
     def teardown_method(self):
@@ -80,6 +83,7 @@ class TestUpdatePickle:
         Cleanup
         """
         CDR.csv_file = None
+        CDR.mod_csv_file = None
         CDR.extracted_ones = None
 
     def test_success(self):
@@ -87,7 +91,8 @@ class TestUpdatePickle:
         Test for ColdDataRetriever.update_pickle function.
         Check whether function executes without raising error.
         """
-        CDR.csv_file = str(test_config.input_dir / 'csv_files' / 'tmp.csv')
+        # CDR.csv_file = str(test_config.input_dir / 'csv_files' / 'tmp.csv')
+        CDR.mod_csv_file = str(test_config.input_dir / 'csv_files' / 'tmp_mod.csv')
         CDR.extracted_ones = ['1234,4432']
         CDR.update_pickle()
         CDR.logging.debug.assert_called_once()
@@ -212,7 +217,7 @@ class TestReadCsv:
         """
         Setup
         """
-        CDR.csv_file = str(test_config.input_dir /
+        CDR.mod_csv_file = str(test_config.input_dir /
                            'csv_files' / 'unit_test_read_csv.csv')
         CDR.number_of_query_attributes = 3
         self.reset_cdr_module_state()
@@ -244,7 +249,7 @@ class TestReadCsv:
         Checks read success by asserting value of number of rows read.
         """
         self.reset_cdr_module_state()
-        CDR.csv_file = str(test_config.input_dir /
+        CDR.mod_csv_file = str(test_config.input_dir /
                            'csv_files' / 'unit_test_read_csv_1st_date.csv')
         CDR.first_attr = "StudyDate"
         CDR.second_attr = "PatientID"
@@ -270,7 +275,7 @@ class TestReadCsv:
         Checks read success by asserting value of number of rows read.
         """
         self.reset_cdr_module_state()
-        CDR.csv_file = str(test_config.input_dir /
+        CDR.mod_csv_file = str(test_config.input_dir /
                            'csv_files' / 'unit_test_read_csv_3rd_date.csv')
 
         CDR.first_attr = "PatientID"
