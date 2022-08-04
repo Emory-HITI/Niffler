@@ -494,11 +494,15 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         meta_list.append(m)
     merged_meta = pd.concat(meta_list,ignore_index=True)
 
-    # if CommonHeadersOnly are false
-    if not print_only_common_headers:
-        merged_meta = pd.DataFrame()
-        for meta in metas:
-            merged_meta = pd.concat([merged_meta, pd.read_csv(meta)])
+    # merging_meta
+    merged_meta = pd.DataFrame()
+    for meta in metas:
+        merged_meta = pd.concat([merged_meta, pd.read_csv(meta)])
+    # for only common header
+    if print_only_common_headers:
+        mask_common_fields = merged_meta.isnull().mean() < 0.1
+        common_fields = list(np.asarray(merged_meta.columns)[mask_common_fields])
+        merged_meta = merged_meta[common_fields]
 
     merged_meta.to_csv('{}/metadata.csv'.format(output_directory),index=False)
     # getting a single mapping file
