@@ -23,3 +23,4 @@ Manufacturer
 ManufacturerModelName
 SeriesInstanceUID
 [SliceMeasurementDuration]
+[Acquisition Duration]
