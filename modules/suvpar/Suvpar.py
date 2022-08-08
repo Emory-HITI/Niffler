@@ -68,6 +68,8 @@ def suvpar():
     # Check for the AcquisitionTime > SeriesTime case, currently observed in Philips and FONAR scanners.
     df['AltCase'] = numpy.where(df['Manufacturer'].str.contains('Philips|FONAR'), True, False)
 
+    #  Statistics of the dataset after drop some values
+    sta = df.describe()
     if isAnonymized:
         # Apply hashing function to the column.
         df['AccessionNumber'] = df['AccessionNumber'].astype(str).apply(
@@ -90,6 +92,8 @@ def suvpar():
             hashlib.sha256(x.encode()).hexdigest()
         )
 
+    # Statistics of the dataset after isAnonymized
+    sta = df.describe()
     # Add computed non-DICOM fields and drop a few attributes, if we are producing a final_csv and not an intermediate.
     if final_csv:
         df['AcquisitionDateTime'] = df['AcquisitionDate'].astype(int).astype(str) + \
