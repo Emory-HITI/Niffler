@@ -11,7 +11,7 @@ The Niffler framework consists of:
 
 Niffler enables receiving DICOM images real-time as a data stream from PACS as well as specific DICOM data based on a series of DICOM C-MOV queries. The Niffler real-time DICOM receiver extracts the metadata free of PHI as the images arrive, store the metadata in a Mongo database, and deletes the images nightly. The on-demand extractor reads a CSV file provided by the user (consisting of a list of values for PatientID, AccessionNumber, or other DICOM keywords), and performs a series of DICOM C-MOVE requests to receive them from the PACS, without manually querying them. Niffler also provides additional features such as converting DICOM images into PNG images, and perform additional computations such as computing scanner utilization and finding scanners with misconfigured clocks.
 
-Emory University develops Niffler with funding from the National Cancer Institute (NCI) of the National Institutes of Health (NIH). Other collaborators contribute to Niffler with funding from the Google Summer of Code (GSoC) and other sources.
+Emory University develops Niffler with funding from the National Cancer Institute (NCI) of the National Institutes of Health (NIH). Other collaborators contribute to Niffler with funding from the Google Summer of Code (GSoC) and other sources. Niffler also welcomes contributions from open source volunteers and users.
 
 # Configure Niffler
 
@@ -21,34 +21,11 @@ Niffler consists of multiple modules, inside the modules folder. Here we will lo
 
 Both meta-extraction and cold-extraction modules require proper configuration of a PACS environment to allow data transfer and query retrieval to Niffler, respectively.
 
-* Make sure to configure the PACS to send data to Niffler meta-extraction module's host, port, and AE_Title. 
+* If you plan to use meta-extraction and cold-extraction modules, please make sure to configure the PACS to send data to Niffler meta-extraction module's host, port, and AE_Title. 
 
-* Niffler cold-extraction won't receive data unless the PACS allows the requests from Niffler cold-extraction (host/port/AE_Title).
+* Niffler cold-extraction won't receive data unless the PACS allows the requests from Niffler cold-extraction (host/port/AE_Title). Please go through your PACS framework's documentation on configuring host/port/AE_Tiles for a new AE to accept queries from (Query AET). Those instructions should prepare your PACS to receive queries from Niffler as the Query AET.
 
 
-## Configure Niffler mdextractor service
-
-The modules/meta-extraction/services folder consists of mdextractor.sh, system.json, and mdextractor.service.
-
-mdextractor.sh produces the output in services/niffler-rt.out.
-
-Make sure to provide the correct full path of your meta-extraction folder in the 2nd line of mdextractor.sh, replacing the below:
-
-```
-cd /opt/localdrive/Niffler/modules/meta-extraction/
-```
-
-Provide the appropriate values for mdextractor.service.
-
-```
-[Service]
-Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
-Type=simple
-ExecStart=/opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
-TimeoutStartSec=360
-StandardOutput=/opt/localdrive/Niffler/modules/meta-extraction/service.log
-StandardError=/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
-```
 
 ## Install Niffler
 
@@ -64,12 +41,15 @@ You might want to use the dev branch for the latest updates. For more stable ver
 ```
 $ git checkout dev
 ```
-Finally, run the installation script.
+Finally, run the installation script for a quick installation of dependencies. 
+
 ```
 $ sh install.sh
 ```
 
-Please refer to each module's individual README for additional instructions on deploying and using Niffler for each of its modules.
+This script is written for Centos. If you are using another operating system, please go through the script and make necessary changes as the script is easy to follow.
+
+Please refer to each module's individual README for additional instructions on configuring, deploying, and using Niffler for each of its modules.
 
 
 
