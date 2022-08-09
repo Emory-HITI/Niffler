@@ -17,15 +17,6 @@ Emory University develops Niffler with funding from the National Cancer Institut
 
 Niffler consists of multiple modules, inside the modules folder. Here we will look into the common configuration and installation steps of Niffler. An introduction to Niffler can be found [here](https://emory-hiti.github.io/Niffler/).
 
-## Configure PACS
-
-Both meta-extraction and cold-extraction modules require proper configuration of a PACS environment to allow data transfer and query retrieval to Niffler, respectively.
-
-* If you plan to use meta-extraction and cold-extraction modules, please make sure to configure the PACS to send data to Niffler meta-extraction module's host, port, and AE_Title. 
-
-* Niffler cold-extraction won't receive data unless the PACS allows the requests from Niffler cold-extraction (host/port/AE_Title). Please go through your PACS framework's documentation on configuring host/port/AE_Tiles for a new AE to accept queries from (Query AET). Those instructions should prepare your PACS to receive queries from Niffler as the Query AET.
-
-
 
 ## Install Niffler
 
@@ -50,6 +41,15 @@ $ sh install.sh
 This script is written for Centos. If you are using another operating system, please go through the script and make necessary changes as the script is easy to follow.
 
 Please refer to each module's individual README for additional instructions on configuring, deploying, and using Niffler for each of its modules.
+
+
+## Configure PACS
+
+Both meta-extraction and cold-extraction modules require proper configuration of a PACS environment to allow data transfer and query retrieval to Niffler, respectively.
+
+* If you plan to use meta-extraction and cold-extraction modules, please make sure to configure the PACS to send data to Niffler meta-extraction module's host, port, and AE_Title. 
+
+* Niffler cold-extraction won't receive data unless the PACS allows the requests from Niffler cold-extraction (host/port/AE_Title). Please go through your PACS framework's documentation on configuring host/port/AE_Tiles for a new AE to accept queries from (Query AET). Those instructions should prepare your PACS to receive queries from Niffler as the Query AET.
 
 
 
