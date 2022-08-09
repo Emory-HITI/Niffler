@@ -1,0 +1,1 @@
+Emory University develops Niffler with funding from the National Cancer Institute (NCI) of the National Institutes of Health (NIH). Other collaborators contribute to Niffler with funding from the Google Summer of Code (GSoC) and other sources. Niffler also welcomes contributions from open source volunteers and users.
