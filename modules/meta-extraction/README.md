@@ -63,7 +63,7 @@ StandardError=/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
 
 Once started, the below commands help check the status of the service and help find any issues in the execution.
 
-## Check the status of the mdextractor service.
+## Check the status of the mdextractor service
 
 ```
 $ sudo systemctl status mdextractor.service
