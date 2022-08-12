@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import pandas
+import logging
 script_dir = os.path.dirname( __file__ )
 module_dir=os.path.join(script_dir,"..","..","..","suvpar")
 print("script_dir is:",module_dir)
