@@ -372,7 +372,7 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
                              recursive=True)  # search the folders at the depth we request and finds all dicoms
         pickle.dump(filelist, open(pickle_file, 'wb'))
         
-    # if number of files is less than the number of split than
+    # if the number of files is less than the specified number of splits, then
     if no_splits > len(filelist) and len(filelist) > 0:
         no_splits = len(filelist)
         
