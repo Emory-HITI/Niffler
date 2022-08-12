@@ -138,9 +138,8 @@ while True:
     except KeyboardInterrupt:
         ColdDataRetriever.check_kill_process()
         logging.shutdown()
-        print("hello10")
         break
-        #sys.exit(0)
+        
 
 for line in os.popen("ps -ax | grep storescp"):
         fields = line.split()
