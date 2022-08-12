@@ -121,6 +121,27 @@ except:
 ColdDataRetriever.t_start = time.time()
 ColdDataRetriever.run_cold_extraction()
 
+ColdDataRetriever.read_csv()
+    # The thread scheduling
+schedule.every(1).minutes.do(ColdDataRetriever.run_threaded, ColdDataRetriever.run_retrieval)    
+schedule.every(10).minutes.do(ColdDataRetriever.run_threaded, ColdDataRetriever.update_pickle)
 
+# Keep running in a loop.
+while True:
+    try:
+        schedule.run_pending()
+        time.sleep(1)
+    except KeyboardInterrupt:
+        ColdDataRetriever.check_kill_process()
+        logging.shutdown()
+        print("hello10")
+        break
+        #sys.exit(0)
+
+for line in os.popen("ps -ax | grep storescp"):
+        fields = line.split()
+        pid = fields[0]
+        print(pid)
+        os.kill(int(pid), signal.SIGKILL)
 
 
