@@ -31,12 +31,39 @@ If you desire more DICOM attributes to an existing collection, add the attribute
 
 If you prefer the additional attributes in a separate collection in the Mongo Metadata Store, create a new txt file with the preferred attributes in the conf folder.
 
+## Configure as a service
+
+Niffler Real-time DICOM Extractor (mdextractor) should be configured as a service, so that it will continue to execute despite system restarts without manually starting them. 
 
 
-# Monitoring Niffler Real-time DICOM Extractor
+The modules/meta-extraction/services folder consists of mdextractor.sh, system.json, and mdextractor.service.
+
+mdextractor.sh produces the output in services/niffler-rt.out.
+
+Make sure to provide the correct full path of your meta-extraction folder in the 2nd line of mdextractor.sh, replacing the below:
+
+```
+cd /opt/localdrive/Niffler/modules/meta-extraction/
+```
+
+Provide the appropriate values for mdextractor.service.
+
+```
+[Service]
+Environment="MONGO_URI=USERNAME:PASSWORD@localhost:27017/"
+Type=simple
+ExecStart=/opt/localdrive/Niffler/modules/meta-extraction/service/mdextractor.sh
+TimeoutStartSec=360
+StandardOutput=/opt/localdrive/Niffler/modules/meta-extraction/service.log
+StandardError=/opt/localdrive/Niffler/modules/meta-extraction/service-error.log
+```
 
 
-## Check the status of the mdextractor service.
+# Maintaining the mdextractor service
+
+Once started, the below commands help check the status of the service and help find any issues in the execution.
+
+## Check the status of the mdextractor service
 
 ```
 $ sudo systemctl status mdextractor.service
