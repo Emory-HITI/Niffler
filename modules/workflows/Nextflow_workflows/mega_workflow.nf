@@ -50,7 +50,7 @@ if(params.workflow==1 || params.workflow==2 || params.workflow==3 || params.work
 			val depth into png_ext_out
 		script:
 			"""
-				python3 $pd/src/ImageExtractor_nextflow.py --DICOMHome $DICOMHome  --SplitIntoChunks $params.SplitIntoChunks --PrintImages $params.PrintImages --CommonHeadersOnly $params.CommonHeadersOnly --UseProcesses $params.UseProcesses --FlattenedToLevel $params.FlattenedToLevel --is16Bit $params.is16Bit --SendEmail $params.SendEmail --YourEmail $params.YourEmail --PublicHeadersOnly $params.PublicHeadersOnly --Depth $depth
+				python3 $pd/src/ImageExtractor_nextflow.py --DICOMHome $params.OutputDirectory/workflow_results/cold_extraction_results --OutputDirectory $params.OutputDirectory/workflow_results/png_extraction_results --SplitIntoChunks $params.SplitIntoChunks --PrintImages $params.PrintImages --CommonHeadersOnly $params.CommonHeadersOnly --UseProcesses $params.UseProcesses --FlattenedToLevel $params.FlattenedToLevel --is16Bit $params.is16Bit --SendEmail $params.SendEmail --YourEmail $params.YourEmail --PublicHeadersOnly $params.PublicHeadersOnly --Depth $depth
 			"""
 	}
 }
@@ -62,7 +62,7 @@ else{
 			val depth into png_ext_out
 		script:
 			"""
-	    			python3 $pd/src/suvpar.py --InputFile $params.OutputDirectory/workflow_results/png_extraction_results/metadata.csv --OutputFile $params.OutputDirectory/workflow_results/suvpar_resuts/output.csv --FeaturesetFile $params.Featureset_File_for_suvpar --ScannerDetails $params.ScannerDetails --ScannerFilter $params.ScannerFilter --Statistics_File $params.OutputDirectory/workflow_results/suvpar_resuts/statistics.csv --IsStatistics $params.IsStatistics --IsFinalCSV $params.IsFinalCSV --IsAnonymized $params.IsAnonymized
+				python3 $pd/src/ImageExtractor_nextflow.py --DICOMHome $params.DICOMHome --OutputDirectory $params.OutputDirectory/workflow_results/png_extraction_results  --SplitIntoChunks $params.SplitIntoChunks --PrintImages $params.PrintImages --CommonHeadersOnly $params.CommonHeadersOnly --UseProcesses $params.UseProcesses --FlattenedToLevel $params.FlattenedToLevel --is16Bit $params.is16Bit --SendEmail $params.SendEmail --YourEmail $params.YourEmail --PublicHeadersOnly $params.PublicHeadersOnly --Depth $depth
 			"""
 	}
 
