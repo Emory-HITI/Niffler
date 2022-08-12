@@ -371,9 +371,11 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
         filelist = glob.glob(file_path,
                              recursive=True)  # search the folders at the depth we request and finds all dicoms
         pickle.dump(filelist, open(pickle_file, 'wb'))
-    # if number of files get more than number of split than
-    if len(filelist) < no_splits:
+        
+    # if the number of files is less than the specified number of splits, then
+    if no_splits > len(filelist) and len(filelist) > 0:
         no_splits = len(filelist)
+        
     file_chunks = np.array_split(filelist, no_splits)
     logging.info('Number of dicom files: ' + str(len(filelist)))
 
