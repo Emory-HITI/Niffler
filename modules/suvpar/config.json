@@ -6,6 +6,8 @@
   "FeaturesetFile": "featureset1.txt",
   "IsStatistics": false,
   "Statistics_File": "statistic.csv",
+  "RIS_File" : "ris.csv",
+  "IsMergeWithRis" : false,
   "IsFinalCSV": true,
   "IsAnonymized": true
 }

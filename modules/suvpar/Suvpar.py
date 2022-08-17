@@ -12,7 +12,7 @@ output_csv = {}
 
 
 def initialize():
-    global output_csv, df, device_SN, scanner_filter, statistics_csv, isStatistics, final_csv, isAnonymized
+    global output_csv, df, device_SN, scanner_filter, statistics_csv, isStatistics, final_csv, isAnonymized, ris_df, is_merge_with_ris
     with open('config.json', 'r') as f:
         config = json.load(f)
 
@@ -23,6 +23,8 @@ def initialize():
     scanner_filter = bool(config['ScannerFilter'])
     statistics_csv = config['Statistics_File']
     isStatistics = bool(config['IsStatistics'])
+    ris_csv = config['RIS_File']
+    is_merge_with_ris = bool(config['IsMergeWithRis'])
     final_csv = bool(config['IsFinalCSV'])
     isAnonymized = bool(config['IsAnonymized'])
     text_file = open(feature_file, "r")
@@ -31,6 +33,7 @@ def initialize():
     scanner_file = open(scanner_file, "r")
     device_SN = scanner_file.read().split('\n')
     df = pandas.read_csv(filename, usecols=lambda x: x in feature_list, sep=',')
+    ris_df = pandas.read_csv(ris_csv)
 
 
 def suvpar():
@@ -361,6 +364,9 @@ def suvpar():
         # Statistics of the dataset
         sta = df.describe()
         sta.loc['count', 'MultiStudyEncounter'] = df[df['MultiStudyEncounter'] == True]['InstanceNumber'].count()
+
+    if is_merge_with_ris:
+        df = pandas.merge(df, ris_df, on='PatientID')
 
 
 def write():
