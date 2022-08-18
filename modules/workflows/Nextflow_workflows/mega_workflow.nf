@@ -36,7 +36,7 @@ process cold_extraction{
 		params.workflow==1 || params.workflow==2 || params.workflow==3 || params.workflow==4
 	script:
 	"""
-	python3 $pd/Modules/cold_extraction.py --StorageFolder $params.OutputDirectory/workflow_results/cold_extraction_results --FilePath $params.FilePath --CsvFile $params.CsvFile --NumberOfQueryAttributes $params.NumberOfQueryAttributes --FirstAttr $params.FirstAttr --FirstIndex $params.FirstIndex --SecondAttr $params.SecondAttr --SecondIndex $params.SecondIndex --ThirdAttr $params.ThirdAttr --ThirdIndex $params.ThirdIndex --DateFormat $params.DateFormat --SendEmail $params.SendEmail  --YourEmail $params.YourEmail --DCM4CHEBin $params.DCM4CHEBin --SrcAet $params.SrcAet --QueryAet $params.QueryAet --DestAet $params.DestAet --NightlyOnly $params.NightlyOnly --StartHour $params.StartHour --EndHour $params.EndHour --NifflerID $params.NifflerID --MaxNifflerProcesses $params.MaxNifflerProcesses
+	python3 $pd/src/cold_extraction.py --StorageFolder $params.OutputDirectory/workflow_results/cold_extraction_results --FilePath $params.FilePath --CsvFile $params.CsvFile --NumberOfQueryAttributes $params.NumberOfQueryAttributes --FirstAttr $params.FirstAttr --FirstIndex $params.FirstIndex --SecondAttr $params.SecondAttr --SecondIndex $params.SecondIndex --ThirdAttr $params.ThirdAttr --ThirdIndex $params.ThirdIndex --DateFormat $params.DateFormat --SendEmail $params.SendEmail  --YourEmail $params.YourEmail --DCM4CHEBin $params.DCM4CHEBin --SrcAet $params.SrcAet --QueryAet $params.QueryAet --DestAet $params.DestAet --NightlyOnly $params.NightlyOnly --StartHour $params.StartHour --EndHour $params.EndHour --NifflerID $params.NifflerID --MaxNifflerProcesses $params.MaxNifflerProcesses
 	"""
 
 }
@@ -50,7 +50,7 @@ if(params.workflow==1 || params.workflow==2 || params.workflow==3 || params.work
 			val depth into png_ext_out
 		script:
 			"""
-				python3 $pd/Modules/ImageExtractor_nextflow.py --DICOMHome $DICOMHome  --SplitIntoChunks $params.SplitIntoChunks --PrintImages $params.PrintImages --CommonHeadersOnly $params.CommonHeadersOnly --UseProcesses $params.UseProcesses --FlattenedToLevel $params.FlattenedToLevel --is16Bit $params.is16Bit --SendEmail $params.SendEmail --YourEmail $params.YourEmail --PublicHeadersOnly $params.PublicHeadersOnly --Depth $depth
+				python3 $pd/src/ImageExtractor_nextflow.py --DICOMHome $params.OutputDirectory/workflow_results/cold_extraction_results --OutputDirectory $params.OutputDirectory/workflow_results/png_extraction_results --SplitIntoChunks $params.SplitIntoChunks --PrintImages $params.PrintImages --CommonHeadersOnly $params.CommonHeadersOnly --UseProcesses $params.UseProcesses --FlattenedToLevel $params.FlattenedToLevel --is16Bit $params.is16Bit --SendEmail $params.SendEmail --YourEmail $params.YourEmail --PublicHeadersOnly $params.PublicHeadersOnly --Depth $depth
 			"""
 	}
 }
@@ -62,7 +62,7 @@ else{
 			val depth into png_ext_out
 		script:
 			"""
-				python3 $pd/Modules/ImageExtractor_nextflow.py --DICOMHome $params.OutputDirectory/workflow_results/cold_extraction_results --OutputDirectory $params.OutputDirectory/workflow_results/png_extraction_results  --SplitIntoChunks $params.SplitIntoChunks --PrintImages $params.PrintImages --CommonHeadersOnly $params.CommonHeadersOnly --UseProcesses $params.UseProcesses --FlattenedToLevel $params.FlattenedToLevel --is16Bit $params.is16Bit --SendEmail $params.SendEmail --YourEmail $params.YourEmail --PublicHeadersOnly $params.PublicHeadersOnly --Depth $depth
+				python3 $pd/src/ImageExtractor_nextflow.py --DICOMHome $params.DICOMHome --OutputDirectory $params.OutputDirectory/workflow_results/png_extraction_results  --SplitIntoChunks $params.SplitIntoChunks --PrintImages $params.PrintImages --CommonHeadersOnly $params.CommonHeadersOnly --UseProcesses $params.UseProcesses --FlattenedToLevel $params.FlattenedToLevel --is16Bit $params.is16Bit --SendEmail $params.SendEmail --YourEmail $params.YourEmail --PublicHeadersOnly $params.PublicHeadersOnly --Depth $depth
 			"""
 	}
 
@@ -79,7 +79,7 @@ process suvpar{
 
 	"""
 	
-	    python3 $pd/Modules/suvpar.py --InputFile $params.OutputDirectory/workflow_results/png_extraction_results/metadata.csv --OutputFile $params.OutputDirectory/workflow_results/suvpar_resuts/output.csv --FeaturesetFile $params.Featureset_File_for_suvpar
+	    python3 $pd/src/suvpar.py --InputFile $params.OutputDirectory/workflow_results/png_extraction_results/metadata.csv --OutputFile $params.OutputDirectory/workflow_results/suvpar_resuts/output.csv --FeaturesetFile $params.Featureset_File_for_suvpar
 	
 	"""
 
@@ -102,7 +102,7 @@ process meta_anon{
 		params.workflow==1 || params.workflow==4 || params.workflow==5 || params.workflow==8
 	script:
 	"""
-		python3 $pd/Modules/metadata_anonymization.py $params.OutputDirectory/workflow_results/png_extraction_results/metadata.csv $params.OutputDirectory/workflow_results/metaAnon_resuts/output.csv
+		python3 $pd/src/metadata_anonymization.py $params.OutputDirectory/workflow_results/png_extraction_results/metadata.csv $params.OutputDirectory/workflow_results/metaAnon_resuts/output.csv
 	"""
 }
 

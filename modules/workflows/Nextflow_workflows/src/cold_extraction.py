@@ -3,6 +3,9 @@ import sys
 import argparse
 import logging
 import time
+import schedule
+import signal
+
 script_dir = os.path.dirname( __file__ )
 module_dir=os.path.join(script_dir,"..","..","..","cold-extraction")
 print("script_dir is:",module_dir)
@@ -54,6 +57,8 @@ ColdDataRetriever.third_attr = valuesDict['ThirdAttr']
 ColdDataRetriever.date_format = valuesDict['DateFormat']
 ColdDataRetriever.email = valuesDict['YourEmail']
 ColdDataRetriever.send_email = bool(valuesDict['SendEmail'])
+ColdDataRetriever.mod_csv_file = ColdDataRetriever.csv_file[:-4]+'_mod.csv'
+
 
 ColdDataRetriever.DCM4CHE_BIN = valuesDict['DCM4CHEBin']
 ColdDataRetriever.SRC_AET = valuesDict['SrcAet']
@@ -119,8 +124,27 @@ except:
 
 # record the start time
 ColdDataRetriever.t_start = time.time()
-ColdDataRetriever.run_cold_extraction()
 
+ColdDataRetriever.read_csv()
+    # The thread scheduling
+schedule.every(1).minutes.do(ColdDataRetriever.run_threaded, ColdDataRetriever.run_retrieval)    
+schedule.every(10).minutes.do(ColdDataRetriever.run_threaded, ColdDataRetriever.update_pickle)
 
+# Keep running in a loop.
+while True:
+    try:
+        schedule.run_pending()
+        time.sleep(1)
+    except KeyboardInterrupt:
+        ColdDataRetriever.check_kill_process()
+        logging.shutdown()
+        break
+        
+
+for line in os.popen("ps -ax | grep storescp"):
+        fields = line.split()
+        pid = fields[0]
+        print(pid)
+        os.kill(int(pid), signal.SIGKILL)
 
 
