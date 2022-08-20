@@ -3,6 +3,7 @@ import sys
 import argparse
 import logging
 import time
+import shutil
 import schedule
 import signal
 
@@ -39,11 +40,6 @@ ap.add_argument("--NifflerID", type=int)
 ap.add_argument("--MaxNifflerProcesses", type=int)
 valuesDict = vars(ap.parse_args())
 
-
-
-
-
-
 ColdDataRetriever.storage_folder = valuesDict['StorageFolder']
 ColdDataRetriever.file_path = valuesDict['FilePath']
 ColdDataRetriever.csv_file = valuesDict['CsvFile']
@@ -58,7 +54,7 @@ ColdDataRetriever.date_format = valuesDict['DateFormat']
 ColdDataRetriever.email = valuesDict['YourEmail']
 ColdDataRetriever.send_email = bool(valuesDict['SendEmail'])
 ColdDataRetriever.mod_csv_file = ColdDataRetriever.csv_file[:-4]+'_mod.csv'
-
+shutil.copyfile(ColdDataRetriever.csv_file, ColdDataRetriever.mod_csv_file)
 
 ColdDataRetriever.DCM4CHE_BIN = valuesDict['DCM4CHEBin']
 ColdDataRetriever.SRC_AET = valuesDict['SrcAet']
@@ -146,5 +142,4 @@ for line in os.popen("ps -ax | grep storescp"):
         pid = fields[0]
         print(pid)
         os.kill(int(pid), signal.SIGKILL)
-
 
