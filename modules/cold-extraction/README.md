@@ -208,7 +208,7 @@ To activate, use the below value,
 	"FilePath": "CFIND-DETAILED",
 ```
 
-## Troubleshooting
+# Troubleshooting
 
 If the process fails even when no one else's Niffler process is running, check your log file (UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out)
 
@@ -242,6 +242,7 @@ $ sudo ps -xa | grep storescp
 $ sudo kill 241720
 ```
 
+## Testing your deployment with DCM4CHE
 
 Niffler strives to be stable for at least the latest stable releases. But since it is still an open-source research project by a university research group, it may have bugs at times - which we aim to fix as soon as we spot. But if your extraction fails for some reason, you could rule out whether the issue is really a Niffler bug or whether some other issue such as some problems in the PACS connection. 
 
