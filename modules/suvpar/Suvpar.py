@@ -55,8 +55,8 @@ def suvpar():
     df.dropna(subset=["SeriesTime"], inplace=True)
     df.dropna(subset=["SeriesDate"], inplace=True)
     df.dropna(subset=["DeviceSerialNumber"], inplace=True)
-    # Consider only the ImageType that are ORIGINAL.
-    df = df[df['ImageType'].str.contains("ORIGINAL")]
+    # Remove only the ImageType that are NA or NPR.
+    df = df[(~df['ImageType'].str.contains('NA|NPR')) | (df['ImageType'].str.contains('ORIGINAL'))]
     # Consider only MR. Remove modalities such as PR and SR that are present in the original data.
     df = df[df.Modality == "MR"]
     # Dataset after removing unwanted Device Serial Number
