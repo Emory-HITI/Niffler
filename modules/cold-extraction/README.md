@@ -246,7 +246,7 @@ $ sudo kill 241720
 
 Niffler strives to be stable for at least the latest stable releases. But since it is still an open-source research project by a university research group, it may have bugs at times - which we aim to fix as soon as we spot. But if your extraction fails for some reason, you could rule out whether the issue is really a Niffler bug or whether some other issue such as some problems in the PACS connection. 
 
-Simply start a storescp and movescu clients (in that order) of DCM4CHE from the server where you are attempting to run. If the below commands work, but Niffler still fails (after correctly following the README), it could indicate a Niffler bug.
+Simply start a storescp and movescu clients (in that order) of DCM4CHE from the server where you are attempting to run Niffler. If the below commands work, but Niffler still fails (after correctly following the README), it could indicate a Niffler bug.
 
 The requests take the below format.
 
@@ -275,3 +275,6 @@ nohup /opt/dcm4che-5.22.5/bin/storescp --accept-unknown --directory new-pydicom 
 C-MOVE
 nohup /opt/dcm4che-5.22.5/bin/movescu -c "AE_ARCH2@xx.yy.ww.zz:104" -b "QBNIFFLER:4243" -M PatientRoot -m PatientID=12345678 --dest QBNIFFLER > movescu.out &
 ```
+
+If the testing with DCM4CHE as above does not work, that is an issue likely with your PACS configuration to send DICOM data to your endpoint. Please get the above to work first in that case before attempting the execution with Niffler.
+
