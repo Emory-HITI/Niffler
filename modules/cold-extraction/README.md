@@ -241,6 +241,32 @@ $ sudo ps -xa | grep storescp
 
 $ sudo kill 241720
 ```
+## Testing your deployment with Niffler C-ECHO Implementation
+
+Sometimes your connection may not succeed due to firewall issues or because the source PACS not recognizing your end as a valid AET. To confirm and rule out these issues, you can issue a C-ECHO command included with Niffler. 
+
+**First, please make sure your system.json is updated with the correct values for "SrcAet" and "QueryAet"**.
+
+Then, run the below.
+
+````
+$ python3 TestConnection.py
+````
+
+The below output indicates the success.
+````
+C-ECHO request status: 0x0000
+````
+
+If you receive any other output such as the below, that indicates the connection was not successful. 
+````
+Association rejected, aborted or never connected
+````
+
+Please check again the "SrcAet" and "QueryAet" in system.json for correctness. 
+
+If everything is correct in your/Niffler end, please consult your enterprise PACS deployment for configuration. Is it configured correctly to accept queries from your "QueryAet"? Is there a firewall? Is that firewall configured to accept queries **from** your QueryAet (host and port)?
+
 
 ## Testing your deployment with DCM4CHE
 
