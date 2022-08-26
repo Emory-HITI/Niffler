@@ -208,7 +208,7 @@ To activate, use the below value,
 	"FilePath": "CFIND-DETAILED",
 ```
 
-## Troubleshooting
+# Troubleshooting
 
 If the process fails even when no one else's Niffler process is running, check your log file (UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out)
 
@@ -241,11 +241,38 @@ $ sudo ps -xa | grep storescp
 
 $ sudo kill 241720
 ```
+## Testing your deployment with Niffler C-ECHO Implementation
 
+Sometimes your connection may not succeed due to firewall issues or because the source PACS not recognizing your end as a valid AET. To confirm and rule out these issues, you can issue a C-ECHO command included with Niffler. 
+
+**First, please make sure your system.json is updated with the correct values for "SrcAet" and "QueryAet"**.
+
+Then, run the below.
+
+````
+$ python3 TestConnection.py
+````
+
+The below output indicates the success.
+````
+C-ECHO request status: 0x0000
+````
+
+If you receive any other output such as the below, that indicates the connection was not successful. 
+````
+Association rejected, aborted or never connected
+````
+
+Please check again the "SrcAet" and "QueryAet" in system.json for correctness. 
+
+If everything is correct in your/Niffler end, please consult your enterprise PACS deployment for configuration. Is it configured correctly to accept queries from your "QueryAet"? Is there a firewall? Is that firewall configured to accept queries **from** your QueryAet (host and port)?
+
+
+## Testing your deployment with DCM4CHE
 
 Niffler strives to be stable for at least the latest stable releases. But since it is still an open-source research project by a university research group, it may have bugs at times - which we aim to fix as soon as we spot. But if your extraction fails for some reason, you could rule out whether the issue is really a Niffler bug or whether some other issue such as some problems in the PACS connection. 
 
-Simply start a storescp and movescu clients (in that order) of DCM4CHE from the server where you are attempting to run. If the below commands work, but Niffler still fails (after correctly following the README), it could indicate a Niffler bug.
+Simply start a storescp and movescu clients (in that order) of DCM4CHE from the server where you are attempting to run Niffler. If the below commands work, but Niffler still fails (after correctly following the README), it could indicate a Niffler bug.
 
 The requests take the below format.
 
@@ -274,3 +301,6 @@ nohup /opt/dcm4che-5.22.5/bin/storescp --accept-unknown --directory new-pydicom 
 C-MOVE
 nohup /opt/dcm4che-5.22.5/bin/movescu -c "AE_ARCH2@xx.yy.ww.zz:104" -b "QBNIFFLER:4243" -M PatientRoot -m PatientID=12345678 --dest QBNIFFLER > movescu.out &
 ```
+
+If the testing with DCM4CHE as above does not work, that is an issue likely with your PACS configuration to send DICOM data to your endpoint. Please get the above to work first in that case before attempting the execution with Niffler.
+
