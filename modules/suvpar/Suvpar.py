@@ -182,6 +182,81 @@ def suvpar():
 
         df['SeriesDurationInMins'] = (df.SeriesEndTime - df.SeriesStartTime).dt.seconds / 60.0
 
+        # if ContentDateTime available
+        if 'ContentTime' and 'ContentDate' in df.columns:
+            df.dropna(subset=["ContentTime"], inplace=True)
+            df['ContentDateTime'] = df['ContentDate'].astype(int).astype(str) + \
+                                    df['ContentTime'].astype(float).astype(str)
+            df['ContentDateTime'] = pandas.to_datetime(df['ContentDateTime'], format='%Y%m%d%H%M%S.%f')
+            df['ContentDateTime'] = df['ContentDateTime'].dt.strftime('%Y/%m/%d %H:%M:%S.%f')
+
+            # (1) Series Level for ContentDateTime
+            df = df.join(
+                df.groupby('SeriesInstanceUID')['ContentDateTime'].aggregate(['min', 'max']),
+                on='SeriesInstanceUID')
+            df.rename(columns={'min': 'TContentStartTime'}, inplace=True)
+            df.rename(columns={'max': 'TContentEndTime'}, inplace=True)
+
+            df['SeriesStartTime'] = df['TSeriesStartTime'] * df['AltCase'] + df['TContentStartTime'] * ~df['AltCase']
+            df['SeriesEndTime'] = df['TContentEndTime'] * df['AltCase'] + df['TSeriesEndTime'] * ~df['AltCase']
+
+            df['SeriesStartTime'] = pandas.to_datetime(df['SeriesStartTime'])
+            df['SeriesEndTime'] = pandas.to_datetime(df['SeriesEndTime'])
+
+            # Compute series duration in minutes
+            df['SeriesDurationInMins'] = (df.SeriesEndTime - df.SeriesStartTime).dt.seconds / 60.0
+
+            # Keep only one instance per series. 322,866 rows drops to 3,656 in a tested sample, by this step.
+            df = df.drop_duplicates('SeriesInstanceUID')
+            df = df.drop(columns=['ContentDate'])
+            df = df.drop(columns=['ContentTime'])
+
+            # (2) Study/Accession Level for ContentDateTime
+            df = df.join(
+                df.groupby('AccessionNumber')['ContentDateTime'].aggregate(['min', 'max']),
+                on='AccessionNumber')
+            df.rename(columns={'min': 'TEContentStartTime'}, inplace=True)
+            df.rename(columns={'max': 'TEContentEndTime'}, inplace=True)
+
+            df['StudyStartTime'] = df['TESeriesStartTime'] * df['AltCase'] + df['TEContentStartTime'] * ~df['AltCase']
+            df['StudyEndTime'] = df['TEContentEndTime'] * df['AltCase'] + df['TESeriesEndTime'] * ~df['AltCase']
+
+            df['StudyStartTime'] = pandas.to_datetime(df['StudyStartTime'])
+            df['StudyEndTime'] = pandas.to_datetime(df['StudyEndTime'])
+
+            # Compute study duration in minutes
+            df['StudyDurationInMins'] = (df.StudyEndTime - df.StudyStartTime).dt.seconds / 60.0
+
+            df['NewAltCase'] = numpy.where((df['SeriesDurationInMins'] > (23 * 60)), ~df['AltCase'], df['AltCase'])
+            df['AltCase'] = df['NewAltCase']
+            df = df.drop(columns=['NewAltCase'])
+
+            # Recompute study duration with the new AltCase value.
+            df['StudyStartTime'] = df['TESeriesStartTime'] * df['AltCase'] + df['TEContentStartTime'] * ~df['AltCase']
+            df['StudyEndTime'] = df['TEContentEndTime'] * df['AltCase'] + df['TESeriesEndTime'] * ~df['AltCase']
+
+            df['StudyStartTime'] = pandas.to_datetime(df['StudyStartTime'])
+            df['StudyEndTime'] = pandas.to_datetime(df['StudyEndTime'])
+
+            df['StudyDurationInMins'] = (df.StudyEndTime - df.StudyStartTime).dt.seconds / 60.0
+
+            # Recompute series duration with the new AltCase value.
+            df['SeriesStartTime'] = df['TSeriesStartTime'] * df['AltCase'] + df['TEContentStartTime'] * ~df['AltCase']
+            df['SeriesEndTime'] = df['TEContentEndTime'] * df['AltCase'] + df['TSeriesEndTime'] * ~df['AltCase']
+
+            df['SeriesStartTime'] = pandas.to_datetime(df['SeriesStartTime'])
+            df['SeriesEndTime'] = pandas.to_datetime(df['SeriesEndTime'])
+
+            df['SeriesDurationInMins'] = (df.SeriesEndTime - df.SeriesStartTime).dt.seconds / 60.0
+
+            # Drop study-level temp fields
+            df = df.drop(columns=['TEContentStartTime'])
+            df = df.drop(columns=['TEContentEndTime'])
+
+            # Drop series-level temp fields
+            df = df.drop(columns=['TContentStartTime'])
+            df = df.drop(columns=['TContentEndTime'])
+
         # Drop study-level temp fields
         df = df.drop(columns=['TEAcquisitionStartTime'])
         df = df.drop(columns=['TEAcquisitionEndTime'])
