@@ -17,8 +17,9 @@ This is a discussion page to help the developers get started soon.
 
 # Requests for Enhancement (RFE) and bugs
 
-* Please open an issue in the [bug tracker](https://github.com/Emory-HITI/Niffler/issues) if it is not already reported there.
+* Have you got requests for enhancements or encountered a bug? Please open an issue in the [bug tracker](https://github.com/Emory-HITI/Niffler/issues) if it is not already reported there.
 
+* If you have questions and clarifications that are not bug reports, please use our [Discussions forum](https://github.com/Emory-HITI/Niffler/discussions).
 
 # Commits and pull requests
 
