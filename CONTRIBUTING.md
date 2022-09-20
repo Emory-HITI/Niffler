@@ -26,3 +26,9 @@ This is a discussion page to help the developers get started soon.
 * Please develop against the [dev](https://github.com/Emory-HITI/Niffler/tree/dev) branch. New contributors are encouraged to submit pull requests, rather than directly committing even when you have committer access. Another developer can then review and merge your pull request.
 
 * The pull request should be minimal. Avoid including irrelevant changes in your pull request -- for example, unused library imports, line break changes, adding/removing new lines that interpret an unchanged code segment as changed. Inclusion of irrelevant changes in your pull request dilutes your actual contribution, and make it hard for the developers to merge and review. Please check with a "git diff" before committing your changes, to avoid such additions. 
+
+# Community Outreach
+
+Niffler has tremendously benefitted from open-source. We have been a part of the Google Summer of Code (GSoC), via the Department of Biomedical Informatics, Emory University as the mentoring organization. We have had two GSoC contributors in 2021 and another two in 2022. All of them have contributed to Niffler design and development and have become part of the Niffler developer community.
+
+Please use the GitHub discussion forums for user-queries. For GSoC and similar open-source contributions, as well as for other real-time user queries, feel free to join the Emory BMI slack workspace using the link - http://bit.ly/emory-bmi and find the channel "niffler."
