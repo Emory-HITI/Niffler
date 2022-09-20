@@ -31,4 +31,4 @@ This is a discussion page to help the developers get started soon.
 
 Niffler has tremendously benefitted from open-source. We have been a part of the Google Summer of Code (GSoC), via the Department of Biomedical Informatics, Emory University as the mentoring organization. We have had two GSoC contributors in 2021 and another two in 2022. All of them have contributed to Niffler design and development and have become part of the Niffler developer community.
 
-Please use the GitHub discussion forums for user-queries. For GSoC and similar open-source contributions, as well as for other real-time user queries, feel free to join the Emory BMI slack workspace using the link - http://bit.ly/emory-bmi and find the channel "niffler."
+Please use the GitHub discussion forums for user-queries. For GSoC and similar open-source contributions, as well as for other real-time user queries, feel free to join the GSoC Emory BMI slack workspace using the link - http://bit.ly/emory-bmi and find the channel "niffler."
