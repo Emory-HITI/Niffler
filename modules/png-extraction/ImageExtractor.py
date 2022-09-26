@@ -45,7 +45,7 @@ def initialize_config_and_execute(config_values):
     PublicHeadersOnly = bool(configs['PublicHeadersOnly'])
     SpecificHeadersOnly = bool(configs['SpecificHeadersOnly'])
     depth = int(configs['Depth'])
-    processes = int(configs['UseProcesses'])  # how many processes to use.
+    processes = float(configs['UseProcesses'])  # how many processes to use.
     flattened_to_level = configs['FlattenedToLevel']
     email = configs['YourEmail']
     send_email = bool(configs['SendEmail'])
