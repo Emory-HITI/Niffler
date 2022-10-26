@@ -1,0 +1,21 @@
+{
+	"DICOMHome": "",
+	"OutputDirectory": "",
+	"MasterKeyPath" : "",
+	"WhiteListPath" : "",
+	"DicomTagDictPath" : "DICOMTagDict.csv",
+	"IgnoreDescPath" : "ignore.txt",
+	"Depth": 3,
+	"BatchSize": 100000,
+	"PrintPng": true,
+	"PrintDicom" : true,
+	"Mammo" : false,
+	"CommonHeadersOnly": true,
+	"PublicHeadersOnly": true,
+	"SpecificHeadersOnly": false,
+	"FlattenedToLevel": "patient",
+	"is16Bit":true,
+	"SendEmail": true,
+	"KeepHeaderListPath" : "keepheaderlist.txt",
+	"YourEmail": "zzaiman@emory.edu"
+}
