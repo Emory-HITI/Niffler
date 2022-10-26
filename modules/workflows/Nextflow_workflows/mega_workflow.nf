@@ -105,4 +105,3 @@ process meta_anon{
 		python3 $pd/src/metadata_anonymization.py $params.OutputDirectory/workflow_results/png_extraction_results/metadata.csv $params.OutputDirectory/workflow_results/metaAnon_resuts/output.csv
 	"""
 }
-

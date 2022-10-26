@@ -11,3 +11,4 @@ htmlcov
 coverage.xml
 **/*.log
 /tests/data
+**/*.so

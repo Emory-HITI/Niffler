@@ -38,6 +38,7 @@ ap.add_argument("--StartHour", type=int)
 ap.add_argument("--EndHour", type=int)
 ap.add_argument("--NifflerID", type=int)
 ap.add_argument("--MaxNifflerProcesses", type=int)
+ap.add_argument("--XslFile", type=str, default=None)
 valuesDict = vars(ap.parse_args())
 
 ColdDataRetriever.storage_folder = valuesDict['StorageFolder']
@@ -54,6 +55,7 @@ ColdDataRetriever.date_format = valuesDict['DateFormat']
 ColdDataRetriever.email = valuesDict['YourEmail']
 ColdDataRetriever.send_email = bool(valuesDict['SendEmail'])
 ColdDataRetriever.mod_csv_file = ColdDataRetriever.csv_file[:-4]+'_mod.csv'
+ColdDataRetriever.XslFile = valuesDict['XslFile']
 shutil.copyfile(ColdDataRetriever.csv_file, ColdDataRetriever.mod_csv_file)
 
 ColdDataRetriever.DCM4CHE_BIN = valuesDict['DCM4CHEBin']
@@ -83,7 +85,10 @@ ColdDataRetriever.cfind_detailed = 'CFIND-DETAILED'
 
 ColdDataRetriever.temp_folder = os.path.join(ColdDataRetriever.storage_folder, "cfind-temp")
 
-if ColdDataRetriever.file_path == ColdDataRetriever.cfind_only:
+if ColdDataRetriever.XslFile != None:
+    ColdDataRetriever.cfind_add = f" -x {ColdDataRetriever.XslFile} "
+    print(ColdDataRetriever.cfind_add, flush=True)
+elif ColdDataRetriever.file_path == ColdDataRetriever.cfind_only:
     ColdDataRetriever.cfind_add = '-r StudyDescription -x description.csv.xsl'
     ColdDataRetriever.out_folder = ColdDataRetriever.temp_folder
 elif ColdDataRetriever.file_path == ColdDataRetriever.cfind_detailed:
@@ -93,7 +98,7 @@ elif ColdDataRetriever.file_path == ColdDataRetriever.cfind_detailed:
                 '-x detailed.csv.xsl'
     ColdDataRetriever.out_folder = temp_folder
 else:
-    ColdDataRetriever.cfind_add = ' -x stid.csv.xsl '
+    ColdDataRetriever.cfind_add = ' -x stid.csv.xls '
     ColdDataRetriever.out_folder = '.'
 
 ColdDataRetriever.niffler_log = 'niffler' + str(ColdDataRetriever.NIFFLER_ID) + '.log'
