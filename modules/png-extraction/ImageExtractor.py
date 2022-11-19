@@ -192,6 +192,22 @@ def extract_headers(f_list_elem):
     return dict(kv)
 
 
+
+def rgb_store_format(arr):
+    """ Create a  list containing pixels  in format expected by pypng 
+    arr: numpy array to be modified. 
+
+    We create an array such that an  nxmx3  matrix becomes a list of n elements. 
+    Each element contains m*3 items. 
+    """
+    out= list(arr) 
+    flat_out = list() 
+    for e in out:
+        flat_out.append(list())
+        for k in e: 
+            flat_out[-1].extend(k)
+    return flat_out 
+
 # Function to extract pixel array information
 # takes an integer used to index into the global filedata dataframe
 # returns tuple of
@@ -250,6 +266,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             image_2d_scaled = np.uint16(image_2d_scaled)
             with open(pngfile, 'wb') as png_file:
                 if isRGB:
+                    image_2d_scaled = rgb_store_format(image_2d_scaled)
                     w = png.Writer(shape[1], shape[0], greyscale=False, bitdepth=16)
                 else:
                     w = png.Writer(shape[1], shape[0], greyscale=True, bitdepth=16)
@@ -265,6 +282,7 @@ def extract_images(filedata, i, png_destination, flattened_to_level, failed, is1
             # Write the PNG file
             with open(pngfile, 'wb') as png_file:
                 if isRGB:
+                    image_2d_scaled = rgb_store_format(image_2d_scaled)
                     w = png.Writer(shape[1], shape[0], greyscale=False)
                 else:
                     w = png.Writer(shape[1], shape[0], greyscale=True)
