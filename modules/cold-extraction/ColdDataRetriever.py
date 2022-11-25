@@ -16,6 +16,7 @@ import random
 import string
 import itertools
 import calendar
+import pdb
 
 import pandas as pd
 import numpy as np
@@ -28,7 +29,7 @@ def initialize_config_and_execute(valuesDict):
     """
     global storescp_processes, niffler_processes, nifflerscp_str, niffler_str
     global storage_folder, file_path, csv_file, number_of_query_attributes, first_index, second_index, third_index, \
-        first_attr, second_attr, third_attr, date_format, email, send_email, system_json, mod_csv_file
+        first_attr, second_attr, third_attr, long_accession, date_format, email, send_email, system_json, mod_csv_file
     global DCM4CHE_BIN, SRC_AET, QUERY_AET, DEST_AET, NIGHTLY_ONLY, START_HOUR, END_HOUR, IS_EXTRACTION_NOT_RUNNING, \
         NIFFLER_ID, MAX_PROCESSES, SEPARATOR, cfind_add, out_folder
     global firsts, seconds, thirds, niffler_log, resume, length, t_start, cfind_only, cfind_detailed, temp_folder
@@ -43,6 +44,7 @@ def initialize_config_and_execute(valuesDict):
     first_attr = valuesDict['FirstAttr']
     second_attr = valuesDict['SecondAttr']
     third_attr = valuesDict['ThirdAttr']
+    long_accession = valuesDict['LongAccession']
     date_format = valuesDict['DateFormat']
     email = valuesDict['YourEmail']
     send_email = bool(valuesDict['SendEmail'])
@@ -188,11 +190,12 @@ def get_all_dates_given_month(string_val):
     delta = last_date-first_date
     return (list(first_date+datetime.timedelta(days=i) for i in range(delta.days + 1)))
 
-def handle_study_month(file_path):
-    
-    df = pd.read_csv(file_path)
+def create_mod_csv_file(csv_filepath):
+    """
+    Handles and converts StudyMonth attribute to StudyDate.
+    """
+    df = pd.read_csv(csv_filepath)
     if 'StudyMonth' in df.columns:
-
         for i in range(len(df)):
             df['StudyMonth'][i] = get_all_dates_given_month(str(df['StudyMonth'][i]))
 
@@ -211,6 +214,12 @@ def handle_study_month(file_path):
         mod_df['StudyMonth'] = pd.to_datetime(mod_df['StudyMonth'], format='%Y-%m-%d')
         mod_df = mod_df.rename(columns={'StudyMonth':'StudyDate'})
         return (mod_df)
+    # To Do - Refactor the following code snippet without "for loop".
+    if 'AccessionNumber' in df.columns:
+        for i in range(len(df)):
+            if (len(df['AccessionNumber'][i]) > 16) and long_accession:
+                df['AccessionNumber'][i] = df['AccessionNumber'][i][0:7]+df['AccessionNumber'][i][9:]
+        return (df)
     else:
         return (df)
 
@@ -219,7 +228,7 @@ def read_csv():
     Read and parse the user provided csv file.
     """
     global length
-    df = handle_study_month(mod_csv_file)
+    df = create_mod_csv_file(mod_csv_file)
     df.to_csv(mod_csv_file, index=False)
     with open(mod_csv_file, newline='') as f:
         reader = csv.reader(f)
@@ -364,8 +373,7 @@ def retrieve():
                     else:
                         subprocess.call("{0}/movescu -c {1} -b {2} -M PatientRoot -m PatientID={3} "
                                         "-m AccessionNumber={4} --dest {5}".format(DCM4CHE_BIN, SRC_AET, QUERY_AET,
-                                                                                   patient, accession, DEST_AET),
-                                        shell=True)
+                                                                                   patient, accession, DEST_AET), shell=True)
                     extracted_ones.append(temp_id)
             merge_temp_files()
 
@@ -587,6 +595,8 @@ if __name__ == "__main__":
     ap.add_argument("--ThirdIndex", default=config['ThirdIndex'], type=int,
                     help="Set the CSV column index of third index query attribute. "
                          "Required only if the number of query attributes is 3")
+    ap.add_argument("--LongAccession", default=config['ThirdIndex'], type=bool,
+                    help="Allows Long Accession Numbers to be converted to default Acessions. Default true")
     ap.add_argument("--DateFormat", default=config['DateFormat'],
                     help="DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. Refer Readme.md.")
     ap.add_argument("--SendEmail", default=config['SendEmail'], type=bool,
