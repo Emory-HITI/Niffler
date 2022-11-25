@@ -217,7 +217,7 @@ def create_mod_csv_file(csv_filepath):
     # To Do - Refactor the following code snippet without "for loop".
     if 'AccessionNumber' in df.columns:
         for i in range(len(df)):
-            if (len(df['AccessionNumber'][i]) > 16) and long_accession:
+            if (len(str(df['AccessionNumber'][i])) > 16) and long_accession:
                 df['AccessionNumber'][i] = df['AccessionNumber'][i][0:7]+df['AccessionNumber'][i][9:]
         return (df)
     else:
