@@ -595,7 +595,7 @@ if __name__ == "__main__":
     ap.add_argument("--ThirdIndex", default=config['ThirdIndex'], type=int,
                     help="Set the CSV column index of third index query attribute. "
                          "Required only if the number of query attributes is 3")
-    ap.add_argument("--LongAccession", default=config['ThirdIndex'], type=bool,
+    ap.add_argument("--LongAccession", default=config['LongAccession'], type=bool,
                     help="Allows Long Accession Numbers to be converted to default Acessions. Default true")
     ap.add_argument("--DateFormat", default=config['DateFormat'],
                     help="DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. Refer Readme.md.")
