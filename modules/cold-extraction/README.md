@@ -26,7 +26,7 @@ system.json entries are to be set *only once* for the Niffler deployment by the 
 * *DestAet*:   Set the correct AET of the detination AET. Must match the AET of the storescp.
 
 * *NightlyOnly*: This is set to _true_ by default. Setting it to _false_ will make Niffler on-demand extraction run at any time.
-	
+
 * *StartHour*: When a night-only mode is enabled, when should the extraction start. A rough 24 hour time (hours only), calculated by the hour. Not an exact time.
 
 * *EndHour*: When should the extraction end, when the night-mode is enabled. By default, the start hour is 19 and end hour is 7.
@@ -67,7 +67,7 @@ AAAAA,BBBBBYYBBBBB
 AAAAA,BBBBBYYBBBBB
 AAAAA,BBBBBYYBBBBB
 
-* Make sure the accession's year is in the YY format.
+* Make sure the accession's year is in the YY format while the *LongAccession* flag is set to *false* and the year can be in YYYY format while the *LongAccession* flag is set to *true*.
 
 [3]
 PatientID,AccessionNumber,StudyDate
@@ -121,6 +121,8 @@ Please refer to the DICOM standards to ensure you spell the [DICOM keyword](http
 * *ThirdAttr*: Which should be the third attribute. By default, "StudyDate". This field is ignored when NumberOfQueryAttributes is 1 or 2.
 
 * *ThirdIndex*: Set the CSV column index of third Attribute. By default, 2. This field is ignored when NumberOfQueryAttributes is 1 or 2.
+
+* *LongAccession*: Setting this parameter to true allows to handle long accession numbers of format YYYY. The default is false.
 
 * *DateFormat*: DateFormat can range from %Y%m%d, %m/%d/%y, %m-%d-%y, %%m%d%y, etc. This field is ignored for extractions that do not use a Date as one of their extraction attributes. We have tested with StudyDate. Leave this entry unmodified for such cases. The default is %Y%m%d and works for most cases. When using StudyMonth attribute, the default is %Y-%m-%d.
 
@@ -208,6 +210,45 @@ To activate, use the below value,
 	"FilePath": "CFIND-DETAILED",
 ```
 
+# Setting up an Orthanc Server
+
+[Orthanc] (https://www.orthanc-server.com/) is an Open-source, lightweight and standalone DICOM Server which enables to convert any machine into a DICOM store (in other words, a mini-PACS system). The Orthanc Framework is supported by all major Operating Systems including Windows, Linux and MacOS.
+
+1. Downloading Orthanc
+- **Windows**: https://www.orthanc-server.com/download.php
+- **Linux**: sudo apt-get install orthanc
+- **MacOS**: https://www.orthanc-server.com/static.php?page=download-mac
+
+2. Locating Configuration file
+- Windows 
+  - Go to "Orthanc Server" folder that was downloaded
+  - Configuration file in named as *Orthanc* in this folder
+- Linux and MacOS
+  - Enter the following command: ```Orthanc --config=Configuration.json ```
+  - Configuration file will be saved with the name *Configuration.json* in the present working directory.
+
+The following steps do not depend on the underlying Operating System.
+
+3. Modify the Configuration file
+- The values of DICOMModalities ("sample" : [ "STORESCP", "127.0.0.1", 2000 ]) should be changed to [AET, IP Address, Port Number]
+  - **AET**: AET is the same as "QueryAET" from system.json in the cold extraction module
+  - **IP Address**: IP Address of the server in which Niffler is running. If Orthanc is being hosted on the local machine, this value can be set to - 127.0.0.1
+  - **Port Number**: Enter any port number (usually 4 digits).
+- The values of RemoteAccessAllowed is to be set to *true*.
+
+4. Uploading DICOM Files
+- Open the Orthanc Server at 127.0.0.1:8042 (if the server is hosted on a server, use the ip address of server instead of 127.0.0.1) in a web browser.
+- Upload the DICOM files. The uploaded files could be verified at *All Studies*.
+
+5. Modify the system.json
+- **SrcAET**: "ORTHANC@IPAddress:4242" (IP Address of the hosting system, 127.0.0.1 if the server is being hosted locally)
+- **QueryAET**: "AET:8080" (AET from point-3. In this case - "niffler")
+- **DestAET**: "AET" (In this case - "niffler")
+
+6. Run and test the server
+- Running the Configuration file through ```./Orthanc Configuration.json``` command will start the Orthanc Server.
+- Modify the config.json as per the above instructions. Create a csv file with the information to be used for extraction and run the cold extraction module in Niffler to test the Orthanc Server.
+  
 # Troubleshooting
 
 If the process fails even when no one else's Niffler process is running, check your log file (UNIQUE-OUTPUT-FILE-FOR-YOUR-EXTRACTION.out)
