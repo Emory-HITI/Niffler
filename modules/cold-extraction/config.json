@@ -10,6 +10,7 @@
 	"SecondIndex": 5,
 	"ThirdAttr": "StudyDate",
 	"ThirdIndex": 3,
+	"LongAccession": false,
 	"DateFormat": "%Y%m%d",
 	"SendEmail": true,
 	"YourEmail": "test@test.test"
