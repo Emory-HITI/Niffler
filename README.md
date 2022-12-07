@@ -56,6 +56,8 @@ Both meta-extraction and cold-extraction modules require proper configuration of
 
 If you use Niffler in your research, please cite the below papers:
 
-* Pradeeban Kathiravelu, Puneet Sharma, Ashish Sharma, Imon Banerjee, Hari Trivedi, Saptarshi Purkayastha, Priyanshu Sinha, Alexandre Cadrin-Chenevert, Nabile Safdar, Judy Wawira Gichoya. **A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images.** Journal of Digital Imaging (JDI). August 2021. https://doi.org/10.1007/s10278-021-00491-w
+* Pradeeban Kathiravelu, Puneet Sharma, Ashish Sharma, Imon Banerjee, Hari Trivedi, Saptarshi Purkayastha, Priyanshu Sinha, Alexandre Cadrin-Chenevert, Nabile Safdar, and Judy Wawira Gichoya. **A DICOM Framework for Machine Learning Pipelines against Real-Time Radiology Images.** Journal of Digital Imaging (JDI). August 2021. https://doi.org/10.1007/s10278-021-00491-w
 
-* Pradeeban Kathiravelu, Ashish Sharma, Puneet Sharma. **Understanding Scanner Utilization With Real-Time DICOM Metadata Extraction.** IEEE Access, 9 (2021): 10621-10633. https://doi.org/10.1109/ACCESS.2021.3050467
+* Pradeeban Kathiravelu, Ashish Sharma, and Puneet Sharma. **Understanding Scanner Utilization With Real-Time DICOM Metadata Extraction.** IEEE Access, 9 (2021): 10621-10633. https://doi.org/10.1109/ACCESS.2021.3050467
+
+* Pradeeban Kathiravelu, Nan Li, Nishchal Singi, Ananth Reddy Bhimireddy, Ryan Birmingham, Judy Wawira Gichoya, Hari Trivedi, Nabile Safdar, Ashish Sharma, and Puneet Sharma. **Visualizing Scanner Utilization from MRI Metadata and Clinical Data.** IEEE Computer. Accepted. 2022 December.
