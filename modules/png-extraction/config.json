@@ -1,15 +1,15 @@
 {
-	"DICOMHome": "/opt/data/new-study",
-	"OutputDirectory": "/opt/data/new-study/root",
-	"Depth": 0,
-	"SplitIntoChunks": 1,
+	"DICOMHome": "/home/zzaiman/working_zz/CXR_AGE/FullCohortExtraction/Cohorts/2019/cold_extraction",
+	"OutputDirectory": "/home/zzaiman/working_zz/CXR_AGE/FullCohortExtraction/Cohorts/2019/meta_extraction",
+	"Depth": 3,
+	"SplitIntoChunks": 20,
 	"PrintImages": true,
 	"CommonHeadersOnly": false,
 	"PublicHeadersOnly": true,
 	"SpecificHeadersOnly": false,
 	"UseProcesses": 0,
-	"FlattenedToLevel": "patient",
+	"FlattenedToLevel": "series",
 	"is16Bit":true,
 	"SendEmail": true,
-	"YourEmail": "test@test.test"
+	"YourEmail": "zzaiman@emory.edu"
 }

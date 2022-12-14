@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 import pydicom as dicom
 import png
-# pydicom imports needed to handle data errors
+# pydicom imports needed to handle data errors. 
 from pydicom import config
 from pydicom import datadict
 from pydicom import values
@@ -63,7 +63,7 @@ def initialize_config_and_execute(config_values):
         lines = f.readlines()
         keep_header_list.extend(lines)
 
-    p7 = pathlib.PurePath(configs['IgnoreDescriptionPath'])
+    p7 = pathlib.PurePath(configs['IgnoreDescPath'])
     ignore_desc_path = p7.as_posix()
 
     ignoreDesc = []
@@ -90,6 +90,7 @@ def initialize_config_and_execute(config_values):
     dicom_anon_destination = output_directory + '/dicom-anon/'
     failed = output_directory + '/failed-dicom/'
     meta_directory = output_directory + '/meta/'
+    metas = glob.glob("{}*.csv".format(meta_directory))
 
     LOG_FILENAME = output_directory + '/ImageExtractor.out'
     pickle_file = output_directory + '/ImageExtractor.pickle'
@@ -160,7 +161,7 @@ def get_tuples(plan, PublicHeadersOnly, outlist=None, key=""):
                     newkey = "_".join([key, ("%d" % nn), aa]) if len(key) else "_".join([("%d" % nn), aa])
                     candidate = get_tuples(ss, PublicHeadersOnly, outlist=None, key=newkey)
                     # if extracted tuples are too big condense to a string
-                    if len(candidate) > 2000:
+                    if len(candidate) > 300:
                         outlist.append((newkey, str(candidate)))
                     else:
                         outlist.extend(candidate)
@@ -229,46 +230,47 @@ def extract_headers(plan, filepath, PublicHeadersOnly, output_directory):
 # filemapping: dicom to png paths   (as str)
 # fail_path: dicom to failed folder (as tuple)
 # found_err: error code produced when processing
-def extract_images(ds, headers, png_destination, flattened_to_level, failed, is16Bit, mammo):
+def extract_images(ds, headers, png_destination, flattened_to_level, failed, is16Bit, mammo, anon_path):
     found_err = None
     filemapping = ""
     fail_path = ""
+
     try:
         im = ds.pixel_array  # pull image from read dicom
-        imName = os.path.split(headers['original_dicom_path'])[1][:-4]  # get file name ex: IM-0107-0022
+        anon_path_spl = anon_path[:-4].split('/')
 
         if flattened_to_level == 'patient':
-            ID = headers['PatientID']  # Unique identifier for the Patient.
-            folderName = hashlib.sha224(ID.encode('utf-8')).hexdigest()
+            ID = anon_path_spl[-4]  # Unique identifier for the Patient.
+            folderName = ID
             # check for existence of patient folder. Create if it does not exist.
             os.makedirs(png_destination + folderName, exist_ok=True)
         elif flattened_to_level == 'study':
-            ID1 = headers['PatientID']  # Unique identifier for the Patient.
+            ID1 = anon_path_spl[-4]  # Unique identifier for the Patient.
             try:
-                ID2 = headers['StudyInstanceUID']  # Unique identifier for the Study.
+                ID2 = anon_path_spl[-3]  # Unique identifier for the Study.
             except:
                 ID2 = 'ALL-STUDIES'
-            folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
-                         hashlib.sha224(ID2.encode('utf-8')).hexdigest()
+            folderName = ID1 + "/" + \
+                         ID2
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(png_destination + folderName, exist_ok=True)
         else:
-            ID1 = headers['PatientID']  # Unique identifier for the Patient.
+            ID1 = anon_path_spl[-4]  # Unique identifier for the Patient.
             try:
-                ID2 = headers['StudyInstanceUID']  # Unique identifier for the Study.
-                ID3 = headers['SeriesInstanceUID']  # Unique identifier of the Series.
+                ID2 = anon_path_spl[-3]  # Unique identifier for the Study.
+                ID3 = anon_path_spl[-2]  # Unique identifier of the Series.
             except:
                 ID2 = 'ALL-STUDIES'
                 ID3 = 'ALL-SERIES'
-            folderName = hashlib.sha224(ID1.encode('utf-8')).hexdigest() + "/" + \
-                         hashlib.sha224(ID2.encode('utf-8')).hexdigest() + "/" + \
-                         hashlib.sha224(ID3.encode('utf-8')).hexdigest()
+            folderName = ID1 + "/" + \
+                         ID2 + "/" + \
+                         ID3
             # check for existence of the folder tree patient/study/series. Create if it does not exist.
             os.makedirs(png_destination + folderName, exist_ok=True)
 
-        pngfile = png_destination + folderName + '/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
+        pngfile = png_destination + folderName + '/' + anon_path_spl[-1] + '.png'
         dicom_path = headers['original_dicom_path']
-        image_path = png_destination + folderName + '/' + hashlib.sha224(imName.encode('utf-8')).hexdigest() + '.png'
+        image_path = png_destination + folderName + '/' + anon_path_spl[-1] + '.png'
         isRGB = headers['PhotometricInterpretation'] == 'RGB'
 
 
@@ -392,7 +394,12 @@ def execute(Anon, pickle_file, dicom_home, output_directory, print_png, print_di
     err = None
 
     # Create dicom anonymization object.
-    dcma = DICOMAnon(Anon, depth+1, dicom_anon_destination, ignoreDesc)
+    depth_mapping = {'patient' : 1, 'study' : 2, 'series' : 3}
+    if flattened_to_level not in depth_mapping.keys():
+        raise ValueError(f"Invalid flattened to level parameter {flattened_to_level}. Please use one of {depth_mapping.keys()}")
+
+
+    dcma = DICOMAnon(Anon, depth_mapping[flattened_to_level]+1, dicom_anon_destination, ignoreDesc)
 
 
     fix_mismatch()
@@ -451,11 +458,20 @@ def execute(Anon, pickle_file, dicom_home, output_directory, print_png, print_di
         for filepath in chunk:
             plan = dicom.dcmread(filepath, force=True)
             headers = extract_headers(plan, filepath, PublicHeadersOnly, output_directory)
+            
+            # Always anonymize dicom in memory to anonymize keys in the MK but use the flag to determine whether to save.
+            try:
+                anon_path = dcma.run(plan, print_dicom)
+                if anon_path is not None and print_dicom:
+                    headers['anon_dicom_path'] = anon_path
+            except Exception as e:
+                logging.error(e)
+                continue
 
             if print_png:
                 if (headers['original_dicom_path'] is not np.nan):
                     (fmap, fail_path, err) = extract_images(plan, headers, png_destination, flattened_to_level, failed,
-                                                            is16Bit, mammo)
+                                                            is16Bit, mammo, anon_path)
                     if err:
                         count += 1
                         copyfile(fail_path[0], fail_path[1])
@@ -463,15 +479,6 @@ def execute(Anon, pickle_file, dicom_home, output_directory, print_png, print_di
                         logging.error(err_msg)
                     else:
                         headers['png_path'] = fmap
-            
-            if print_dicom:
-                try:
-                    anon_path = dcma.run(plan)
-                    if anon_path is not None:
-                        headers['anon_dicom_path'] = anon_path
-                except Exception as e:
-                    logging.error(e)
-                    continue
 
             headerlist.append(headers)
         
@@ -541,17 +548,18 @@ def execute(Anon, pickle_file, dicom_home, output_directory, print_png, print_di
             m = pd.read_csv(meta, dtype='str', usecols=loadable_names)
             meta_list.append(m)
         merged_meta = pd.concat(meta_list, ignore_index=True)
-
-    # merging_meta
-    merged_meta = pd.DataFrame()
-    for meta in metas:
-        m = pd.read_csv(meta, dtype='str')
-        merged_meta = pd.concat([merged_meta, m], ignore_index=True)
-    # for only common header
-    if print_only_common_headers:
-        mask_common_fields = merged_meta.isnull().mean() < 0.1
-        common_fields = list(np.asarray(merged_meta.columns)[mask_common_fields])
-        merged_meta = merged_meta[common_fields]
+    
+    else:
+        # merging_meta
+        merged_meta = pd.DataFrame()
+        for meta in metas:
+            m = pd.read_csv(meta, dtype='str')
+            merged_meta = pd.concat([merged_meta, m], ignore_index=True)
+        # for only common header
+        if print_only_common_headers:
+            mask_common_fields = merged_meta.isnull().mean() < 0.1
+            common_fields = list(np.asarray(merged_meta.columns)[mask_common_fields])
+            merged_meta = merged_meta[common_fields]
 
     merged_meta.to_csv('{}/metadata.csv'.format(output_directory), index=False)
     
@@ -593,6 +601,7 @@ if __name__ == "__main__":
     ap.add_argument("--PrintPng", default=niffler['PrintPng'])
     ap.add_argument("--PrintDicom", default=niffler['PrintDicom'])
     ap.add_argument("--Mammo", default=niffler['Mammo'])
+    ap.add_argument("--IgnoreDescPath", default=niffler['IgnoreDescPath'])
     ap.add_argument("--CommonHeadersOnly", default=niffler['CommonHeadersOnly'])
     ap.add_argument("--PublicHeadersOnly", default=niffler['PublicHeadersOnly'])
     ap.add_argument("--SpecificHeadersOnly", default=niffler['SpecificHeadersOnly'])
