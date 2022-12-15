@@ -519,12 +519,12 @@ def execute(pickle_file, dicom_home, output_directory, print_images, print_only_
             m = pd.read_csv(meta, dtype='str', usecols=loadable_names)
             meta_list.append(m)
         merged_meta = pd.concat(meta_list, ignore_index=True)
-
-    # merging_meta
-    merged_meta = pd.DataFrame()
-    for meta in metas:
-        m = pd.read_csv(meta, dtype='str')
-        merged_meta = pd.concat([merged_meta, m], ignore_index=True)
+    else:
+        # merging_meta
+        merged_meta = pd.DataFrame()
+        for meta in metas:
+            m = pd.read_csv(meta, dtype='str')
+            merged_meta = pd.concat([merged_meta, m], ignore_index=True)
     # for only common header
     if print_only_common_headers:
         mask_common_fields = merged_meta.isnull().mean() < 0.1
