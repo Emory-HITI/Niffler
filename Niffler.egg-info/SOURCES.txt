@@ -1,0 +1,10 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+Niffler.egg-info/PKG-INFO
+Niffler.egg-info/SOURCES.txt
+Niffler.egg-info/dependency_links.txt
+Niffler.egg-info/requires.txt
+Niffler.egg-info/top_level.txt
+Niffler.egg-info/zip-safe
