@@ -162,8 +162,8 @@ def initialize():
     logging.info("Number of running Niffler processes: {0} and storescp processes: {1}".format(niffler_processes,
                                                                                                storescp_processes))
 
-    query_aet = config["QueryAet"].split(":")[0]
-    dest_aet = config["DestAet"]
+    query_aet = QUERY_AET.split(":")[0]
+    dest_aet = DEST_AET
     if query_aet == dest_aet:
         logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
             datetime.datetime.now()))
