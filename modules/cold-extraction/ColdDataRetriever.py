@@ -162,22 +162,28 @@ def initialize():
     logging.info("Number of running Niffler processes: {0} and storescp processes: {1}".format(niffler_processes,
                                                                                                storescp_processes))
 
-    if niffler_processes > MAX_PROCESSES:
-        logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction "
+    query_aet = config["QueryAet"].split(":")[0]
+    dest_aet = config["DestAet"]
+    if query_aet == dest_aet:
+        logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
+            datetime.datetime.now()))
+
+        if not file_path == cfind_only and not file_path == cfind_detailed:
+            subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
+                DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
+
+    else:
+        logging.info("{0}: This is an external AE. StoreScp will be started externally".format(datetime.datetime.now()))
+        
+        if niffler_processes > MAX_PROCESSES:
+            logging.error("[EXTRACTION FAILURE] {0}: Previous {1} extractions still running. As such, your extraction "
                       "attempt was not successful this time. Please wait until those complete and re-run your"
                       " query.".format(datetime.datetime.now(), MAX_PROCESSES))
-        sys.exit(0)
+            sys.exit(0)
 
-    if storescp_processes >= niffler_processes:
-        logging.info('Killing the idling storescp processes')       
-        check_kill_process()
-
-    logging.info("{0}: StoreScp process for the current Niffler extraction is starting now".format(
-        datetime.datetime.now()))
-
-    if not file_path == cfind_only and not file_path == cfind_detailed:
-        subprocess.call("{0}/storescp --accept-unknown --directory {1} --filepath {2} -b {3} > storescp.out &".format(
-            DCM4CHE_BIN, storage_folder, file_path, QUERY_AET), shell=True)
+        if storescp_processes >= niffler_processes:
+            logging.info('Killing the idling storescp processes')       
+            check_kill_process()
 
 def get_all_dates_given_month(string_val):
     date_format = '%Y%m'
