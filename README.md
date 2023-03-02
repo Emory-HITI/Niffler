@@ -33,8 +33,14 @@ $ git checkout dev
 ```
 Finally, run the installation script for a quick installation of dependencies. 
 
+For linux use:
 ```
 $ sh install.sh
+```
+
+For macOS use:
+```
+$ sh macos_install.sh
 ```
 
 This script is written for Centos. If you are using another operating system, please go through the script and make necessary changes as the script is easy to follow.
