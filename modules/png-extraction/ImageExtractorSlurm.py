@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import subprocess
 import time 
 import pdb 
 import numpy as np
@@ -43,6 +44,8 @@ mappings= output_directory + '/mapping_'+str(task_id)+'.csv'
 LOG_FILENAME = output_directory + '/ImageExtractor_'+str(task_id)+'.out'
 pickle_file = output_directory +'/ImageExtractor.pickle'
 
+# record the start time
+t_start = time.time()
 
 if not os.path.exists(output_directory):
     os.makedirs(output_directory)
