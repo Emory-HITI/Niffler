@@ -212,7 +212,7 @@ To activate, use the below value,
 
 # Setting up an Orthanc Server
 
-[Orthanc] (https://www.orthanc-server.com/) is an Open-source, lightweight and standalone DICOM Server which enables to convert any machine into a DICOM store (in other words, a mini-PACS system). The Orthanc Framework is supported by all major Operating Systems including Windows, Linux and MacOS.
+[Orthanc](https://www.orthanc-server.com/) is an Open-source, lightweight and standalone DICOM Server which enables to convert any machine into a DICOM store (in other words, a mini-PACS system). The Orthanc Framework is supported by all major Operating Systems including Windows, Linux and MacOS.
 
 1. Downloading Orthanc
 - **Windows**: https://www.orthanc-server.com/download.php
