@@ -135,3 +135,7 @@ If you just installed conda, make sure to close and open your terminal. Then, in
 ```
 $ conda install -c conda-forge -y gdcm 
 ```
+
+If a ```MemoryError``` pops up while extracting metadata and mapping dataframes, mentioned here in the [issue - 307](https://github.com/Emory-HITI/Niffler/issues/307).
+
+Reduce the no. of DICOM datapoints in the provided cohort/iteration or increase the no. of cohorts while extracting DICOMs through Cold Extraction.

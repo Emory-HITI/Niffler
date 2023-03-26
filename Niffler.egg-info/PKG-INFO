@@ -1,3 +1,18 @@
+Metadata-Version: 2.1
+Name: Niffler
+Version: 0.9.3
+Summary: Niffler: A DICOM Framework for Machine Learning and Processing Pipelines.
+Home-page: https://github.com/Emory-HITI/Niffler
+Author: Soham Mulye
+Author-email: mulyesoham@gmail.com
+Project-URL: Bug Tracker, https://github.com/Emory-HITI/Niffler/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+License-File: LICENSE
+
 # Niffler: A DICOM Framework for Machine Learning and Processing Pipelines.
 
 Niffler is a lightweight framework to facilitate executing machine learning pipelines and processing workflows on DICOM images and metadata. Niffler facilitates efficient transfer of DICOM images on-demand and real-time from PACS to the research environments. Niffler is also integrated with the radiology information system (RIS) to get clinical data in real-time. The DICOM images from the PACS and clinical data retrieved from the RIS can be used in conjunction in real-time as well as retrospectively on-demand.
@@ -33,14 +48,8 @@ $ git checkout dev
 ```
 Finally, run the installation script for a quick installation of dependencies. 
 
-For linux use:
 ```
 $ sh install.sh
-```
-
-For macOS use:
-```
-$ sh macos_install.sh
 ```
 
 This script is written for Centos. If you are using another operating system, please go through the script and make necessary changes as the script is easy to follow.
