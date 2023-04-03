@@ -345,3 +345,28 @@ nohup /opt/dcm4che-5.22.5/bin/movescu -c "AE_ARCH2@xx.yy.ww.zz:104" -b "QBNIFFLE
 
 If the testing with DCM4CHE as above does not work, that is an issue likely with your PACS configuration to send DICOM data to your endpoint. Please get the above to work first in that case before attempting the execution with Niffler.
 
+## Using Docker
+
+To use as a docker container, first navigate to this directory (`modules/cold-extraction`) and build the image.
+
+```
+cd modules/cold-extraction
+docker build -t niffler/cold-extraction .
+```
+
+Then, run using the image tag used above.
+
+```
+docker run --network pacs_network --rm niffler/cold-extraction
+```
+
+Replace `pacs_network` with the docker network where the PACS is reachable.
+
+When the configuration or system JSON, as well as the CSV files change, either rebuild the image or mount as a volume before running the container.
+
+For ease, a docker compose file is also included. After configuring the volumes, networks, and everything else on the `docker-compose.yml` file, simply run:
+
+```
+docker compose up
+```
+
