@@ -1,2 +1,4 @@
 schedule
 pandas
+pynetdicom
+pydicom
