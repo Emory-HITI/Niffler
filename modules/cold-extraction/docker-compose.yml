@@ -9,5 +9,3 @@ services:
     - ./storage:/opt/data/new-study
     networks:
       - default
-  orthancc:
-    image:  jodogne/orthanc-plugins:1.11.0
