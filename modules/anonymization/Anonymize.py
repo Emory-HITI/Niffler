@@ -49,22 +49,19 @@ def initialize_config_and_execute(config_values):
     p3 = pathlib.PurePath(configs['MasterKeyPath'])
     mk_path = p3.as_posix()
 
-    p4 = pathlib.PurePath(configs['WhiteListPath'])
-    whitelist_path = p4.as_posix()
+    p4 = pathlib.PurePath(configs['DicomTagDictPath'])
+    tag_dict_path = p4.as_posix()
 
-    p5 = pathlib.PurePath(configs['DicomTagDictPath'])
-    tag_dict_path = p5.as_posix()
-
-    p6 = pathlib.PurePath(configs['KeepHeaderListPath'])
-    keep_header_list_path = p6.as_posix()
+    p5 = pathlib.PurePath(configs['KeepHeaderListPath'])
+    keep_header_list_path = p5.as_posix()
 
     keep_header_list = []
     with open(keep_header_list_path, 'r') as f:
         lines = f.readlines()
         keep_header_list.extend(lines)
 
-    p7 = pathlib.PurePath(configs['IgnoreDescPath'])
-    ignore_desc_path = p7.as_posix()
+    p6 = pathlib.PurePath(configs['IgnoreDescPath'])
+    ignore_desc_path = p6.as_posix()
 
     ignoreDesc = []
     with open(ignore_desc_path, 'r') as f:
@@ -131,7 +128,7 @@ def initialize_config_and_execute(config_values):
         os.makedirs(failed + "/5")
 
     # Load the Master Key
-    Anon = EmoryAnon(mk_path, whitelist_path, tag_dict_path)
+    Anon = EmoryAnon(mk_path, tag_dict_path)
     
     logging.info("------- Values Initialization DONE -------")
     final_res = execute(Anon, pickle_file, dicom_home, output_directory, print_png, print_dicom, print_only_common_headers, depth,
@@ -594,7 +591,6 @@ if __name__ == "__main__":
     ap.add_argument("--DICOMHome", default=niffler['DICOMHome'])
     ap.add_argument("--OutputDirectory", default=niffler['OutputDirectory'])
     ap.add_argument("--MasterKeyPath", default=niffler['MasterKeyPath'])
-    ap.add_argument("--WhiteListPath", default=niffler['WhiteListPath'])
     ap.add_argument("--DicomTagDictPath", default=niffler['DicomTagDictPath'])
     ap.add_argument("--Depth", default=niffler['Depth'])
     ap.add_argument("--BatchSize", default=niffler['BatchSize'])
