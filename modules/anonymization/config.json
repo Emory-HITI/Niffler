@@ -1,21 +1,20 @@
 {
-	"DICOMHome": "/home/zzaiman/working_zz/BrainHealth/cold_extraction",
-	"OutputDirectory": "/home/zzaiman/working_zz/BrainHealth/anon_pipeline",
+	"DICOMHome": "/PATH/TO/DICOM/DIR/",
+	"OutputDirectory": "/PATH/TO/OUTPUT/DIR/",
 	"MasterKeyPath" : "/home/Anonymization/PHIAnon",
-	"WhiteListPath" : "/home/Anonymization/textAnon/whitelist.csv",
 	"DicomTagDictPath" : "DICOMTagDict.csv",
 	"IgnoreDescPath" : "ignore.txt",
 	"Depth": 3,
 	"BatchSize": 100000,
 	"PrintPng": false,
-	"PrintDicom" : false,
+	"PrintDicom" : true,
 	"Mammo" : false,
 	"CommonHeadersOnly": true,
 	"PublicHeadersOnly": true,
 	"SpecificHeadersOnly": false,
 	"FlattenedToLevel": "series",
 	"is16Bit":true,
-	"SendEmail": true,
+	"SendEmail": false,
 	"KeepHeaderListPath" : "keepheaderlist.txt",
-	"YourEmail": "zzaiman@emory.edu"
+	"YourEmail": ""
 }
