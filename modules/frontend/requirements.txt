@@ -1,7 +1,7 @@
 bidict==0.21.2
 click==8.0.1
 colorama==0.4.4
-Flask==2.0.1
+Flask==2.2.5
 Flask-Login==0.5.0
 Flask-SocketIO==4.3.2
 Flask-SQLAlchemy==2.5.1
