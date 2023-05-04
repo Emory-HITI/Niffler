@@ -1,0 +1,11 @@
+version: '3.1'
+services:
+  niffler-cold-extraction:
+    build: .
+    volumes:
+    - ./config.json:/usr/src/niffler-cold-extraction/config.json
+    - ./system.json:/usr/src/niffler-cold-extraction/system.json
+    - ./csv/:/usr/src/niffler-cold-extraction/csv/
+    - ./storage:/opt/data/new-study
+    networks:
+      - default

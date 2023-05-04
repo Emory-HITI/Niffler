@@ -1,0 +1,11 @@
+version: '3'
+services:
+  niffler-meta-extraction:
+    build: .
+    environment:
+      MONGO_URI: user:password@mongo:27017
+  mongo:
+    image: mongo:5.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: password
