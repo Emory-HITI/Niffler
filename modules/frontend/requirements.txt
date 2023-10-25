@@ -22,4 +22,4 @@ schedule==1.1.0
 six==1.16.0
 SQLAlchemy==1.4.18
 sqlparse==0.4.4
-Werkzeug==2.2.3
+Werkzeug==3.0.1
